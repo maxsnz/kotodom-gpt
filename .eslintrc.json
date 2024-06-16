@@ -1,0 +1,122 @@
+{
+  "extends": [
+    "airbnb",
+    "airbnb-typescript",
+    "airbnb/hooks",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin/src/configs#recommended-requiring-type-checking
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    // makes `import from` order consistent for better git merging: 2 concurrent branches will have imports in the same order.
+    "plugin:import/recommended",
+    "plugin:import/typescript",
+    // create-react-app uses it under the hood
+    "react-app",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["sort-keys-fix"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": ["./tsconfig.json", "./src/tsconfig.json"]
+  },
+  "rules": {
+    // T[] looks cleaner but complex types should be like Array<T|F>
+    "@typescript-eslint/array-type": [
+      "error",
+      { "default": "array-simple" }
+    ],
+    // makes typescript checks more strict
+    "@typescript-eslint/method-signature-style": [
+      "error",
+      "property"
+    ],
+    // `!` is forbidden (questionable, maybe it should be just warn?)
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/restrict-plus-operands": "error",
+    "@typescript-eslint/sort-type-union-intersection-members": "error",
+    "@typescript-eslint/switch-exhaustiveness-check": "error",
+    // a good rule, but we often has placeholder async functions during development, plus Typescript guards as enough
+    "@typescript-eslint/require-await": "off",
+    "react/function-component-definition": "off",
+
+    // in these files we often use devDependencies and it is ok
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": [
+          "**/*.stories.ts",
+          "**/*.stories.tsx",
+          "**/*.test.ts",
+          "**/*.spec.ts",
+          "**/*.test.tsx",
+          "**/*.spec.tsx"
+        ]
+      }
+    ],
+
+    // because of this plugin we have consistent `import from` order and it is easier to merge without conflicts
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index",
+          "object"
+        ]
+      }
+    ],
+
+    "@typescript-eslint/naming-convention": "off",
+
+    "import/no-anonymous-default-export": "off",
+
+    "no-underscore-dangle": [
+      "error",
+      { "allow": ["__filename", "__dirname"] }
+    ],
+
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+
+    // During development, we often have one import at the beginning and several later.
+    // It is annoying to have this rule enabled.
+    "import/prefer-default-export": "off",
+
+    // prefer smaller files (Questionable, maybe `warn` is better)
+    "max-lines": ["error", 300],
+
+    // usually we use `console.error` but should show a message to a user. And we should avoid console.log in prod.
+    "no-console": "warn",
+    // important! This rule catches bugs for sure.
+    "react-hooks/exhaustive-deps": "error",
+
+    // important! This rule catches bugs for sure.
+    "react-hooks/rules-of-hooks": "error",
+
+    "react/jsx-sort-props": "error",
+
+    // modern versions of React do not need this anymore
+    "react/react-in-jsx-scope": "off",
+
+    // The following rule is unnecessary or might conflict with Prettier. Check `yarn prettier:check`
+    "react/jsx-wrap-multilines": ["off"],
+
+    // we use typescript, we do not need runtime checks like `prop-types`
+    "react/prop-types": "off",
+
+    // provides not much benefits for us, it would has sense in case of using propTypes
+    "react/require-default-props": "off",
+
+    "sort-keys-fix/sort-keys-fix": "error",
+
+    // it is ugly
+    "space-before-function-paren": "off",
+
+    // a good rule, but we want to (and we do) bypass this rule often and it makes the rule worthless.
+    "react/jsx-props-no-spreading": "off"
+  }
+}
