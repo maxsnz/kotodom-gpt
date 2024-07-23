@@ -13,6 +13,7 @@ datasource db {
 model User {
   id    Int     @id
   username  String?
+  name String?
   fullName  String?
   chats Chat[]
   createdAt DateTime @default(now())
@@ -57,4 +58,5 @@ model Chat {
   createdAt DateTime @default(now())
   user    User    @relation(fields: [userId], references: [id])
   userId  Int
+  name String?
 }

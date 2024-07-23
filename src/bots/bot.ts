@@ -15,24 +15,21 @@ interface MessageChat {
 }
 
 const getUserName = (messageChat: MessageChat) => {
-  let username = "";
+  let name = "";
   const { first_name, last_name } = messageChat;
   if (messageChat.first_name) {
     // username = `${username} ${chat.first_name}`;
-    username = `${first_name}`;
+    name = `${first_name}`;
   }
   if (last_name) {
-    username =
-      username.length > 0
-        ? `${username} ${last_name}`
-        : `${last_name}`;
+    name = name.length > 0 ? `${name} ${last_name}` : `${last_name}`;
   }
 
   if (!first_name && !last_name) {
-    username = "Инкогнито";
+    name = "Инкогнито";
   }
 
-  return username;
+  return name;
 };
 
 const findOrCreateUser = async (
@@ -50,7 +47,7 @@ const findOrCreateUser = async (
     return await prisma.user.create({
       data: {
         id,
-        username: messageChat.username,
+        name: messageChat.username,
         fullName,
         createdAt: new Date(),
       },
@@ -60,7 +57,12 @@ const findOrCreateUser = async (
   return user;
 };
 
-const findOrCreateChat = async (id: string, userId: number) => {
+const findOrCreateChat = async (
+  id: string,
+  userId: number,
+  name: string,
+  botName: string,
+) => {
   const chat = await prisma.chat.findFirst({
     where: {
       id,
@@ -77,6 +79,22 @@ const findOrCreateChat = async (id: string, userId: number) => {
         createdAt: new Date(),
         userId,
         threadId,
+        name: `${name} vs ${botName}`,
+      },
+    });
+  }
+
+  if (!chat.threadId) {
+    const thread = await gpt.instance.beta.threads.create();
+    const threadId = thread.id;
+
+    return await prisma.chat.update({
+      where: {
+        id,
+      },
+      data: {
+        threadId,
+        name: `${name} vs ${botName}`,
       },
     });
   }
@@ -118,8 +136,50 @@ export class TgBot {
 
         await ctx.sendChatAction("typing");
 
-        const chat = await findOrCreateChat(chatId, tgUserID);
+        const chat = await findOrCreateChat(
+          chatId,
+          tgUserID,
+          user.name || user.username || user.fullName || "Unknown",
+          bot.name,
+        );
         let threadId = chat.threadId;
+
+        if (messageText === "/start") {
+          await ctx.reply(
+            bot.startMessage || "Hi, I'm a bot. How can I help you?",
+          );
+          return;
+        }
+
+        if (messageText === "/help") {
+          await ctx.reply(
+            `
+/start - Start the bot
+/help - Show this message
+/refresh - Forget current thread
+            `,
+          );
+          return;
+        }
+
+        if (messageText === "/refresh") {
+          const chat = await prisma.chat.findFirst({
+            where: {
+              id: chatId,
+            },
+          });
+          console.log("chat", chat);
+          await prisma.chat.update({
+            where: {
+              id: chatId,
+            },
+            data: {
+              threadId: "",
+            },
+          });
+          await ctx.reply("success");
+          return;
+        }
 
         const message = await prisma.message.create({
           data: {
@@ -129,13 +189,6 @@ export class TgBot {
             createdAt: new Date(),
           },
         });
-
-        if (messageText === "/start") {
-          await ctx.reply(
-            bot.startMessage || "Hi, I'm a bot. How can I help you?",
-          );
-          return;
-        }
 
         const answer = await getAnswer(
           bot.assistantId,

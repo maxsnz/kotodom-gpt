@@ -134,7 +134,13 @@ export const adminOptions = {
     },
     {
       resource: { model: getModelByName("Message"), client: prisma },
-      options: {},
+      options: {
+        listProperties: ["createdAt", "text"],
+        sort: {
+          sortBy: "createdAt",
+          direction: "desc",
+        },
+      },
     },
     {
       resource: { model: getModelByName("Setting"), client: prisma },
