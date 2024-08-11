@@ -133,6 +133,9 @@ export class TgBot {
         console.log("-------------------");
         console.log(`${getCurrentTime()}`);
         console.log(`[${fullName}]: ${messageText}`);
+        const logMessageFromUser = await this.sendLogMessage(
+          `[@${user.username}]: ${messageText}`,
+        );
 
         await ctx.sendChatAction("typing");
 
@@ -196,6 +199,7 @@ export class TgBot {
           messageText,
         );
         console.log(`[${bot.name}]: ${answer}`);
+        this.sendLogMessage(answer, logMessageFromUser?.message_id);
 
         const answerMessage = await prisma.message.create({
           data: {
@@ -215,8 +219,36 @@ export class TgBot {
           bot.errorMessage ||
             "Sorry, error occurred. Please try again later.",
         );
+        if (e instanceof Error) {
+          console.error(e.message);
+          this.sendLogMessage(`${e.name}
+------------
+${e.message}
+------------
+${e.stack}`);
+        }
       }
     });
+  }
+
+  async sendLogMessage(message: string, replyToMessageId?: number) {
+    const chatId = (
+      await prisma.setting.findUnique({
+        where: { id: "telegramLogChatId" },
+      })
+    )?.value;
+
+    if (!chatId) return;
+
+    // eslint-disable-next-line consistent-return
+    // return sendMessage(message, token, chatId);
+    try {
+      return this.instance.telegram.sendMessage(chatId, message, {
+        reply_to_message_id: replyToMessageId,
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   async startBotIfActive() {

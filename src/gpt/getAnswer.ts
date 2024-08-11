@@ -7,7 +7,11 @@ const checkThread = async (threadId: string, runId: string) => {
     threadId,
     runId,
   );
-  return run.status;
+  if (run.status === "failed") {
+    console.error(run.last_error);
+    return [run.status, run.last_error];
+  }
+  return [run.status];
 };
 
 const waitThreadCompleted = (
@@ -17,18 +21,19 @@ const waitThreadCompleted = (
   return new Promise((resolve, reject) => {
     const interval = setInterval(async () => {
       try {
-        const status = await checkThread(threadId, runId);
+        const [status, error] = await checkThread(threadId, runId);
         if (status === "completed") {
           clearInterval(interval);
           resolve();
         } else if (status === "failed") {
-          reject();
+          clearInterval(interval);
+          reject(error);
         }
       } catch (error) {
         clearInterval(interval);
         reject(error);
       }
-    }, 1000);
+    }, 500);
   });
 };
 
