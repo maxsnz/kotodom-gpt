@@ -199,7 +199,6 @@ export class TgBot {
           messageText,
         );
         console.log(`[${bot.name}]: ${answer}`);
-        this.sendLogMessage(answer, logMessageFromUser?.message_id);
 
         const answerMessage = await prisma.message.create({
           data: {
@@ -211,6 +210,7 @@ export class TgBot {
         });
 
         await ctx.reply(answer);
+        this.sendLogMessage(answer, logMessageFromUser?.message_id);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(e);
