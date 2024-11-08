@@ -1,4 +1,5 @@
 import * as dotenv from "dotenv";
+import "./utils/bigIntToJson";
 import Koa from "koa";
 import Router from "@koa/router";
 import AdminJS from "adminjs";
