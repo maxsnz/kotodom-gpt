@@ -20,6 +20,8 @@ COPY . .
 
 RUN npx prisma migrate deploy
 
+RUN yarn prisma generate
+
 # Откройте порт, который использует ваше приложение
 EXPOSE 3000
 
