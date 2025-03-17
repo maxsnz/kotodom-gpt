@@ -1,6 +1,6 @@
 {
   "name": "kotodom-gpt",
-  "version": "2.5.2",
+  "version": "2.5.3",
   "type": "module",
   "exports": "./src/index.ts",
   "author": "maxsnz",
