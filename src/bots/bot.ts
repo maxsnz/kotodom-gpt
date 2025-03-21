@@ -57,12 +57,19 @@ const findOrCreateUser = async (
   return user;
 };
 
-const findOrCreateChat = async (
-  id: string,
-  userId: number,
-  name: string,
-  botName: string,
-) => {
+const findOrCreateChat = async ({
+  id,
+  userId,
+  name,
+  botName,
+  botId,
+}: {
+  id: string;
+  userId: number;
+  name: string;
+  botName: string;
+  botId: number;
+}) => {
   const chat = await prisma.chat.findFirst({
     where: {
       id,
@@ -80,6 +87,7 @@ const findOrCreateChat = async (
         userId,
         threadId,
         name: `${name} vs ${botName}`,
+        botId,
       },
     });
   }
@@ -139,12 +147,14 @@ export class TgBot {
 
         await ctx.sendChatAction("typing");
 
-        const chat = await findOrCreateChat(
-          chatId,
-          tgUserID,
-          user.name || user.username || user.fullName || "Unknown",
-          bot.name,
-        );
+        const chat = await findOrCreateChat({
+          id: chatId,
+          userId: tgUserID,
+          name:
+            user.name || user.username || user.fullName || "Unknown",
+          botName: bot.name,
+          botId: bot.id,
+        });
         let threadId = chat.threadId;
 
         if (messageText === "/start") {
@@ -195,7 +205,7 @@ export class TgBot {
 
         const answer = await getAnswer(
           bot.assistantId,
-          threadId,
+          threadId || "",
           messageText,
         );
         console.log(`[${bot.name}]: ${answer}`);

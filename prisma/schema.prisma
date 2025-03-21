@@ -49,11 +49,14 @@ model Bot {
   messages Message[]
   assistantId String
   error String?
+  chats Chat[]
 }
 
 model Chat {
   id    String     @id
-  threadId String 
+  botId Int?
+  bot Bot? @relation(fields: [botId], references: [id])
+  threadId String?
   messages Message[]
   createdAt DateTime @default(now())
   user    User    @relation(fields: [userId], references: [id])
