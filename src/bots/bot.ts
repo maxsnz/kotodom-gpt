@@ -142,7 +142,7 @@ export class TgBot {
         console.log(`${getCurrentTime()}`);
         console.log(`[${fullName}]: ${messageText}`);
         const logMessageFromUser = await this.sendLogMessage(
-          `[@${user.username}]: ${messageText}`,
+          `[@${user.name}]: ${messageText}`,
         );
 
         await ctx.sendChatAction("typing");

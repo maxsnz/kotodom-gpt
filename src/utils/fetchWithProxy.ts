@@ -6,14 +6,16 @@ import fetch, {
 import { HttpsProxyAgent } from "https-proxy-agent";
 
 function createFetchWithProxy(proxyUrl: string) {
+  const agent = new HttpsProxyAgent(proxyUrl);
+
   return function (
     url: RequestInfo,
     options?: RequestInit,
   ): Promise<Response> {
-    const modifiedOptions = options || {};
-
-    // Если URL требует обращения через прокси
-    modifiedOptions.agent = new HttpsProxyAgent(proxyUrl);
+    const modifiedOptions = {
+      ...options,
+      agent,
+    };
 
     return fetch(url, modifiedOptions);
   };

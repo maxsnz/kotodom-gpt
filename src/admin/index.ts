@@ -3,6 +3,7 @@ import { Bot } from "@prisma/client";
 import { Database, Resource, getModelByName } from "@adminjs/prisma";
 import prisma from "../prismaClient";
 import botsManager from "../bots";
+import gpt from "../gpt";
 
 export const adminOptions = {
   resources: [
@@ -149,11 +150,41 @@ export const adminOptions = {
           id: {
             type: "string",
             isVisible: {
-              // new: true,
               edit: true,
               show: true,
               list: true,
               filter: true,
+            },
+          },
+        },
+        actions: {
+          edit: {
+            after: async (
+              request: any,
+              response: any,
+              context: {
+                record: any;
+                resource: any;
+                currentAdmin: any;
+                h: any;
+              },
+            ) => {
+              const { record } = context;
+              if (record.params.id === "PROXY_URL") {
+                await gpt.updateProxyUrl(record.params.value);
+              }
+              return {
+                record: record.toJSON(context.currentAdmin),
+                redirectUrl: context.h.resourceUrl({
+                  resourceId:
+                    context.resource._decorated?.id() ||
+                    context.resource.id(),
+                }),
+                notice: {
+                  message: "Setting updated",
+                  type: "success",
+                },
+              };
             },
           },
         },
