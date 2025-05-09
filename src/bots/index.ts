@@ -66,6 +66,25 @@ export class BotsManager {
       return false;
     }
   }
+
+  sendMessage({
+    botId,
+    chatId,
+    message,
+  }: {
+    botId: number;
+    chatId: string;
+    message: string;
+  }) {
+    const bot = this.bots[botId];
+    if (bot) {
+      const botIdStr = botId.toString();
+      const botIdLength = botIdStr.length;
+      const id = chatId.slice(0, -botIdLength);
+
+      return bot.sendMessage(id, message);
+    }
+  }
 }
 
 const botsManager = new BotsManager();

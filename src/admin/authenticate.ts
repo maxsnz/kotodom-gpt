@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import { CurrentAdmin } from "adminjs";
-import prisma from "./prismaClient";
+import prisma from "../prismaClient";
 
 dotenv.config();
 
@@ -21,8 +21,10 @@ export default async (login: string, password: string) => {
   if (login === adminUser && password === adminPassword) {
     const admin = {
       email: login,
+      role: "admin", //user.role,
+      id: login, // user.id,
     } as CurrentAdmin;
-    return Promise.resolve(admin);
+    return admin;
   }
   return null;
 };

@@ -1,22 +1,9 @@
-import { ContextWithSession } from "koa";
+import { Context } from "koa";
 import prisma from "../prismaClient";
 import botsManager from "../bots";
 
-export const startBot = async (ctx: ContextWithSession) => {
-  const adminUser = await prisma.setting.findUnique({
-    where: { id: "adminUser" },
-  });
-  if (!adminUser) {
-    ctx.status = 500;
-    console.error("adminUser not found");
-    return;
-  }
-
+export const startBot = async (ctx: Context) => {
   try {
-    if (ctx.session.adminUser?.email !== adminUser.value) {
-      throw Error("Unauthorized");
-    }
-
     if (!ctx.params.id) {
       throw Error("No bot id provided");
     }
@@ -36,21 +23,8 @@ export const startBot = async (ctx: ContextWithSession) => {
   }
 };
 
-export const stopBot = async (ctx: ContextWithSession) => {
-  const adminUser = await prisma.setting.findUnique({
-    where: { id: "adminUser" },
-  });
-  if (!adminUser) {
-    ctx.status = 500;
-    console.error("adminUser not found");
-    return;
-  }
-
+export const stopBot = async (ctx: Context) => {
   try {
-    if (ctx.session.adminUser?.email !== adminUser.value) {
-      throw Error("Unauthorized");
-    }
-
     if (!ctx.params.id) {
       throw Error("No bot id provided");
     }
@@ -63,6 +37,45 @@ export const stopBot = async (ctx: ContextWithSession) => {
     botsManager.stopById(botId);
 
     ctx.body = JSON.stringify({});
+  } catch (e) {
+    console.error(e);
+    ctx.status = 403;
+    ctx.body = { error: JSON.stringify(e) };
+  }
+};
+
+export const sendMessage = async (ctx: Context) => {
+  try {
+    if (!("request" in ctx) || !("body" in ctx.request)) {
+      throw new Error("Invalid request");
+    }
+
+    const { chatId, botId, message } = ctx.request.body as {
+      chatId?: string;
+      botId?: number;
+      message?: string;
+    };
+
+    if (!chatId) {
+      throw Error("No chatId provided");
+    }
+
+    if (!botId || typeof botId !== "number") {
+      throw Error("No botId provided");
+    }
+
+    if (!message) {
+      throw Error("No message provided");
+    }
+
+    const result = await botsManager.sendMessage({
+      botId,
+      chatId,
+      message,
+    });
+    console.log("result", result);
+
+    ctx.body = JSON.stringify({ ok: true });
   } catch (e) {
     console.error(e);
     ctx.status = 403;

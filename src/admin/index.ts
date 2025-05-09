@@ -1,194 +1,56 @@
-import { Bot } from "@prisma/client";
-// @ts-ignore-next-line
+import AdminJS from "adminjs";
+import Koa from "koa";
+// @ts-expect-error
+import AdminJSKoa from "@adminjs/koa";
+// @ts-expect-error
 import { Database, Resource, getModelByName } from "@adminjs/prisma";
-import prisma from "../prismaClient";
-import botsManager from "../bots";
-import gpt from "../gpt";
+import Components, { componentLoader } from "./components";
+import { createSettingResource } from "./resources/settingResource";
+import { createUserResource } from "./resources/userResource";
+import { createBotResource } from "./resources/botResource";
+import { createChatResource } from "./resources/chatResource";
+import { createMessageResource } from "./resources/messageResource";
+import authenticate from "./authenticate";
 
-export const adminOptions = {
-  resources: [
-    {
-      resource: { model: getModelByName("User"), client: prisma },
-      options: {},
+const setupAdmin = async (app: Koa): Promise<void> => {
+  AdminJS.registerAdapter({ Database, Resource });
+
+  const adminJs = new AdminJS({
+    dashboard: {
+      component: Components.Dashboard,
     },
-    {
-      resource: { model: getModelByName("Bot"), client: prisma },
-      options: {
-        actions: {
-          new: {
-            after: async (
-              request: any,
-              response: any,
-              context: {
-                record: any;
-                resource: any;
-                currentAdmin: any;
-                h: any;
-              },
-            ) => {
-              const result = await botsManager.initById(
-                context.record.params.id,
-              );
-              return {
-                record: context.record.toJSON(context.currentAdmin),
-                redirectUrl: context.h.resourceUrl({
-                  resourceId:
-                    context.resource._decorated?.id() ||
-                    context.resource.id(),
-                }),
-                notice: result
-                  ? {
-                      message: `Bot [${context.record.params.name}] inited`,
-                      type: "success",
-                    }
-                  : {
-                      message: `Error initing bot [${context.record.params.name}]`,
-                      type: "error",
-                    },
-              };
-            },
-          },
-          start: {
-            icon: "play-outline",
-            actionType: "record",
-            component: false,
-            // guard: "Start?",
-            handler: async (
-              request: any,
-              response: any,
-              context: {
-                record: any;
-                resource: any;
-                currentAdmin: any;
-                h: any;
-              },
-            ) => {
-              const { record, resource, currentAdmin, h } = context;
-              const id = record.params.id;
-              const name = record.params.name;
-              const result = await botsManager.startById(id);
-              return {
-                record: record.toJSON(currentAdmin),
-                redirectUrl: h.resourceUrl({
-                  resourceId:
-                    resource._decorated?.id() || resource.id(),
-                }),
-                notice: result
-                  ? {
-                      message: `Bot [${name}] started`,
-                      type: "success",
-                    }
-                  : {
-                      message: `Error starting bot [${name}]`,
-                      type: "error",
-                    },
-              };
-            },
-            isVisible: ({ record }: { record: { params: Bot } }) =>
-              !record.params.isStarted,
-          },
-          stop: {
-            icon: "stop-circle",
-            actionType: "record",
-            component: false,
-            // guard: "Reject?",
-            handler: async (
-              request: any,
-              response: any,
-              context: {
-                record: any;
-                resource: any;
-                currentAdmin: any;
-                h: any;
-              },
-            ) => {
-              const { record, resource, currentAdmin, h } = context;
-              const id = record.params.id;
-              const name = record.params.name;
-              const result = await botsManager.stopById(id);
-              return {
-                record: record.toJSON(currentAdmin),
-                redirectUrl: h.resourceUrl({
-                  resourceId:
-                    resource._decorated?.id() || resource.id(),
-                }),
-                notice: result
-                  ? {
-                      message: `Bot [${name}] stopped`,
-                      type: "success",
-                    }
-                  : {
-                      message: `Error stopping bot [${name}]`,
-                      type: "error",
-                    },
-              };
-            },
-            isVisible: ({ record }: { record: { params: Bot } }) =>
-              record.params.isStarted,
-          },
-        },
+    resources: [
+      createSettingResource(),
+      createUserResource(),
+      createBotResource(),
+      createChatResource(),
+      createMessageResource(),
+    ],
+    componentLoader,
+    pages: {
+      "Send Message": {
+        component: Components.SendMessage,
+        icon: "message-square",
       },
     },
+  });
+
+  const adminRouter = AdminJSKoa.buildAuthenticatedRouter(
+    adminJs,
+    app,
     {
-      resource: { model: getModelByName("Chat"), client: prisma },
-      options: {},
-    },
-    {
-      resource: { model: getModelByName("Message"), client: prisma },
-      options: {
-        listProperties: ["createdAt", "text"],
-        sort: {
-          sortBy: "createdAt",
-          direction: "desc",
-        },
+      authenticate,
+      sessionOptions: {
+        httpOnly: process.env.NODE_ENV === "production",
+        renew: true,
+        secure: process.env.NODE_ENV === "production",
       },
     },
-    {
-      resource: { model: getModelByName("Setting"), client: prisma },
-      options: {
-        properties: {
-          id: {
-            type: "string",
-            isVisible: {
-              edit: true,
-              show: true,
-              list: true,
-              filter: true,
-            },
-          },
-        },
-        actions: {
-          edit: {
-            after: async (
-              request: any,
-              response: any,
-              context: {
-                record: any;
-                resource: any;
-                currentAdmin: any;
-                h: any;
-              },
-            ) => {
-              const { record } = context;
-              if (record.params.id === "PROXY_URL") {
-                await gpt.updateProxyUrl(record.params.value);
-              }
-              return {
-                record: record.toJSON(context.currentAdmin),
-                redirectUrl: context.h.resourceUrl({
-                  resourceId:
-                    context.resource._decorated?.id() ||
-                    context.resource.id(),
-                }),
-                notice: {
-                  message: "Setting updated",
-                  type: "success",
-                },
-              };
-            },
-          },
-        },
-      },
-    },
-  ],
+  );
+
+  app.use(adminRouter.routes()).use(adminRouter.allowedMethods());
+
+  adminJs.watch();
 };
+
+export default setupAdmin;

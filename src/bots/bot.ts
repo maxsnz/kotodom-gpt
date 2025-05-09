@@ -329,4 +329,8 @@ ${e.stack}`);
 
     console.log(`Bot [${this.name}] stopped`);
   }
+
+  async sendMessage(chatId: number | string, message: string) {
+    return this.instance.telegram.sendMessage(chatId, message);
+  }
 }

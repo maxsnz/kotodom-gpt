@@ -2,18 +2,12 @@ import * as dotenv from "dotenv";
 import "./utils/bigIntToJson";
 import Koa from "koa";
 import Router from "@koa/router";
-import AdminJS from "adminjs";
-// @ts-ignore-next-line
-import AdminJSKoa from "@adminjs/koa";
-// @ts-ignore-next-line
-import { Database, Resource, getModelByName } from "@adminjs/prisma";
-import botsManager from "./bots";
+import { koaBody } from "koa-body";
 import { version } from "../package.json";
-import prisma from "./prismaClient";
-import authenticate from "./authenticate";
-import { startBot, stopBot } from "./controllers/bots";
-import { Bot } from "@prisma/client";
-import { adminOptions } from "./admin";
+import { startBot, stopBot, sendMessage } from "./controllers/bots";
+import setupAdmin from "./admin";
+import { requireAdmin } from "./admin/authMiddleware";
+import { getMessages } from "./controllers/messages";
 
 dotenv.config();
 
@@ -21,22 +15,7 @@ const webServer = new Koa();
 const router = new Router();
 webServer.keys = [process.env.COOKIE_SECRET as string];
 
-AdminJS.registerAdapter({ Database, Resource });
-
-const admin = new AdminJS(adminOptions);
-
-const adminRouter = AdminJSKoa.buildAuthenticatedRouter(
-  admin,
-  webServer,
-  {
-    authenticate,
-    sessionOptions: {
-      httpOnly: process.env.NODE_ENV === "production",
-      renew: true,
-      secure: process.env.NODE_ENV === "production",
-    },
-  },
-);
+await setupAdmin(webServer);
 
 // just for debugging
 router.get("/api/test", (ctx) => {
@@ -44,10 +23,16 @@ router.get("/api/test", (ctx) => {
 });
 
 webServer.use(router.routes()).use(router.allowedMethods());
-webServer.use(adminRouter.routes()).use(adminRouter.allowedMethods());
 
-router.get("/admin/api/startBot/:id", startBot);
-router.get("/admin/api/stopBot/:id", stopBot);
+router.get("/admin/api/messages/:chatId", requireAdmin, getMessages);
+router.get("/admin/api/startBot/:id", requireAdmin, startBot);
+router.get("/admin/api/stopBot/:id", requireAdmin, stopBot);
+router.post(
+  "/admin/api/message",
+  koaBody({ json: true }),
+  requireAdmin,
+  sendMessage,
+);
 
 webServer.listen(process.env.SERVER_PORT, () => {
   console.log(
