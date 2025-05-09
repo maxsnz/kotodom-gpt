@@ -34,7 +34,6 @@ class Gpt {
 
   private async initializeProxy() {
     const proxyUrl = await getSetting("PROXY_URL");
-    console.log("proxyUrl", proxyUrl);
     if (proxyUrl) {
       this.proxyUrl = proxyUrl;
       this.instance = new OpenAI({

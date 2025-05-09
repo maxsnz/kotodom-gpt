@@ -56,7 +56,6 @@ export class BotsManager {
 
   stopById(id: number) {
     const bot = this.bots[id];
-    console.log("this.bots", this.bots);
 
     if (bot) {
       bot.stopBot();

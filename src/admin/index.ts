@@ -27,12 +27,6 @@ const setupAdmin = async (app: Koa): Promise<void> => {
       createMessageResource(),
     ],
     componentLoader,
-    pages: {
-      "Send Message": {
-        component: Components.SendMessage,
-        icon: "message-square",
-      },
-    },
   });
 
   const adminRouter = AdminJSKoa.buildAuthenticatedRouter(

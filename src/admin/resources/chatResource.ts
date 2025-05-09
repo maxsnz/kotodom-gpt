@@ -9,6 +9,10 @@ import botsManager from "../../bots";
 export const createChatResource = (): ResourceWithOptions => ({
   resource: { model: getModelByName("Chat"), client: prisma },
   options: {
+    sort: {
+      sortBy: "createdAt",
+      direction: "desc",
+    },
     actions: {
       sendMessage: {
         icon: "MessageSquare",
