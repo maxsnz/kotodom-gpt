@@ -7,7 +7,7 @@ import { version } from "../package.json";
 import { startBot, stopBot, sendMessage } from "./controllers/bots";
 import setupAdmin from "./admin";
 import { requireAdmin } from "./admin/authMiddleware";
-import { getMessages } from "./controllers/messages";
+import { getMessages, getUserChats } from "./controllers/messages";
 
 dotenv.config();
 
@@ -25,6 +25,7 @@ router.get("/api/test", (ctx) => {
 webServer.use(router.routes()).use(router.allowedMethods());
 
 router.get("/admin/api/messages/:chatId", requireAdmin, getMessages);
+router.get("/admin/api/users/:userId/chats", requireAdmin, getUserChats);
 router.get("/admin/api/startBot/:id", requireAdmin, startBot);
 router.get("/admin/api/stopBot/:id", requireAdmin, stopBot);
 router.post(

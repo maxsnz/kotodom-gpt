@@ -73,7 +73,18 @@ export const sendMessage = async (ctx: Context) => {
       chatId,
       message,
     });
-    console.log("result", result);
+
+    // Save the admin message to the database
+    await prisma.message.create({
+      data: {
+        chatId,
+        botId,
+        text: message,
+        price: 0, // Admin messages have no cost
+        createdAt: new Date(),
+        userId: null,
+      },
+    });
 
     ctx.body = JSON.stringify({ ok: true });
   } catch (e) {

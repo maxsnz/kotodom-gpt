@@ -11,6 +11,7 @@ interface Message {
   text: string;
   createdAt: string;
   isUser: boolean;
+  price: number | string; // Can be number or Decimal from Prisma
 }
 
 interface ChatData {
@@ -21,7 +22,7 @@ interface ChatData {
   };
   user: {
     id: string;
-    name: string;
+    username: string;
   };
 }
 
@@ -104,6 +105,16 @@ const Timestamp = styled.div`
   opacity: 0.7;
   margin-top: 4px;
   text-align: right;
+`;
+
+const PriceDisplay = styled.div`
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 8px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  text-align: center;
 `;
 
 const LoadingSpinner = styled.div`
@@ -196,7 +207,8 @@ const ShowMessages = ({ record }: SendMessageProps) => {
     <Container>
       <Header>
         <Title>
-          Chat between {chatData.user.name} and {chatData.bot.name}
+          Chat between {chatData.user.username} and{" "}
+          {chatData.bot.name}
         </Title>
       </Header>
 
@@ -212,10 +224,18 @@ const ShowMessages = ({ record }: SendMessageProps) => {
               <MessageBubble isUser={message.isUser}>
                 <SenderName>
                   {message.isUser
-                    ? chatData.user.name
+                    ? chatData.user.username
                     : chatData.bot.name}
                 </SenderName>
                 <MessageText>{message.text}</MessageText>
+                {Number(message.price) > 0 && (
+                  <PriceDisplay>
+                    $
+                    {Number(message.price) < 0.01
+                      ? Number(message.price).toFixed(6)
+                      : Number(message.price).toFixed(2)}
+                  </PriceDisplay>
+                )}
                 <Timestamp>{formatDate(message.createdAt)}</Timestamp>
               </MessageBubble>
             </MessageWrapper>

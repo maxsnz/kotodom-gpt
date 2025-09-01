@@ -29,6 +29,7 @@ model Message {
   bot Bot? @relation(fields: [botId], references: [id])
   botId   Int?
   text String
+  price Decimal @default(0) @db.Decimal(10, 4)
   createdAt DateTime @default(now())
 }
 

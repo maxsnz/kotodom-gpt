@@ -8,6 +8,11 @@ import botsManager from "../../bots";
 export const createBotResource = (): ResourceWithOptions => ({
   resource: { model: getModelByName("Bot"), client: prisma },
   options: {
+    listProperties: ["id", "name", "isStarted", "createdAt"],
+    sort: {
+      sortBy: "id",
+      direction: "asc",
+    },
     actions: {
       new: {
         // @ts-ignore-next-line

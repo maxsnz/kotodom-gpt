@@ -12,6 +12,10 @@ const Components = {
     "ShowMessages",
     "./ShowMessages.tsx",
   ),
+  ShowUserChats: componentLoader.add(
+    "ShowUserChats",
+    "./ShowUserChats.tsx",
+  ),
 };
 
 export default Components;

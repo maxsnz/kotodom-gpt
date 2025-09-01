@@ -1,6 +1,11 @@
 import { TextContentBlock } from "openai/resources/beta/threads/messages";
 import gpt from ".";
 import prisma from "../prismaClient";
+import {
+  calculateOpenAICost,
+  extractModelFromAssistant,
+  type TokenUsage,
+} from "../utils/openaiPricing";
 
 const checkThread = async (threadId: string, runId: string) => {
   const run = await gpt.instance.beta.threads.runs.retrieve(
@@ -37,11 +42,23 @@ const waitThreadCompleted = (
   });
 };
 
+interface GetAnswerResult {
+  answer: string;
+  pricing: {
+    model: string;
+    inputTokens: number;
+    outputTokens: number;
+    inputCost: number;
+    outputCost: number;
+    totalCost: number;
+  } | null;
+}
+
 const getAnswer = async (
   assistantId: string,
   threadId: string,
   messageText: string,
-): Promise<string> => {
+): Promise<GetAnswerResult> => {
   const message = await gpt.instance.beta.threads.messages.create(
     threadId,
     {
@@ -57,6 +74,12 @@ const getAnswer = async (
 
   await waitThreadCompleted(threadId, runId);
 
+  // Get the completed run to access usage information
+  const completedRun = await gpt.instance.beta.threads.runs.retrieve(
+    threadId,
+    runId,
+  );
+
   const messages = await gpt.instance.beta.threads.messages.list(
     threadId,
   );
@@ -66,12 +89,45 @@ const getAnswer = async (
   );
 
   if (!mText) {
-    return "no answer from chatGPT";
+    return {
+      answer: "no answer from chatGPT",
+      pricing: null,
+    };
   }
 
   const answer = mText.text.value || "no answer from chatGPT";
 
-  return answer;
+  // Calculate pricing if usage information is available
+  let pricing = null;
+  if (completedRun.usage) {
+    console.log("[OpenAI] Raw usage data:", JSON.stringify(completedRun.usage, null, 2));
+    
+    const model = await extractModelFromAssistant(
+      assistantId,
+      gpt.instance,
+    );
+    const usage: TokenUsage = {
+      prompt_tokens: completedRun.usage.prompt_tokens,
+      completion_tokens: completedRun.usage.completion_tokens,
+      total_tokens: completedRun.usage.total_tokens,
+    };
+    pricing = calculateOpenAICost(model, usage);
+    console.log(
+      `[OpenAI] Model: ${model}, Usage: ${
+        usage.total_tokens
+      } tokens (${usage.prompt_tokens} input + ${usage.completion_tokens} output), Cost: $${pricing.totalCost.toFixed(6)}`,
+    );
+  } else {
+    console.log(
+      "[OpenAI] No usage information available for pricing calculation",
+    );
+    console.log("[OpenAI] Completed run data:", JSON.stringify(completedRun, null, 2));
+  }
+
+  return {
+    answer,
+    pricing,
+  };
 };
 
 export default getAnswer;

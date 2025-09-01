@@ -7,7 +7,7 @@ import prisma from "../../prismaClient";
 export const createMessageResource = (): ResourceWithOptions => ({
   resource: { model: getModelByName("Message"), client: prisma },
   options: {
-    listProperties: ["createdAt", "text"],
+    listProperties: ["createdAt", "text", "price"],
     sort: {
       sortBy: "createdAt",
       direction: "desc",

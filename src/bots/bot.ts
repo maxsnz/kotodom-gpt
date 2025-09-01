@@ -199,22 +199,34 @@ export class TgBot {
             chatId,
             userId: user.id,
             text: messageText,
+            price: 0, // User messages have no cost
             createdAt: new Date(),
           },
         });
 
-        const answer = await getAnswer(
+        const result = await getAnswer(
           bot.assistantId,
           threadId || "",
           messageText,
         );
+        const answer = result.answer;
+        const pricing = result.pricing;
+
         console.log(`[${bot.name}]: ${answer}`);
+        if (pricing) {
+          console.log(
+            `[${bot.name}] Cost: $${pricing.totalCost.toFixed(6)} (${
+              pricing.inputTokens
+            } input + ${pricing.outputTokens} output tokens)`,
+          );
+        }
 
         const answerMessage = await prisma.message.create({
           data: {
             chatId,
             botId: bot.id,
             text: answer,
+            price: pricing ? pricing.totalCost : 0,
             createdAt: new Date(),
           },
         });
