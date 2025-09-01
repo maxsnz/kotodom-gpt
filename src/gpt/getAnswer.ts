@@ -58,6 +58,7 @@ const getAnswer = async (
   assistantId: string,
   threadId: string,
   messageText: string,
+  model?: string, // Optional model override
 ): Promise<GetAnswerResult> => {
   const message = await gpt.instance.beta.threads.messages.create(
     threadId,
@@ -66,10 +67,23 @@ const getAnswer = async (
       content: messageText,
     },
   );
-  const run = await gpt.instance.beta.threads.runs.create(threadId, {
+  const runConfig: {
+    assistant_id: string;
+    model?: string;
+  } = {
     assistant_id: assistantId,
     // instructions: getInstructions(username),
-  });
+  };
+
+  // Override model if provided
+  if (model) {
+    runConfig.model = model;
+  }
+
+  const run = await gpt.instance.beta.threads.runs.create(
+    threadId,
+    runConfig,
+  );
   const runId = run.id;
 
   await waitThreadCompleted(threadId, runId);
@@ -100,28 +114,38 @@ const getAnswer = async (
   // Calculate pricing if usage information is available
   let pricing = null;
   if (completedRun.usage) {
-    console.log("[OpenAI] Raw usage data:", JSON.stringify(completedRun.usage, null, 2));
-    
-    const model = await extractModelFromAssistant(
-      assistantId,
-      gpt.instance,
+    console.log(
+      "[OpenAI] Raw usage data:",
+      JSON.stringify(completedRun.usage, null, 2),
     );
+
+    // Use provided model or extract from assistant
+    const modelToUse =
+      model ||
+      (await extractModelFromAssistant(assistantId, gpt.instance));
     const usage: TokenUsage = {
       prompt_tokens: completedRun.usage.prompt_tokens,
       completion_tokens: completedRun.usage.completion_tokens,
       total_tokens: completedRun.usage.total_tokens,
     };
-    pricing = calculateOpenAICost(model, usage);
+    pricing = calculateOpenAICost(modelToUse, usage);
     console.log(
-      `[OpenAI] Model: ${model}, Usage: ${
-        usage.total_tokens
-      } tokens (${usage.prompt_tokens} input + ${usage.completion_tokens} output), Cost: $${pricing.totalCost.toFixed(6)}`,
+      `[OpenAI] Model: ${modelToUse}${
+        model ? " (overridden)" : ""
+      }, Usage: ${usage.total_tokens} tokens (${
+        usage.prompt_tokens
+      } input + ${
+        usage.completion_tokens
+      } output), Cost: $${pricing.totalCost.toFixed(6)}`,
     );
   } else {
     console.log(
       "[OpenAI] No usage information available for pricing calculation",
     );
-    console.log("[OpenAI] Completed run data:", JSON.stringify(completedRun, null, 2));
+    console.log(
+      "[OpenAI] Completed run data:",
+      JSON.stringify(completedRun, null, 2),
+    );
   }
 
   return {

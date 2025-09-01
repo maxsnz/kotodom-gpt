@@ -204,10 +204,14 @@ export class TgBot {
           },
         });
 
+        // Use model from bot configuration
+        const modelOverride = bot.model || "gpt-4o-mini";
+
         const result = await getAnswer(
           bot.assistantId,
           threadId || "",
           messageText,
+          modelOverride, // Pass the model override
         );
         const answer = result.answer;
         const pricing = result.pricing;

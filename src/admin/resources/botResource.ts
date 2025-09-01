@@ -3,27 +3,60 @@ import { ComponentLoader, ResourceWithOptions } from "adminjs";
 import { getModelByName } from "@adminjs/prisma";
 import prisma from "../../prismaClient";
 import botsManager from "../../bots";
+import { AdminJSHandler } from "../../types/adminjs";
 
 // icons https://feathericons.com/
+// Available OpenAI models (excluding very expensive ones)
+const AVAILABLE_MODELS = [
+  { value: "gpt-4o-mini", label: "GPT-4o Mini (Cheapest)" },
+  { value: "gpt-4.1-nano", label: "GPT-4.1 Nano" },
+  { value: "gpt-4.1-mini", label: "GPT-4.1 Mini" },
+  { value: "gpt-4o", label: "GPT-4o (High Quality)" },
+  { value: "gpt-4.1", label: "GPT-4.1 (Premium)" },
+  { value: "gpt-5-nano", label: "GPT-5 Nano (Latest)" },
+  { value: "gpt-5-mini", label: "GPT-5 Mini (Latest)" },
+];
+
 export const createBotResource = (): ResourceWithOptions => ({
   resource: { model: getModelByName("Bot"), client: prisma },
   options: {
-    listProperties: ["id", "name", "isStarted", "createdAt"],
+    listProperties: ["id", "name", "model", "isStarted", "createdAt"],
     sort: {
       sortBy: "id",
       direction: "asc",
+    },
+    properties: {
+      model: {
+        availableValues: AVAILABLE_MODELS,
+        isVisible: {
+          list: true,
+          filter: true,
+          show: true,
+          edit: true,
+        },
+      },
     },
     actions: {
       new: {
         // @ts-ignore-next-line
         after: async (
-          request: any,
-          response: any,
+          request: unknown,
+          response: unknown,
           context: {
-            record: any;
-            resource: any;
-            currentAdmin: any;
-            h: any;
+            record: {
+              params: { id: number; name: string };
+              toJSON: (admin: unknown) => unknown;
+            };
+            resource: {
+              _decorated?: { id: () => string };
+              id: () => string;
+            };
+            currentAdmin: unknown;
+            h: {
+              resourceUrl: (options: {
+                resourceId: string;
+              }) => string;
+            };
           },
         ) => {
           const result = await botsManager.initById(
@@ -56,13 +89,23 @@ export const createBotResource = (): ResourceWithOptions => ({
         // @ts-ignore-next-line
 
         handler: async (
-          request: any,
-          response: any,
+          request: unknown,
+          response: unknown,
           context: {
-            record: any;
-            resource: any;
-            currentAdmin: any;
-            h: any;
+            record: {
+              params: { id: number; name: string };
+              toJSON: (admin: unknown) => unknown;
+            };
+            resource: {
+              _decorated?: { id: () => string };
+              id: () => string;
+            };
+            currentAdmin: unknown;
+            h: {
+              resourceUrl: (options: {
+                resourceId: string;
+              }) => string;
+            };
           },
         ) => {
           const { record, resource, currentAdmin, h } = context;
@@ -98,13 +141,23 @@ export const createBotResource = (): ResourceWithOptions => ({
         // @ts-ignore-next-line
 
         handler: async (
-          request: any,
-          response: any,
+          request: unknown,
+          response: unknown,
           context: {
-            record: any;
-            resource: any;
-            currentAdmin: any;
-            h: any;
+            record: {
+              params: { id: number; name: string };
+              toJSON: (admin: unknown) => unknown;
+            };
+            resource: {
+              _decorated?: { id: () => string };
+              id: () => string;
+            };
+            currentAdmin: unknown;
+            h: {
+              resourceUrl: (options: {
+                resourceId: string;
+              }) => string;
+            };
           },
         ) => {
           const { record, resource, currentAdmin, h } = context;

@@ -44,6 +44,7 @@ model Bot {
   errorMessage String @default("")
   name  String
   token String
+  model String @default("gpt-4o-mini")
   createdAt DateTime @default(now())
   isActive Boolean @default(false)
   isStarted Boolean @default(false)

@@ -108,7 +108,13 @@ export function calculateOpenAICost(
  */
 export async function extractModelFromAssistant(
   assistantId: string,
-  gptInstance: any,
+  gptInstance: {
+    beta: {
+      assistants: {
+        retrieve: (id: string) => Promise<{ model?: string }>;
+      };
+    };
+  },
 ): Promise<string> {
   try {
     // Try to fetch the assistant details to get the actual model
