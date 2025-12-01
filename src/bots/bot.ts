@@ -47,7 +47,7 @@ const findOrCreateUser = async (
     return await prisma.user.create({
       data: {
         id,
-        name: messageChat.username,
+        username: messageChat.username,
         fullName,
         createdAt: new Date(),
       },
