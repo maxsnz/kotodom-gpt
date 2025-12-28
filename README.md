@@ -4,21 +4,19 @@ Node >= 18
 
 Postgress
 
-Yarn 1.x
-
 ## Installation:
 
 create fresh database using `psql`
 
-`yarn` - install yarn packages
+`npm i` - install node packages
 
 `npx prisma migrate deploy` - migrate and seed database
 
 ## App commands:
 
-`yarn start` - start server
+`npm start` - start server
 
-`yarn dev` - start server in watch mode
+`npm run dev` - start server in watch mode
 
 ## Docker commands:
 

@@ -1,0 +1,14 @@
+- switch to new prisma
+- separate TgUser and User
+- Bot relates to User
+- separate AiRequest model
+- handling AiRequests in separate workers
+- remove adminJS
+- add Nest
+- create frontend module for admin and landing
+- auth for admin module
+- types and api specs generation at backend
+- logging module
+- ansible module for server set up
+- metrics module
+- healthcheck module

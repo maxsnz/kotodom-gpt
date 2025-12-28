@@ -1,17 +1,15 @@
 import { TextContentBlock } from "openai/resources/beta/threads/messages";
 import gpt from ".";
-import prisma from "../prismaClient";
+// import prisma from "../prismaClient";
 import {
   calculateOpenAICost,
   extractModelFromAssistant,
   type TokenUsage,
 } from "../utils/openaiPricing";
+import { logger } from "../utils/logger";
 
 const checkThread = async (threadId: string, runId: string) => {
-  const run = await gpt.instance.beta.threads.runs.retrieve(
-    threadId,
-    runId,
-  );
+  const run = await gpt.instance.beta.threads.runs.retrieve(threadId, runId);
   if (run.status === "failed") {
     console.error(run.last_error);
     return [run.status, run.last_error];
@@ -21,7 +19,7 @@ const checkThread = async (threadId: string, runId: string) => {
 
 const waitThreadCompleted = (
   threadId: string,
-  runId: string,
+  runId: string
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     const interval = setInterval(async () => {
@@ -58,15 +56,12 @@ const getAnswer = async (
   assistantId: string,
   threadId: string,
   messageText: string,
-  model?: string, // Optional model override
+  model?: string // Optional model override
 ): Promise<GetAnswerResult> => {
-  const message = await gpt.instance.beta.threads.messages.create(
-    threadId,
-    {
-      role: "user",
-      content: messageText,
-    },
-  );
+  const message = await gpt.instance.beta.threads.messages.create(threadId, {
+    role: "user",
+    content: messageText,
+  });
   const runConfig: {
     assistant_id: string;
     model?: string;
@@ -80,10 +75,7 @@ const getAnswer = async (
     runConfig.model = model;
   }
 
-  const run = await gpt.instance.beta.threads.runs.create(
-    threadId,
-    runConfig,
-  );
+  const run = await gpt.instance.beta.threads.runs.create(threadId, runConfig);
   const runId = run.id;
 
   await waitThreadCompleted(threadId, runId);
@@ -91,15 +83,13 @@ const getAnswer = async (
   // Get the completed run to access usage information
   const completedRun = await gpt.instance.beta.threads.runs.retrieve(
     threadId,
-    runId,
+    runId
   );
 
-  const messages = await gpt.instance.beta.threads.messages.list(
-    threadId,
-  );
+  const messages = await gpt.instance.beta.threads.messages.list(threadId);
 
   const mText = messages.data[0].content.find(
-    (item): item is TextContentBlock => item.type === "text",
+    (item): item is TextContentBlock => item.type === "text"
   );
 
   if (!mText) {
@@ -114,37 +104,33 @@ const getAnswer = async (
   // Calculate pricing if usage information is available
   let pricing = null;
   if (completedRun.usage) {
-    console.log(
-      "[OpenAI] Raw usage data:",
-      JSON.stringify(completedRun.usage, null, 2),
+    logger.info(
+      "[OpenAI] Raw usage data: " + JSON.stringify(completedRun.usage, null, 2)
     );
 
     // Use provided model or extract from assistant
     const modelToUse =
-      model ||
-      (await extractModelFromAssistant(assistantId, gpt.instance));
+      model || (await extractModelFromAssistant(assistantId, gpt.instance));
+
     const usage: TokenUsage = {
       prompt_tokens: completedRun.usage.prompt_tokens,
       completion_tokens: completedRun.usage.completion_tokens,
       total_tokens: completedRun.usage.total_tokens,
     };
     pricing = calculateOpenAICost(modelToUse, usage);
-    console.log(
-      `[OpenAI] Model: ${modelToUse}${
-        model ? " (overridden)" : ""
-      }, Usage: ${usage.total_tokens} tokens (${
-        usage.prompt_tokens
-      } input + ${
+    logger.info(
+      `[OpenAI] Model: ${modelToUse}${model ? " (overridden)" : ""}, Usage: ${
+        usage.total_tokens
+      } tokens (${usage.prompt_tokens} input + ${
         usage.completion_tokens
-      } output), Cost: $${pricing.totalCost.toFixed(6)}`,
+      } output), Cost: $${pricing.totalCost.toFixed(6)}`
     );
   } else {
-    console.log(
-      "[OpenAI] No usage information available for pricing calculation",
+    logger.info(
+      "[OpenAI] No usage information available for pricing calculation"
     );
-    console.log(
-      "[OpenAI] Completed run data:",
-      JSON.stringify(completedRun, null, 2),
+    logger.info(
+      "[OpenAI] Completed run data: " + JSON.stringify(completedRun, null, 2)
     );
   }
 

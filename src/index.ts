@@ -5,17 +5,15 @@ import Router from "@koa/router";
 import { koaBody } from "koa-body";
 import { version } from "../package.json";
 import { startBot, stopBot, sendMessage } from "./controllers/bots";
-import setupAdmin from "./admin";
-import { requireAdmin } from "./admin/authMiddleware";
+import { requireAdmin } from "./admin-old/authMiddleware";
 import { getMessages, getUserChats } from "./controllers/messages";
+import { logger } from "./utils/logger";
 
 dotenv.config();
 
 const webServer = new Koa();
 const router = new Router();
 webServer.keys = [process.env.COOKIE_SECRET as string];
-
-await setupAdmin(webServer);
 
 // just for debugging
 router.get("/api/test", (ctx) => {
@@ -32,11 +30,9 @@ router.post(
   "/admin/api/message",
   koaBody({ json: true }),
   requireAdmin,
-  sendMessage,
+  sendMessage
 );
 
 webServer.listen(process.env.SERVER_PORT, () => {
-  console.log(
-    `http://localhost:${process.env.SERVER_PORT || ""}/admin`,
-  );
+  logger.info(`http://localhost:${process.env.SERVER_PORT || ""}/admin`);
 });

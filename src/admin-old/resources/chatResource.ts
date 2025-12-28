@@ -41,7 +41,7 @@ export const createChatResource = (): ResourceWithOptions => ({
             resource: any;
             currentAdmin: any;
             h: any;
-          },
+          }
         ) => {
           const { record, resource, currentAdmin, h } = context;
           const id = record.params.id;

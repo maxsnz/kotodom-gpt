@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { DatabaseService } from "./services/database.service";
 
-const prisma = new PrismaClient();
+const databaseService = new DatabaseService();
+await databaseService.connect();
 
-export default prisma;
+export default databaseService.getClient();

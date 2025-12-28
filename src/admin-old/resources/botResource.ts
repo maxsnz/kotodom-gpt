@@ -1,5 +1,4 @@
 import { ComponentLoader, ResourceWithOptions } from "adminjs";
-// @ts-expect-error
 import { getModelByName } from "@adminjs/prisma";
 import prisma from "../../prismaClient";
 import botsManager from "../../bots";
@@ -53,21 +52,16 @@ export const createBotResource = (): ResourceWithOptions => ({
             };
             currentAdmin: unknown;
             h: {
-              resourceUrl: (options: {
-                resourceId: string;
-              }) => string;
+              resourceUrl: (options: { resourceId: string }) => string;
             };
-          },
+          }
         ) => {
-          const result = await botsManager.initById(
-            context.record.params.id,
-          );
+          const result = await botsManager.initById(context.record.params.id);
           return {
             record: context.record.toJSON(context.currentAdmin),
             redirectUrl: context.h.resourceUrl({
               resourceId:
-                context.resource._decorated?.id() ||
-                context.resource.id(),
+                context.resource._decorated?.id() || context.resource.id(),
             }),
             notice: result
               ? {
@@ -102,11 +96,9 @@ export const createBotResource = (): ResourceWithOptions => ({
             };
             currentAdmin: unknown;
             h: {
-              resourceUrl: (options: {
-                resourceId: string;
-              }) => string;
+              resourceUrl: (options: { resourceId: string }) => string;
             };
-          },
+          }
         ) => {
           const { record, resource, currentAdmin, h } = context;
           const id = record.params.id;
@@ -154,11 +146,9 @@ export const createBotResource = (): ResourceWithOptions => ({
             };
             currentAdmin: unknown;
             h: {
-              resourceUrl: (options: {
-                resourceId: string;
-              }) => string;
+              resourceUrl: (options: { resourceId: string }) => string;
             };
-          },
+          }
         ) => {
           const { record, resource, currentAdmin, h } = context;
           const id = record.params.id;

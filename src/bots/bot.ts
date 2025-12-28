@@ -5,7 +5,9 @@ import gpt from "../gpt";
 import getAnswer from "../gpt/getAnswer";
 import getCurrentTime from "../utils/getCurrentTime";
 import prisma from "../prismaClient";
-import { Bot } from "@prisma/client";
+import { BotModel as Bot } from "../prisma/generated/models/Bot";
+import { logger } from "../utils/logger";
+
 dotenv.config();
 
 interface MessageChat {
@@ -32,10 +34,7 @@ const getUserName = (messageChat: MessageChat) => {
   return name;
 };
 
-const findOrCreateUser = async (
-  id: number,
-  messageChat: MessageChat,
-) => {
+const findOrCreateUser = async (id: number, messageChat: MessageChat) => {
   const user = await prisma.user.findUnique({
     where: {
       id,
@@ -135,14 +134,11 @@ export class TgBot {
         const user = await findOrCreateUser(tgUserID, messageChat);
         const fullName = user.fullName;
         const messageText = ctx.message.text;
-        // console.log("ctx.message", ctx.message);
 
         if (!messageText) return;
-        console.log("-------------------");
-        console.log(`${getCurrentTime()}`);
-        console.log(`[${fullName}]: ${messageText}`);
+        logger.info(`[${fullName}]: ${messageText}`);
         const logMessageFromUser = await this.sendLogMessage(
-          `[@${user.name}]: ${messageText}`,
+          `[@${user.name}]: ${messageText}`
         );
 
         await ctx.sendChatAction("typing");
@@ -150,8 +146,7 @@ export class TgBot {
         const chat = await findOrCreateChat({
           id: chatId,
           userId: tgUserID,
-          name:
-            user.name || user.username || user.fullName || "Unknown",
+          name: user.name || user.username || user.fullName || "Unknown",
           botName: bot.name,
           botId: bot.id,
         });
@@ -159,7 +154,7 @@ export class TgBot {
 
         if (messageText === "/start") {
           await ctx.reply(
-            bot.startMessage || "Hi, I'm a bot. How can I help you?",
+            bot.startMessage || "Hi, I'm a bot. How can I help you?"
           );
           return;
         }
@@ -170,7 +165,7 @@ export class TgBot {
 /start - Start the bot
 /help - Show this message
 /refresh - Forget current thread
-            `,
+            `
           );
           return;
         }
@@ -181,7 +176,7 @@ export class TgBot {
               id: chatId,
             },
           });
-          console.log("chat", chat);
+
           await prisma.chat.update({
             where: {
               id: chatId,
@@ -211,17 +206,17 @@ export class TgBot {
           bot.assistantId,
           threadId || "",
           messageText,
-          modelOverride, // Pass the model override
+          modelOverride // Pass the model override
         );
         const answer = result.answer;
         const pricing = result.pricing;
 
-        console.log(`[${bot.name}]: ${answer}`);
+        logger.info(`[${bot.name}]: ${answer}`);
         if (pricing) {
-          console.log(
+          logger.info(
             `[${bot.name}] Cost: $${pricing.totalCost.toFixed(6)} (${
               pricing.inputTokens
-            } input + ${pricing.outputTokens} output tokens)`,
+            } input + ${pricing.outputTokens} output tokens)`
           );
         }
 
@@ -242,8 +237,7 @@ export class TgBot {
         console.error(e);
 
         await ctx.reply(
-          bot.errorMessage ||
-            "Sorry, error occurred. Please try again later.",
+          bot.errorMessage || "Sorry, error occurred. Please try again later."
         );
         if (e instanceof Error) {
           console.error(e.message);
@@ -322,7 +316,7 @@ ${e.stack}`);
       },
     });
 
-    console.log(`Bot [${this.name}] started`);
+    logger.info(`Bot [${this.name}] started`);
 
     return true;
   }
@@ -343,7 +337,7 @@ ${e.stack}`);
       },
     });
 
-    console.log(`Bot [${this.name}] stopped`);
+    logger.info(`Bot [${this.name}] stopped`);
   }
 
   async sendMessage(chatId: number | string, message: string) {

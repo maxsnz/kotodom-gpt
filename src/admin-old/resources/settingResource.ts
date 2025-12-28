@@ -30,7 +30,7 @@ export const createSettingResource = (): ResourceWithOptions => ({
             resource: any;
             currentAdmin: any;
             h: any;
-          },
+          }
         ) => {
           const { record } = context;
           if (record.params.id === "PROXY_URL") {
@@ -40,8 +40,7 @@ export const createSettingResource = (): ResourceWithOptions => ({
             record: record.toJSON(context.currentAdmin),
             redirectUrl: context.h.resourceUrl({
               resourceId:
-                context.resource._decorated?.id() ||
-                context.resource.id(),
+                context.resource._decorated?.id() || context.resource.id(),
             }),
             notice: {
               message: "Setting updated",

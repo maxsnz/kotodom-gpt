@@ -1,8 +1,6 @@
 import AdminJS from "adminjs";
 import Koa from "koa";
-// @ts-expect-error
 import AdminJSKoa from "@adminjs/koa";
-// @ts-expect-error
 import { Database, Resource, getModelByName } from "@adminjs/prisma";
 import Components, { componentLoader } from "./components";
 import { createSettingResource } from "./resources/settingResource";
@@ -29,18 +27,14 @@ const setupAdmin = async (app: Koa): Promise<void> => {
     componentLoader,
   });
 
-  const adminRouter = AdminJSKoa.buildAuthenticatedRouter(
-    adminJs,
-    app,
-    {
-      authenticate,
-      sessionOptions: {
-        httpOnly: process.env.NODE_ENV === "production",
-        renew: true,
-        secure: process.env.NODE_ENV === "production",
-      },
+  const adminRouter = AdminJSKoa.buildAuthenticatedRouter(adminJs, app, {
+    authenticate,
+    sessionOptions: {
+      httpOnly: process.env.NODE_ENV === "production",
+      renew: true,
+      secure: process.env.NODE_ENV === "production",
     },
-  );
+  });
 
   app.use(adminRouter.routes()).use(adminRouter.allowedMethods());
 

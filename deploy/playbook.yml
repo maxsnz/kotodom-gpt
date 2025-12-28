@@ -1,0 +1,43 @@
+- hosts: server
+  become: true
+
+  vars_files:
+    - ../../infra/group_vars/all/vault.yml
+    - group_vars/all/vault.yml
+    - group_vars/all.yml
+
+  vars:
+    app_name: "kotodom-gpt"
+
+    # ---------- Paths ----------
+    project_dir: "/var/www/kotodom-gpt"
+    compose_path: "{{ project_dir }}/docker-compose.yml"
+    env_file_path: "{{ project_dir }}/.env"
+
+    # ---------- Docker App ----------
+    docker_app_project_dir: "{{ project_dir }}"
+    docker_app_compose_path: "{{ compose_path }}"
+    docker_app_git_repo: "git@github.com:maxsnz/kotodom-gpt.git"
+    docker_app_git_version: "master"
+    docker_app_enable_prisma_migrations: true
+
+    # ---------- Env vars for .env ----------
+    env_vars:
+      NODE_ENV: "production"
+      DATABASE_URL: "{{ DATABASE_URL }}"
+      OPENAI_API_KEY: "{{ OPENAI_API_KEY }}"
+      COOKIE_SECRET: "{{ COOKIE_SECRET }}"
+      SERVER_PORT: "{{ SERVER_PORT | default('3000') }}"
+      LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN | default('') }}"
+      LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE | default('') }}"
+
+    # ---------- Vector Logging ----------
+    vector_source_name: "kotodom_gpt"
+    vector_log_path: "/var/lib/docker/containers/*/*-json.log"
+
+  roles:
+    - { role: env_file, tags: ["env"] }
+    - { role: postgres_db, tags: ["db"] }
+    - { role: docker_app_setup, tags: ["setup"] }
+    - { role: docker_app, tags: ["app"] }
+    - { role: vector_source, tags: ["logs"] }
