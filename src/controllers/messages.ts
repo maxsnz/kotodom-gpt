@@ -20,18 +20,18 @@ export const getMessages = async (ctx: Context) => {
       },
       include: {
         bot: true,
-        user: true,
+        tgUser: true,
       },
     });
     const bot = chat?.bot;
-    const user = chat?.user;
+    const tgUser = chat?.tgUser;
 
     if (!bot) {
       throw Error("Bot not found");
     }
 
-    if (!user) {
-      throw Error("User not found");
+    if (!tgUser) {
+      throw Error("TgUser not found");
     }
 
     ctx.body = JSON.stringify({
@@ -39,7 +39,7 @@ export const getMessages = async (ctx: Context) => {
         id: message.id,
         text: message.text,
         createdAt: message.createdAt,
-        isUser: !!message.userId,
+        isUser: !!message.tgUserId,
         price: message.price,
       })),
       bot: {
@@ -47,9 +47,9 @@ export const getMessages = async (ctx: Context) => {
         name: bot.name,
       },
       user: {
-        id: user.id,
-        name: user.username,
-        username: user.username,
+        id: tgUser.id,
+        name: tgUser.username,
+        username: tgUser.username,
       },
     });
   } catch (e) {
@@ -66,19 +66,19 @@ export const getUserChats = async (ctx: Context) => {
       throw Error("No userId provided");
     }
 
-    const user = await prisma.user.findUnique({
+    const tgUser = await prisma.tgUser.findUnique({
       where: {
         id: BigInt(userId),
       },
     });
 
-    if (!user) {
-      throw Error("User not found");
+    if (!tgUser) {
+      throw Error("TgUser not found");
     }
 
     const chats = await prisma.chat.findMany({
       where: {
-        userId: BigInt(userId),
+        tgUserId: BigInt(userId),
       },
       include: {
         bot: true,
@@ -107,8 +107,8 @@ export const getUserChats = async (ctx: Context) => {
         messagesCount: chat._count.messages,
       })),
       user: {
-        id: user.id.toString(),
-        username: user.username || user.name || user.fullName,
+        id: tgUser.id.toString(),
+        username: tgUser.username || tgUser.name || tgUser.fullName,
       },
     });
   } catch (e) {

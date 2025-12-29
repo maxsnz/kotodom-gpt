@@ -35,7 +35,7 @@ const getUserName = (messageChat: MessageChat) => {
 };
 
 const findOrCreateUser = async (id: number, messageChat: MessageChat) => {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.tgUser.findUnique({
     where: {
       id,
     },
@@ -43,7 +43,7 @@ const findOrCreateUser = async (id: number, messageChat: MessageChat) => {
 
   if (!user) {
     const fullName = getUserName(messageChat);
-    return await prisma.user.create({
+    return await prisma.tgUser.create({
       data: {
         id,
         username: messageChat.username,
@@ -83,7 +83,7 @@ const findOrCreateChat = async ({
       data: {
         id,
         createdAt: new Date(),
-        userId,
+        tgUserId: userId,
         threadId,
         name: `${name} vs ${botName}`,
         botId,
@@ -192,7 +192,7 @@ export class TgBot {
         const message = await prisma.message.create({
           data: {
             chatId,
-            userId: user.id,
+            tgUserId: user.id,
             text: messageText,
             price: 0, // User messages have no cost
             createdAt: new Date(),

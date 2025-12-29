@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.2.0",
   "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"./generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id        BigInt    @id\n  username  String?\n  name      String?\n  fullName  String?\n  chats     Chat[]\n  createdAt DateTime  @default(now())\n  messages  Message[]\n}\n\nmodel Message {\n  id        Int      @id @default(autoincrement())\n  chat      Chat?    @relation(fields: [chatId], references: [id], onDelete: Cascade)\n  chatId    String?\n  user      User?    @relation(fields: [userId], references: [id])\n  userId    BigInt?\n  bot       Bot?     @relation(fields: [botId], references: [id])\n  botId     Int?\n  text      String\n  price     Decimal  @default(0) @db.Decimal(10, 4)\n  createdAt DateTime @default(now())\n}\n\nmodel Setting {\n  id    String  @id\n  value String?\n}\n\nmodel Bot {\n  id           Int       @id @default(autoincrement())\n  startMessage String\n  errorMessage String    @default(\"\")\n  name         String\n  token        String\n  model        String    @default(\"gpt-4o-mini\")\n  createdAt    DateTime  @default(now())\n  isActive     Boolean   @default(false)\n  isStarted    Boolean   @default(false)\n  messages     Message[]\n  assistantId  String\n  error        String?\n  chats        Chat[]\n}\n\nmodel Chat {\n  id        String    @id\n  botId     Int?\n  bot       Bot?      @relation(fields: [botId], references: [id])\n  threadId  String?\n  messages  Message[]\n  createdAt DateTime  @default(now())\n  user      User      @relation(fields: [userId], references: [id])\n  userId    BigInt\n  name      String?\n}\n",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"./generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel TgUser {\n  id        BigInt    @id\n  username  String?\n  name      String?\n  fullName  String?\n  chats     Chat[]\n  createdAt DateTime  @default(now())\n  messages  Message[]\n}\n\nmodel Message {\n  id        Int      @id @default(autoincrement())\n  chat      Chat?    @relation(fields: [chatId], references: [id], onDelete: Cascade)\n  chatId    String?\n  tgUser    TgUser?  @relation(fields: [tgUserId], references: [id])\n  tgUserId  BigInt?\n  bot       Bot?     @relation(fields: [botId], references: [id])\n  botId     Int?\n  text      String\n  price     Decimal  @default(0) @db.Decimal(10, 4)\n  createdAt DateTime @default(now())\n}\n\nmodel Setting {\n  id    String  @id\n  value String?\n}\n\nmodel Bot {\n  id           Int       @id @default(autoincrement())\n  startMessage String\n  errorMessage String    @default(\"\")\n  name         String\n  token        String\n  model        String    @default(\"gpt-4o-mini\")\n  createdAt    DateTime  @default(now())\n  isActive     Boolean   @default(false)\n  isStarted    Boolean   @default(false)\n  messages     Message[]\n  assistantId  String\n  error        String?\n  chats        Chat[]\n}\n\nmodel Chat {\n  id        String    @id\n  botId     Int?\n  bot       Bot?      @relation(fields: [botId], references: [id])\n  threadId  String?\n  messages  Message[]\n  createdAt DateTime  @default(now())\n  tgUser    TgUser    @relation(fields: [tgUserId], references: [id])\n  tgUserId  BigInt\n  name      String?\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fullName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"chats\",\"kind\":\"object\",\"type\":\"Chat\",\"relationName\":\"ChatToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"MessageToUser\"}],\"dbName\":null},\"Message\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"chat\",\"kind\":\"object\",\"type\":\"Chat\",\"relationName\":\"ChatToMessage\"},{\"name\":\"chatId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"MessageToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"bot\",\"kind\":\"object\",\"type\":\"Bot\",\"relationName\":\"BotToMessage\"},{\"name\":\"botId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Setting\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Bot\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"startMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"errorMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"model\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isStarted\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"BotToMessage\"},{\"name\":\"assistantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"error\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"chats\",\"kind\":\"object\",\"type\":\"Chat\",\"relationName\":\"BotToChat\"}],\"dbName\":null},\"Chat\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"botId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bot\",\"kind\":\"object\",\"type\":\"Bot\",\"relationName\":\"BotToChat\"},{\"name\":\"threadId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"ChatToMessage\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ChatToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"TgUser\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"username\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"fullName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"chats\",\"kind\":\"object\",\"type\":\"Chat\",\"relationName\":\"ChatToTgUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"MessageToTgUser\"}],\"dbName\":null},\"Message\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"chat\",\"kind\":\"object\",\"type\":\"Chat\",\"relationName\":\"ChatToMessage\"},{\"name\":\"chatId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"tgUser\",\"kind\":\"object\",\"type\":\"TgUser\",\"relationName\":\"MessageToTgUser\"},{\"name\":\"tgUserId\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"bot\",\"kind\":\"object\",\"type\":\"Bot\",\"relationName\":\"BotToMessage\"},{\"name\":\"botId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"text\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Setting\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Bot\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"startMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"errorMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"model\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"isStarted\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"BotToMessage\"},{\"name\":\"assistantId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"error\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"chats\",\"kind\":\"object\",\"type\":\"Chat\",\"relationName\":\"BotToChat\"}],\"dbName\":null},\"Chat\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"botId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bot\",\"kind\":\"object\",\"type\":\"Bot\",\"relationName\":\"BotToChat\"},{\"name\":\"threadId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"ChatToMessage\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"tgUser\",\"kind\":\"object\",\"type\":\"TgUser\",\"relationName\":\"ChatToTgUser\"},{\"name\":\"tgUserId\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -58,8 +58,8 @@ export interface PrismaClientConstructor {
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Users
-   * const users = await prisma.user.findMany()
+   * // Fetch zero or more TgUsers
+   * const tgUsers = await prisma.tgUser.findMany()
    * ```
    * 
    * Read more in our [docs](https://pris.ly/d/client).
@@ -80,8 +80,8 @@ export interface PrismaClientConstructor {
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more TgUsers
+ * const tgUsers = await prisma.tgUser.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -175,14 +175,14 @@ export interface PrismaClient<
   }>>
 
       /**
-   * `prisma.user`: Exposes CRUD operations for the **User** model.
+   * `prisma.tgUser`: Exposes CRUD operations for the **TgUser** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Users
-    * const users = await prisma.user.findMany()
+    * // Fetch zero or more TgUsers
+    * const tgUsers = await prisma.tgUser.findMany()
     * ```
     */
-  get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+  get tgUser(): Prisma.TgUserDelegate<ExtArgs, { omit: OmitOpts }>;
 
   /**
    * `prisma.message`: Exposes CRUD operations for the **Message** model.

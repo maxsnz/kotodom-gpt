@@ -82,7 +82,7 @@ export const sendMessage = async (ctx: Context) => {
         text: message,
         price: 0, // Admin messages have no cost
         createdAt: new Date(),
-        userId: null,
+        tgUserId: null,
       },
     });
 
