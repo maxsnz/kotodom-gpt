@@ -1,6 +1,6 @@
-import { PrismaClient } from "../prisma/generated/client";
+import { PrismaClient } from "../../apps/backend/src/infra/db/prisma/generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { env } from "../config/env";
+import { env } from "../../apps/backend/src/config/env";
 
 export class DatabaseService {
   private prisma: PrismaClient;

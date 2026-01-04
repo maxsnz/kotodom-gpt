@@ -5,7 +5,7 @@ import gpt from "../gpt";
 import getAnswer from "../gpt/getAnswer";
 import getCurrentTime from "../utils/getCurrentTime";
 import prisma from "../prismaClient";
-import { BotModel as Bot } from "../prisma/generated/models/Bot";
+import { BotModel as Bot } from "../../apps/backend/src/infra/db/prisma/generated/models/Bot";
 import { logger } from "../utils/logger";
 
 dotenv.config();
@@ -299,7 +299,7 @@ ${e.stack}`);
             id: this.id,
           },
           data: {
-            isStarted: false,
+            enabled: false,
             error: JSON.stringify(e.message),
           },
         });
@@ -312,7 +312,7 @@ ${e.stack}`);
         id: this.id,
       },
       data: {
-        isStarted: true,
+        enabled: true,
       },
     });
 
@@ -333,7 +333,7 @@ ${e.stack}`);
         id: this.id,
       },
       data: {
-        isStarted: false,
+        enabled: false,
       },
     });
 

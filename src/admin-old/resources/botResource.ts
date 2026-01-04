@@ -19,7 +19,7 @@ const AVAILABLE_MODELS = [
 export const createBotResource = (): ResourceWithOptions => ({
   resource: { model: getModelByName("Bot"), client: prisma },
   options: {
-    listProperties: ["id", "name", "model", "isStarted", "createdAt"],
+    listProperties: ["id", "name", "model", "enabled", "createdAt"],
     sort: {
       sortBy: "id",
       direction: "asc",
@@ -123,7 +123,7 @@ export const createBotResource = (): ResourceWithOptions => ({
         // @ts-ignore-next-line
 
         isVisible: ({ record }: { record: { params: Bot } }) =>
-          !record.params.isStarted,
+          !record.params.enabled,
       },
       stop: {
         icon: "stop-circle",
@@ -173,7 +173,7 @@ export const createBotResource = (): ResourceWithOptions => ({
         // @ts-ignore-next-line
 
         isVisible: ({ record }: { record: { params: Bot } }) =>
-          record.params.isStarted,
+          record.params.enabled,
       },
     },
   },

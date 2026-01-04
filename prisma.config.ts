@@ -6,5 +6,5 @@ export default defineConfig({
     url: env("DATABASE_URL"),
   },
 
-  schema: "./src/prisma/schema.prisma",
+  schema: "./apps/backend/src/infra/db/prisma/schema.prisma",
 });

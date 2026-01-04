@@ -1,5 +1,5 @@
 import pino, { Logger } from "pino";
-import env from "../config/env";
+import env from "../../apps/backend/src/config/env";
 import packageJson from "../../package.json";
 
 const isProd = env.NODE_ENV === "production";
