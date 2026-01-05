@@ -8,6 +8,7 @@ import { JOBS, BotHandleUpdatePayload } from "./jobs";
 describe("registerWorkers", () => {
   let mockPgBossClient: jest.Mocked<PgBossClient>;
   let mockProcessBotUpdate: jest.Mock;
+  let mockProcessMessageTrigger: jest.Mock;
   let mockLog: {
     info: jest.Mock;
     error: jest.Mock;
@@ -22,6 +23,7 @@ describe("registerWorkers", () => {
     } as any;
 
     mockProcessBotUpdate = jest.fn();
+    mockProcessMessageTrigger = jest.fn();
 
     mockLog = {
       info: jest.fn(),
@@ -35,6 +37,7 @@ describe("registerWorkers", () => {
     await registerWorkers({
       boss: mockPgBossClient,
       processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
     });
 
     expect(mockPgBossClient.register).toHaveBeenCalledWith(
@@ -47,15 +50,18 @@ describe("registerWorkers", () => {
   });
 
   it("should call processBotUpdate with correct payload", async () => {
-    let handler: any;
+    let registeredHandler: any;
 
-    mockPgBossClient.register.mockImplementation(async (name, registeredHandler) => {
-      handler = registeredHandler;
+    mockPgBossClient.register.mockImplementation(async (name, handler) => {
+      if (name === JOBS.BOT_HANDLE_UPDATE) {
+        registeredHandler = handler;
+      }
     });
 
     await registerWorkers({
       boss: mockPgBossClient,
       processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
     });
 
     const payload: BotHandleUpdatePayload = {
@@ -72,24 +78,28 @@ describe("registerWorkers", () => {
     const job = {
       id: "job-123",
       name: JOBS.BOT_HANDLE_UPDATE,
+      data: payload,
     } as any;
 
-    // Call handler with payload and job (as it's called in registerWorkers)
-    await handler(payload, job);
+    // Call registered handler directly with (payload, job) as it's called in registerWorkers
+    await registeredHandler(payload, job);
 
     expect(mockProcessBotUpdate).toHaveBeenCalledWith(payload);
   });
 
   it("should log job start and completion", async () => {
-    let handler: any;
+    let registeredHandler: any;
 
-    mockPgBossClient.register.mockImplementation(async (name, registeredHandler) => {
-      handler = registeredHandler;
+    mockPgBossClient.register.mockImplementation(async (name, handler) => {
+      if (name === JOBS.BOT_HANDLE_UPDATE) {
+        registeredHandler = handler;
+      }
     });
 
     await registerWorkers({
       boss: mockPgBossClient,
       processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
       log: mockLog,
     });
 
@@ -104,9 +114,10 @@ describe("registerWorkers", () => {
     const job = {
       id: "job-123",
       name: JOBS.BOT_HANDLE_UPDATE,
+      data: payload,
     } as any;
 
-    await handler(payload, job);
+    await registeredHandler(payload, job);
 
     expect(mockLog.info).toHaveBeenCalledWith("Job start: BOT_HANDLE_UPDATE", {
       jobId: "job-123",
@@ -128,10 +139,12 @@ describe("registerWorkers", () => {
   });
 
   it("should log errors correctly", async () => {
-    let handler: any;
+    let registeredHandler: any;
 
-    mockPgBossClient.register.mockImplementation(async (name, registeredHandler) => {
-      handler = registeredHandler;
+    mockPgBossClient.register.mockImplementation(async (name, handler) => {
+      if (name === JOBS.BOT_HANDLE_UPDATE) {
+        registeredHandler = handler;
+      }
     });
 
     const error = new Error("Processing failed");
@@ -140,6 +153,7 @@ describe("registerWorkers", () => {
     await registerWorkers({
       boss: mockPgBossClient,
       processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
       log: mockLog,
     });
 
@@ -154,29 +168,40 @@ describe("registerWorkers", () => {
     const job = {
       id: "job-123",
       name: JOBS.BOT_HANDLE_UPDATE,
+      data: payload,
+      retryCount: 0,
     } as any;
 
-    await expect(handler(payload, job)).rejects.toThrow("Processing failed");
+    await expect(registeredHandler(payload, job)).rejects.toThrow(
+      "Processing failed"
+    );
 
-    expect(mockLog.error).toHaveBeenCalledWith("Job failed: BOT_HANDLE_UPDATE", {
-      jobId: "job-123",
-      name: JOBS.BOT_HANDLE_UPDATE,
-      botId: "test-bot-id",
-      telegramUpdateId: 123,
-      chatId: 456,
-      kind: "message",
-      error: {
-        message: "Processing failed",
-        stack: expect.any(String),
-      },
-    });
+    expect(mockLog.error).toHaveBeenCalledWith(
+      "Job failed: BOT_HANDLE_UPDATE",
+      {
+        jobId: "job-123",
+        name: JOBS.BOT_HANDLE_UPDATE,
+        botId: "test-bot-id",
+        telegramUpdateId: 123,
+        chatId: 456,
+        kind: "message",
+        error: {
+          message: "Processing failed",
+          stack: expect.any(String),
+        },
+        retryCount: 0,
+        isLastRetry: false,
+      }
+    );
   });
 
   it("should re-throw errors for pg-boss retry mechanism", async () => {
-    let handler: any;
+    let registeredHandler: any;
 
-    mockPgBossClient.register.mockImplementation(async (name, registeredHandler) => {
-      handler = registeredHandler;
+    mockPgBossClient.register.mockImplementation(async (name, handler) => {
+      if (name === JOBS.BOT_HANDLE_UPDATE) {
+        registeredHandler = handler;
+      }
     });
 
     const error = new Error("Retryable error");
@@ -185,6 +210,7 @@ describe("registerWorkers", () => {
     await registerWorkers({
       boss: mockPgBossClient,
       processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
     });
 
     const payload: BotHandleUpdatePayload = {
@@ -198,24 +224,30 @@ describe("registerWorkers", () => {
     const job = {
       id: "job-123",
       name: JOBS.BOT_HANDLE_UPDATE,
+      data: payload,
     } as any;
 
-    await expect(handler(payload, job)).rejects.toThrow("Retryable error");
+    await expect(registeredHandler(payload, job)).rejects.toThrow(
+      "Retryable error"
+    );
   });
 
   it("should use default console logger when log not provided", async () => {
     const consoleSpy = jest.spyOn(console, "info").mockImplementation();
     const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
 
-    let handler: any;
+    let registeredHandler: any;
 
-    mockPgBossClient.register.mockImplementation(async (name, registeredHandler) => {
-      handler = registeredHandler;
+    mockPgBossClient.register.mockImplementation(async (name, handler) => {
+      if (name === JOBS.BOT_HANDLE_UPDATE) {
+        registeredHandler = handler;
+      }
     });
 
     await registerWorkers({
       boss: mockPgBossClient,
       processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
     });
 
     const payload: BotHandleUpdatePayload = {
@@ -229,9 +261,10 @@ describe("registerWorkers", () => {
     const job = {
       id: "job-123",
       name: JOBS.BOT_HANDLE_UPDATE,
+      data: payload,
     } as any;
 
-    await handler(payload, job);
+    await registeredHandler(payload, job);
 
     expect(consoleSpy).toHaveBeenCalled();
 
@@ -243,6 +276,7 @@ describe("registerWorkers", () => {
     await registerWorkers({
       boss: mockPgBossClient,
       processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
       teamSize: 10,
     });
 
@@ -262,6 +296,7 @@ describe("registerWorkers", () => {
     await registerWorkers({
       boss: mockPgBossClient,
       processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
     });
 
     expect(mockPgBossClient.register).toHaveBeenCalledWith(
@@ -280,10 +315,12 @@ describe("registerWorkers", () => {
   });
 
   it("should handle non-Error objects in error logging", async () => {
-    let handler: any;
+    let registeredHandler: any;
 
-    mockPgBossClient.register.mockImplementation(async (name, registeredHandler) => {
-      handler = registeredHandler;
+    mockPgBossClient.register.mockImplementation(async (name, handler) => {
+      if (name === JOBS.BOT_HANDLE_UPDATE) {
+        registeredHandler = handler;
+      }
     });
 
     const nonError = { code: "CUSTOM_ERROR", message: "Something went wrong" };
@@ -292,6 +329,7 @@ describe("registerWorkers", () => {
     await registerWorkers({
       boss: mockPgBossClient,
       processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
       log: mockLog,
     });
 
@@ -306,19 +344,114 @@ describe("registerWorkers", () => {
     const job = {
       id: "job-123",
       name: JOBS.BOT_HANDLE_UPDATE,
+      data: payload,
+      retryCount: 0,
     } as any;
 
-    await expect(handler(payload, job)).rejects.toEqual(nonError);
+    await expect(registeredHandler(payload, job)).rejects.toEqual(nonError);
 
-    expect(mockLog.error).toHaveBeenCalledWith("Job failed: BOT_HANDLE_UPDATE", {
-      jobId: "job-123",
-      name: JOBS.BOT_HANDLE_UPDATE,
+    expect(mockLog.error).toHaveBeenCalledWith(
+      "Job failed: BOT_HANDLE_UPDATE",
+      {
+        jobId: "job-123",
+        name: JOBS.BOT_HANDLE_UPDATE,
+        botId: "test-bot-id",
+        telegramUpdateId: 123,
+        chatId: 456,
+        kind: "message",
+        error: nonError,
+        retryCount: 0,
+        isLastRetry: false,
+      }
+    );
+  });
+
+  it("should call onJobFailed on last retry", async () => {
+    let registeredHandler: any;
+    const mockOnJobFailed = jest.fn();
+
+    mockPgBossClient.register.mockImplementation(async (name, handler) => {
+      if (name === JOBS.BOT_HANDLE_UPDATE) {
+        registeredHandler = handler;
+      }
+    });
+
+    const error = new Error("Retryable error");
+    mockProcessBotUpdate.mockRejectedValue(error);
+
+    await registerWorkers({
+      boss: mockPgBossClient,
+      processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
+      log: mockLog,
+      onJobFailed: mockOnJobFailed,
+    });
+
+    const payload: BotHandleUpdatePayload = {
       botId: "test-bot-id",
       telegramUpdateId: 123,
       chatId: 456,
       kind: "message",
-      error: nonError,
+      raw: {},
+    };
+
+    const job = {
+      id: "job-123",
+      name: JOBS.BOT_HANDLE_UPDATE,
+      data: payload,
+      retryCount: 4, // 0-indexed, so 4 is the 5th attempt (last retry)
+    } as any;
+
+    await expect(registeredHandler(payload, job)).rejects.toThrow(
+      "Retryable error"
+    );
+
+    expect(mockOnJobFailed).toHaveBeenCalledWith(
+      expect.stringContaining("Job job-123 failed after 5 retries"),
+      "retries-exhausted:test-bot-id:123"
+    );
+  });
+
+  it("should not call onJobFailed before last retry", async () => {
+    let registeredHandler: any;
+    const mockOnJobFailed = jest.fn();
+
+    mockPgBossClient.register.mockImplementation(async (name, handler) => {
+      if (name === JOBS.BOT_HANDLE_UPDATE) {
+        registeredHandler = handler;
+      }
     });
+
+    const error = new Error("Retryable error");
+    mockProcessBotUpdate.mockRejectedValue(error);
+
+    await registerWorkers({
+      boss: mockPgBossClient,
+      processBotUpdate: mockProcessBotUpdate,
+      processMessageTrigger: mockProcessMessageTrigger,
+      log: mockLog,
+      onJobFailed: mockOnJobFailed,
+    });
+
+    const payload: BotHandleUpdatePayload = {
+      botId: "test-bot-id",
+      telegramUpdateId: 123,
+      chatId: 456,
+      kind: "message",
+      raw: {},
+    };
+
+    const job = {
+      id: "job-123",
+      name: JOBS.BOT_HANDLE_UPDATE,
+      data: payload,
+      retryCount: 2, // Not the last retry
+    } as any;
+
+    await expect(registeredHandler(payload, job)).rejects.toThrow(
+      "Retryable error"
+    );
+
+    expect(mockOnJobFailed).not.toHaveBeenCalled();
   });
 });
-

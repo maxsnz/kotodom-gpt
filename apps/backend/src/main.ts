@@ -1,54 +1,166 @@
 import { NestFactory } from "@nestjs/core";
-import { Logger } from "@nestjs/common";
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
+import fastifyCookie from "@fastify/cookie";
 
 import { AppModule } from "./app.module";
 import { PgBossClient } from "./infra/jobs/pgBoss";
 import { env } from "./config/env";
+import { registerWorkers } from "./infra/jobs/pgBoss/registerWorkers";
+import {
+  createProcessBotUpdate,
+  createProcessMessageTrigger,
+} from "./workers/incoming-message.worker";
+import { BotRepository } from "./domain/bots/BotRepository";
+import { ChatRepository } from "./domain/chats/ChatRepository";
+import { MessageRepository } from "./domain/chats/MessageRepository";
+import { MessageProcessingRepository } from "./domain/chats/MessageProcessingRepository";
+import { OpenAIClient } from "./infra/openai/openaiClient";
+import { TelegramClient } from "./infra/telegram/telegramClient";
+import { EffectRunner } from "./infra/effects/EffectRunner";
+import {
+  LOGGER_FACTORY,
+  LoggerFactory,
+  NestLoggerService,
+} from "./infra/logger";
+import { AuthService } from "./modules/auth/auth.service";
+import { createSessionHook } from "./modules/auth/session.hook";
+import {
+  SESSION_STORE,
+  isRedisSessionStore,
+  SessionStore,
+} from "./modules/auth/session";
+import { RedisSessionStore } from "./modules/auth/session/redis-session-store";
 
 async function bootstrap() {
-  const logger = new Logger("Bootstrap");
-
-  // Create NestJS application with Fastify adapter
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter()
+    new FastifyAdapter(),
+    { bufferLogs: true }
   );
+
+  // Register Fastify cookie plugin with signing secret
+  await app.register(fastifyCookie, {
+    secret: env.COOKIE_SECRET,
+  });
+
+  const loggerFactory = app.get<LoggerFactory>(LOGGER_FACTORY);
+  const nestLogger = app.get(NestLoggerService);
+  app.useLogger(nestLogger);
+  app.flushLogs();
+  const bootstrapLogger = loggerFactory("Bootstrap");
+
+  // Register session loading hook
+  const authService = app.get(AuthService);
+  const fastifyInstance = app.getHttpAdapter().getInstance();
+  fastifyInstance.addHook("preHandler", createSessionHook(authService));
+
+  // Connect to Redis if using RedisSessionStore
+  const sessionStore = app.get<SessionStore>(SESSION_STORE);
+  if (isRedisSessionStore(sessionStore)) {
+    try {
+      await sessionStore.connect();
+      bootstrapLogger.info("Redis session store connected");
+    } catch (error) {
+      bootstrapLogger.error("Failed to connect to Redis session store", {
+        error,
+      });
+      process.exit(1);
+    }
+  }
 
   // Get PgBossClient instance from DI container
   const pgBossClient = app.get(PgBossClient);
+  const botRepository = app.get(BotRepository);
+  const chatRepository = app.get(ChatRepository);
+  const messageRepository = app.get(MessageRepository);
+  const messageProcessingRepository = app.get(MessageProcessingRepository);
+  const openAIClient = app.get(OpenAIClient);
+  const effectRunner = app.get(EffectRunner);
 
   // Start PgBoss
   try {
     await pgBossClient.start();
-    logger.log("PgBoss started successfully");
+    bootstrapLogger.info("PgBoss started successfully");
   } catch (error) {
-    logger.error("Failed to start PgBoss", error);
+    bootstrapLogger.error("Failed to start PgBoss", {
+      error,
+    });
     process.exit(1);
   }
 
+  // Register workers after PgBoss is ready
+  const processBotLogger = loggerFactory("ProcessBotUpdate");
+  const sharedDeps = {
+    botRepository,
+    chatRepository,
+    messageRepository,
+    messageProcessingRepository,
+    openAIClient,
+    telegramClientFactory: (token: string) => new TelegramClient({ token }),
+    log: {
+      info: (msg: string, meta?: Record<string, unknown>) =>
+        processBotLogger.info(msg, meta),
+      error: (msg: string, meta?: Record<string, unknown>) =>
+        processBotLogger.error(msg, meta),
+      warn: (msg: string, meta?: Record<string, unknown>) =>
+        processBotLogger.warn(msg, meta),
+      debug: (msg: string, meta?: Record<string, unknown>) =>
+        processBotLogger.debug(msg, meta),
+    },
+  };
+
+  const processBotUpdate = createProcessBotUpdate(sharedDeps);
+  const processMessageTrigger = createProcessMessageTrigger(sharedDeps);
+
+  const workerLogger = loggerFactory("PgBossWorker");
+  await registerWorkers({
+    boss: pgBossClient,
+    processBotUpdate,
+    processMessageTrigger,
+    log: {
+      info: (msg, meta) => workerLogger.info(msg, meta),
+      error: (msg, meta) => workerLogger.error(msg, meta),
+    },
+    onJobFailed: async (message, dedupeKey) => {
+      await effectRunner.run({
+        type: "notification.adminAlert",
+        message,
+        dedupeKey,
+      });
+    },
+  });
+
   // Get port from environment or use default
-  const port = env.SERVER_PORT ? parseInt(env.SERVER_PORT, 10) : 3000;
+  const port = parseInt(env.SERVER_PORT, 10);
   const host = "0.0.0.0"; // Listen on all interfaces
 
   // Start HTTP server with Fastify
   await app.listen(port, host);
-  logger.log(`Application is running on: http://localhost:${port}`);
+  bootstrapLogger.info(`Application is running on: http://localhost:${port}`);
 
   // Graceful shutdown
   const shutdown = async (signal: string) => {
-    logger.log(`Received ${signal}, shutting down gracefully...`);
+    bootstrapLogger.info(`Received ${signal}, shutting down gracefully...`);
     try {
       await pgBossClient.stop();
-      logger.log("PgBoss stopped");
+      bootstrapLogger.info("PgBoss stopped");
+
+      // Disconnect Redis if using RedisSessionStore
+      if (isRedisSessionStore(sessionStore)) {
+        await sessionStore.disconnect();
+        bootstrapLogger.info("Redis session store disconnected");
+      }
+
       await app.close();
-      logger.log("Application closed");
+      bootstrapLogger.info("Application closed");
       process.exit(0);
     } catch (error) {
-      logger.error("Error during shutdown", error);
+      bootstrapLogger.error("Error during shutdown", {
+        error,
+      });
       process.exit(1);
     }
   };
@@ -61,4 +173,3 @@ bootstrap().catch((error) => {
   console.error("Failed to start application", error);
   process.exit(1);
 });
-

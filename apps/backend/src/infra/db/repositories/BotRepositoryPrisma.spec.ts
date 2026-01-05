@@ -16,10 +16,30 @@ jest.mock("../prisma/client", () => ({
 describe("BotRepositoryPrisma", () => {
   let repository: BotRepositoryPrisma;
   let mockPrisma: jest.Mocked<typeof prisma>;
+  let prismaBotMock: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    upsert: jest.Mock;
+  };
+  const botProps = {
+    id: "1",
+    name: "Test Bot",
+    startMessage: "Start",
+    errorMessage: "Error",
+    model: "gpt-4o-mini",
+    assistantId: "assistant-id",
+    token: "token-1",
+    enabled: true,
+    isActive: false,
+    telegramMode: "webhook" as const,
+    error: null as string | null,
+    ownerUserId: null as string | null,
+  };
 
   beforeEach(() => {
     repository = new BotRepositoryPrisma();
     mockPrisma = prisma as jest.Mocked<typeof prisma>;
+    prismaBotMock = mockPrisma.bot as unknown as typeof prismaBotMock;
     jest.clearAllMocks();
   });
 
@@ -40,7 +60,7 @@ describe("BotRepositoryPrisma", () => {
         error: null,
       };
 
-      mockPrisma.bot.findUnique.mockResolvedValue(prismaBot as any);
+      prismaBotMock.findUnique.mockResolvedValue(prismaBot as any);
 
       const result = await repository.findById("1");
 
@@ -55,7 +75,7 @@ describe("BotRepositoryPrisma", () => {
     });
 
     it("should return null when bot not found", async () => {
-      mockPrisma.bot.findUnique.mockResolvedValue(null);
+      prismaBotMock.findUnique.mockResolvedValue(null);
 
       const result = await repository.findById("1");
 
@@ -110,7 +130,7 @@ describe("BotRepositoryPrisma", () => {
         },
       ];
 
-      mockPrisma.bot.findMany.mockResolvedValue(prismaBots as any);
+      prismaBotMock.findMany.mockResolvedValue(prismaBots as any);
 
       const result = await repository.findPollingBots();
 
@@ -127,7 +147,7 @@ describe("BotRepositoryPrisma", () => {
     });
 
     it("should return empty array when no polling bots found", async () => {
-      mockPrisma.bot.findMany.mockResolvedValue([]);
+      prismaBotMock.findMany.mockResolvedValue([]);
 
       const result = await repository.findPollingBots();
 
@@ -138,17 +158,23 @@ describe("BotRepositoryPrisma", () => {
   describe("save", () => {
     it("should create new bot when bot does not exist", async () => {
       const bot = new Bot({
-        id: "1",
-        enabled: true,
-        telegramMode: "webhook",
+        ...botProps,
         token: "new-token",
       });
 
-      mockPrisma.bot.upsert.mockResolvedValue({
+      prismaBotMock.upsert.mockResolvedValue({
         id: 1,
         enabled: true,
         telegramMode: "webhook",
         token: "new-token",
+        startMessage: "Start",
+        errorMessage: "",
+        name: "Test Bot",
+        model: "gpt-4o-mini",
+        createdAt: new Date(),
+        isActive: false,
+        assistantId: "assistant-id",
+        error: null,
       } as any);
 
       await repository.save(bot);
@@ -172,13 +198,13 @@ describe("BotRepositoryPrisma", () => {
 
     it("should update existing bot", async () => {
       const bot = new Bot({
-        id: "1",
+        ...botProps,
         enabled: false,
         telegramMode: "polling",
         token: "updated-token",
       });
 
-      mockPrisma.bot.upsert.mockResolvedValue({
+      prismaBotMock.upsert.mockResolvedValue({
         id: 1,
         enabled: false,
         telegramMode: "polling",
@@ -199,27 +225,19 @@ describe("BotRepositoryPrisma", () => {
     });
 
     it("should throw error for invalid bot ID (non-numeric)", async () => {
-      const bot = new Bot({
-        id: "invalid-id",
-        enabled: true,
-        telegramMode: "webhook",
-        token: "token",
-      });
+      const bot = new Bot({ ...botProps, id: "invalid-id" });
 
-      await expect(repository.save(bot)).rejects.toThrow("Invalid bot id: invalid-id");
-      expect(mockPrisma.bot.upsert).not.toHaveBeenCalled();
+      await expect(repository.save(bot)).rejects.toThrow(
+        "Invalid bot id: invalid-id"
+      );
+      expect(prismaBotMock.upsert).not.toHaveBeenCalled();
     });
 
     it("should throw error for empty string bot ID", async () => {
-      const bot = new Bot({
-        id: "",
-        enabled: true,
-        telegramMode: "webhook",
-        token: "token",
-      });
+      const bot = new Bot({ ...botProps, id: "" });
 
       await expect(repository.save(bot)).rejects.toThrow("Invalid bot id: ");
-      expect(mockPrisma.bot.upsert).not.toHaveBeenCalled();
+      expect(prismaBotMock.upsert).not.toHaveBeenCalled();
     });
   });
 
@@ -240,7 +258,7 @@ describe("BotRepositoryPrisma", () => {
         error: null,
       };
 
-      mockPrisma.bot.findUnique.mockResolvedValue(prismaBot as any);
+      prismaBotMock.findUnique.mockResolvedValue(prismaBot as any);
 
       const result = await repository.findById("42");
 
@@ -253,13 +271,14 @@ describe("BotRepositoryPrisma", () => {
 
     it("should map domain model to Prisma model correctly", async () => {
       const bot = new Bot({
+        ...botProps,
         id: "99",
         enabled: false,
         telegramMode: "webhook",
         token: "domain-token",
       });
 
-      mockPrisma.bot.upsert.mockResolvedValue({
+      prismaBotMock.upsert.mockResolvedValue({
         id: 99,
         enabled: false,
         telegramMode: "webhook",
@@ -268,7 +287,7 @@ describe("BotRepositoryPrisma", () => {
 
       await repository.save(bot);
 
-      expect(mockPrisma.bot.upsert).toHaveBeenCalledWith({
+      expect(prismaBotMock.upsert).toHaveBeenCalledWith({
         where: { id: 99 },
         create: expect.objectContaining({
           id: 99,
@@ -286,4 +305,3 @@ describe("BotRepositoryPrisma", () => {
     });
   });
 });
-

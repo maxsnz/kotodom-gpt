@@ -6,5 +6,9 @@ export default defineConfig({
     url: env("DATABASE_URL"),
   },
 
+  migrations: {
+    seed: "tsx apps/backend/src/infra/db/prisma/seed.ts",
+  },
+
   schema: "./apps/backend/src/infra/db/prisma/schema.prisma",
 });

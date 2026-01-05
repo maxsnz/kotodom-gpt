@@ -1,6 +1,3 @@
-import type * as runtime from "@prisma/client/runtime/client";
-type Decimal = runtime.Decimal;
-
 export class Message {
   constructor(
     private props: {
@@ -9,7 +6,8 @@ export class Message {
       tgUserId: bigint | null;
       botId: number | null;
       text: string;
-      price: Decimal;
+      telegramUpdateId: bigint | null;
+      userMessageId: number | null;
       createdAt: Date;
     }
   ) {}
@@ -34,11 +32,19 @@ export class Message {
     return this.props.text;
   }
 
-  get price() {
-    return this.props.price;
+  get telegramUpdateId() {
+    return this.props.telegramUpdateId;
+  }
+
+  get userMessageId() {
+    return this.props.userMessageId;
   }
 
   get createdAt() {
     return this.props.createdAt;
+  }
+
+  setUserMessageId(userMessageId: number | null): void {
+    this.props.userMessageId = userMessageId;
   }
 }

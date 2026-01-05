@@ -54,8 +54,10 @@ export const ModelName = {
   TgUser: 'TgUser',
   Message: 'Message',
   Setting: 'Setting',
+  User: 'User',
   Bot: 'Bot',
-  Chat: 'Chat'
+  Chat: 'Chat',
+  MessageProcessing: 'MessageProcessing'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -91,7 +93,8 @@ export const MessageScalarFieldEnum = {
   tgUserId: 'tgUserId',
   botId: 'botId',
   text: 'text',
-  price: 'price',
+  telegramUpdateId: 'telegramUpdateId',
+  userMessageId: 'userMessageId',
   createdAt: 'createdAt'
 } as const
 
@@ -106,6 +109,19 @@ export const SettingScalarFieldEnum = {
 export type SettingScalarFieldEnum = (typeof SettingScalarFieldEnum)[keyof typeof SettingScalarFieldEnum]
 
 
+export const UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  role: 'role',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
 export const BotScalarFieldEnum = {
   id: 'id',
   startMessage: 'startMessage',
@@ -118,7 +134,8 @@ export const BotScalarFieldEnum = {
   enabled: 'enabled',
   assistantId: 'assistantId',
   error: 'error',
-  telegramMode: 'telegramMode'
+  telegramMode: 'telegramMode',
+  ownerUserId: 'ownerUserId'
 } as const
 
 export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotScalarFieldEnum]
@@ -126,6 +143,7 @@ export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotSca
 
 export const ChatScalarFieldEnum = {
   id: 'id',
+  telegramChatId: 'telegramChatId',
   botId: 'botId',
   threadId: 'threadId',
   createdAt: 'createdAt',
@@ -134,6 +152,28 @@ export const ChatScalarFieldEnum = {
 } as const
 
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
+
+
+export const MessageProcessingScalarFieldEnum = {
+  id: 'id',
+  userMessageId: 'userMessageId',
+  status: 'status',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  lastErrorAt: 'lastErrorAt',
+  terminalReason: 'terminalReason',
+  responseMessageId: 'responseMessageId',
+  telegramIncomingMessageId: 'telegramIncomingMessageId',
+  telegramOutgoingMessageId: 'telegramOutgoingMessageId',
+  telegramUpdateId: 'telegramUpdateId',
+  responseGeneratedAt: 'responseGeneratedAt',
+  responseSentAt: 'responseSentAt',
+  price: 'price',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MessageProcessingScalarFieldEnum = (typeof MessageProcessingScalarFieldEnum)[keyof typeof MessageProcessingScalarFieldEnum]
 
 
 export const SortOrder = {

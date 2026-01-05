@@ -33,6 +33,11 @@ export type Message = Prisma.MessageModel
  */
 export type Setting = Prisma.SettingModel
 /**
+ * Model User
+ * 
+ */
+export type User = Prisma.UserModel
+/**
  * Model Bot
  * 
  */
@@ -42,3 +47,8 @@ export type Bot = Prisma.BotModel
  * 
  */
 export type Chat = Prisma.ChatModel
+/**
+ * Model MessageProcessing
+ * 
+ */
+export type MessageProcessing = Prisma.MessageProcessingModel

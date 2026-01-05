@@ -1,8 +1,18 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { BotRepository } from "../../domain/bots/BotRepository";
 import { PgBossClient } from "../../infra/jobs/pgBoss";
-import { JOBS, BotHandleUpdatePayload } from "../../infra/jobs/pgBoss/jobs";
+import {
+  JOBS,
+  BotHandleUpdatePayload,
+  DEFAULT_RETRY_LIMIT,
+} from "../../infra/jobs/pgBoss/jobs";
+import {
+  AppLogger,
+  LOGGER_FACTORY,
+  type LoggerFactory,
+  createConsoleLoggerFactory,
+} from "../../infra/logger";
 
 // ===== Telegram update types (MVP minimal) =====
 type TgUser = {
@@ -48,12 +58,16 @@ type IncomingKind = "message" | "edited_message" | "callback_query";
 
 @Injectable()
 export class TelegramUpdateHandler {
-  private readonly logger = new Logger(TelegramUpdateHandler.name);
+  private readonly logger: AppLogger;
 
   constructor(
     private readonly botRepo: BotRepository,
-    private readonly boss: PgBossClient
-  ) {}
+    private readonly boss: PgBossClient,
+    @Inject(LOGGER_FACTORY) loggerFactory?: LoggerFactory
+  ) {
+    const factory = loggerFactory ?? createConsoleLoggerFactory();
+    this.logger = factory(TelegramUpdateHandler.name);
+  }
 
   /**
    * Called by:
@@ -87,6 +101,7 @@ export class TelegramUpdateHandler {
       messageId: parsed.messageId,
       text: parsed.text,
       callbackData: parsed.callbackData,
+      callbackQueryId: parsed.callbackQueryId,
       kind: parsed.kind,
       raw: update,
     };
@@ -95,9 +110,8 @@ export class TelegramUpdateHandler {
     // pg-boss supports unique jobs (dedupe) via options; if your PgBossClient wraps it, use it.
     // Ideally dedupe by: `${botId}:${parsed.telegramUpdateId}`
     await this.boss.publish(JOBS.BOT_HANDLE_UPDATE, payload, {
-      // Optional if your wrapper supports it:
-      // singletonKey: `${botId}:${parsed.telegramUpdateId}`,
-      // retryLimit: 5,
+      singletonKey: `${botId}:${parsed.telegramUpdateId}`,
+      retryLimit: DEFAULT_RETRY_LIMIT,
     });
   }
 
@@ -109,6 +123,7 @@ export class TelegramUpdateHandler {
     messageId?: number;
     text?: string;
     callbackData?: string;
+    callbackQueryId?: string;
   } {
     if (!this.isObject(update)) return null;
 
@@ -150,6 +165,7 @@ export class TelegramUpdateHandler {
         userId: u.callback_query.from.id,
         messageId: msg?.message_id,
         callbackData: u.callback_query.data,
+        callbackQueryId: u.callback_query.id,
       };
     }
 

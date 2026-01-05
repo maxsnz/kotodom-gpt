@@ -6,6 +6,7 @@ describe("Chat", () => {
       const createdAt = new Date("2024-01-01T00:00:00Z");
       const chat = new Chat({
         id: "chat-123",
+        telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "thread-abc",
@@ -14,6 +15,7 @@ describe("Chat", () => {
       });
 
       expect(chat.id).toBe("chat-123");
+      expect(chat.telegramChatId).toBe(BigInt(12345678));
       expect(chat.botId).toBe(1);
       expect(chat.tgUserId).toBe(BigInt(123456789));
       expect(chat.threadId).toBe("thread-abc");
@@ -25,6 +27,7 @@ describe("Chat", () => {
       const createdAt = new Date("2024-01-01T00:00:00Z");
       const chat = new Chat({
         id: "chat-456",
+        telegramChatId: BigInt(987654321),
         botId: null,
         tgUserId: BigInt(987654321),
         threadId: null,
@@ -33,6 +36,7 @@ describe("Chat", () => {
       });
 
       expect(chat.id).toBe("chat-456");
+      expect(chat.telegramChatId).toBe(BigInt(987654321));
       expect(chat.botId).toBeNull();
       expect(chat.tgUserId).toBe(BigInt(987654321));
       expect(chat.threadId).toBeNull();
@@ -44,6 +48,7 @@ describe("Chat", () => {
       const largeId = BigInt("9007199254740991");
       const chat = new Chat({
         id: "chat-large",
+        telegramChatId: largeId,
         botId: 2,
         tgUserId: largeId,
         threadId: "thread-large",
@@ -52,7 +57,9 @@ describe("Chat", () => {
       });
 
       expect(chat.tgUserId).toBe(largeId);
+      expect(chat.telegramChatId).toBe(largeId);
       expect(typeof chat.tgUserId).toBe("bigint");
+      expect(typeof chat.telegramChatId).toBe("bigint");
     });
   });
 
@@ -60,6 +67,7 @@ describe("Chat", () => {
     it("should update threadId", () => {
       const chat = new Chat({
         id: "chat-123",
+        telegramChatId: BigInt(123456789),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "old-thread",
@@ -74,6 +82,7 @@ describe("Chat", () => {
     it("should set threadId to null", () => {
       const chat = new Chat({
         id: "chat-123",
+        telegramChatId: BigInt(123456789),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "old-thread",
@@ -90,6 +99,7 @@ describe("Chat", () => {
     it("should update name", () => {
       const chat = new Chat({
         id: "chat-123",
+        telegramChatId: BigInt(123456789),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "thread-abc",
@@ -104,6 +114,7 @@ describe("Chat", () => {
     it("should set name to null", () => {
       const chat = new Chat({
         id: "chat-123",
+        telegramChatId: BigInt(123456789),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "thread-abc",
@@ -116,4 +127,3 @@ describe("Chat", () => {
     });
   });
 });
-

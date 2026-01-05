@@ -1,12 +1,30 @@
 import { Module } from "@nestjs/common";
+import { ThrottlerModule } from "@nestjs/throttler";
 
+import { LoggerModule } from "./infra/logger";
 import { BotsModule } from "./modules/bots/bots.module";
 import { ChatsModule } from "./modules/chats/chats.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { HealthModule } from "./modules/health/health.module";
+import { JobsModule } from "./modules/jobs/jobs.module";
 
 @Module({
-  imports: [BotsModule, ChatsModule, AuthModule, HealthModule],
+  imports: [
+    // Rate limiting - default 10 requests per minute
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000, // 1 minute in milliseconds
+          limit: 10, // 10 requests per minute default
+        },
+      ],
+    }),
+    LoggerModule,
+    BotsModule,
+    ChatsModule,
+    AuthModule,
+    HealthModule,
+    JobsModule,
+  ],
 })
 export class AppModule {}
-

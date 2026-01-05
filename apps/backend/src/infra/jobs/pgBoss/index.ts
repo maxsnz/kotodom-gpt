@@ -27,6 +27,7 @@ export type JobHandler<TPayload> = (
 @Injectable()
 export class PgBossClient {
   private boss: PgBoss;
+  private _started = false;
 
   constructor() {
     const config: PgBossConfig = {
@@ -43,10 +44,19 @@ export class PgBossClient {
 
   async start(): Promise<void> {
     await this.boss.start();
+    this._started = true;
   }
 
   async stop(): Promise<void> {
     await this.boss.stop();
+    this._started = false;
+  }
+
+  /**
+   * Check if PgBoss is ready (started and connected)
+   */
+  isReady(): boolean {
+    return this._started;
   }
 
   /**

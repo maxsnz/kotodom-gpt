@@ -387,8 +387,10 @@ export const ModelName = {
   TgUser: 'TgUser',
   Message: 'Message',
   Setting: 'Setting',
+  User: 'User',
   Bot: 'Bot',
-  Chat: 'Chat'
+  Chat: 'Chat',
+  MessageProcessing: 'MessageProcessing'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tgUser" | "message" | "setting" | "bot" | "chat"
+    modelProps: "tgUser" | "message" | "setting" | "user" | "bot" | "chat" | "messageProcessing"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -630,6 +632,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    User: {
+      payload: Prisma.$UserPayload<ExtArgs>
+      fields: Prisma.UserFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        findFirst: {
+          args: Prisma.UserFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        findMany: {
+          args: Prisma.UserFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>[]
+        }
+        create: {
+          args: Prisma.UserCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        createMany: {
+          args: Prisma.UserCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>[]
+        }
+        delete: {
+          args: Prisma.UserDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        update: {
+          args: Prisma.UserUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserPayload>
+        }
+        aggregate: {
+          args: Prisma.UserAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUser>
+        }
+        groupBy: {
+          args: Prisma.UserGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
     Bot: {
       payload: Prisma.$BotPayload<ExtArgs>
       fields: Prisma.BotFieldRefs
@@ -778,6 +854,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MessageProcessing: {
+      payload: Prisma.$MessageProcessingPayload<ExtArgs>
+      fields: Prisma.MessageProcessingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MessageProcessingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MessageProcessingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload>
+        }
+        findFirst: {
+          args: Prisma.MessageProcessingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MessageProcessingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload>
+        }
+        findMany: {
+          args: Prisma.MessageProcessingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload>[]
+        }
+        create: {
+          args: Prisma.MessageProcessingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload>
+        }
+        createMany: {
+          args: Prisma.MessageProcessingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MessageProcessingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload>[]
+        }
+        delete: {
+          args: Prisma.MessageProcessingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload>
+        }
+        update: {
+          args: Prisma.MessageProcessingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload>
+        }
+        deleteMany: {
+          args: Prisma.MessageProcessingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MessageProcessingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MessageProcessingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload>[]
+        }
+        upsert: {
+          args: Prisma.MessageProcessingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MessageProcessingPayload>
+        }
+        aggregate: {
+          args: Prisma.MessageProcessingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMessageProcessing>
+        }
+        groupBy: {
+          args: Prisma.MessageProcessingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MessageProcessingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MessageProcessingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MessageProcessingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -834,7 +984,8 @@ export const MessageScalarFieldEnum = {
   tgUserId: 'tgUserId',
   botId: 'botId',
   text: 'text',
-  price: 'price',
+  telegramUpdateId: 'telegramUpdateId',
+  userMessageId: 'userMessageId',
   createdAt: 'createdAt'
 } as const
 
@@ -849,6 +1000,19 @@ export const SettingScalarFieldEnum = {
 export type SettingScalarFieldEnum = (typeof SettingScalarFieldEnum)[keyof typeof SettingScalarFieldEnum]
 
 
+export const UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  role: 'role',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
 export const BotScalarFieldEnum = {
   id: 'id',
   startMessage: 'startMessage',
@@ -861,7 +1025,8 @@ export const BotScalarFieldEnum = {
   enabled: 'enabled',
   assistantId: 'assistantId',
   error: 'error',
-  telegramMode: 'telegramMode'
+  telegramMode: 'telegramMode',
+  ownerUserId: 'ownerUserId'
 } as const
 
 export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotScalarFieldEnum]
@@ -869,6 +1034,7 @@ export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotSca
 
 export const ChatScalarFieldEnum = {
   id: 'id',
+  telegramChatId: 'telegramChatId',
   botId: 'botId',
   threadId: 'threadId',
   createdAt: 'createdAt',
@@ -877,6 +1043,28 @@ export const ChatScalarFieldEnum = {
 } as const
 
 export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
+
+
+export const MessageProcessingScalarFieldEnum = {
+  id: 'id',
+  userMessageId: 'userMessageId',
+  status: 'status',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  lastErrorAt: 'lastErrorAt',
+  terminalReason: 'terminalReason',
+  responseMessageId: 'responseMessageId',
+  telegramIncomingMessageId: 'telegramIncomingMessageId',
+  telegramOutgoingMessageId: 'telegramOutgoingMessageId',
+  telegramUpdateId: 'telegramUpdateId',
+  responseGeneratedAt: 'responseGeneratedAt',
+  responseSentAt: 'responseSentAt',
+  price: 'price',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MessageProcessingScalarFieldEnum = (typeof MessageProcessingScalarFieldEnum)[keyof typeof MessageProcessingScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -966,16 +1154,30 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Decimal'
+ * Reference to a field of type 'UserRole'
  */
-export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+export type EnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole'>
     
 
 
 /**
- * Reference to a field of type 'Decimal[]'
+ * Reference to a field of type 'UserRole[]'
  */
-export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+export type ListEnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole[]'>
+    
+
+
+/**
+ * Reference to a field of type 'UserStatus'
+ */
+export type EnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'UserStatus[]'
+ */
+export type ListEnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserStatus[]'>
     
 
 
@@ -997,6 +1199,34 @@ export type EnumTelegramModeEnumFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'TelegramModeEnum[]'
  */
 export type ListEnumTelegramModeEnumFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TelegramModeEnum[]'>
+    
+
+
+/**
+ * Reference to a field of type 'MessageProcessingStatus'
+ */
+export type EnumMessageProcessingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MessageProcessingStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'MessageProcessingStatus[]'
+ */
+export type ListEnumMessageProcessingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MessageProcessingStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal'
+ */
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal[]'
+ */
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
 
 
@@ -1111,8 +1341,10 @@ export type GlobalOmitConfig = {
   tgUser?: Prisma.TgUserOmit
   message?: Prisma.MessageOmit
   setting?: Prisma.SettingOmit
+  user?: Prisma.UserOmit
   bot?: Prisma.BotOmit
   chat?: Prisma.ChatOmit
+  messageProcessing?: Prisma.MessageProcessingOmit
 }
 
 /* Types for Logging */

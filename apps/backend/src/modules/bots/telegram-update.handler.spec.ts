@@ -6,6 +6,16 @@ jest.mock("../../infra/jobs/pgBoss", () => ({
   },
 }));
 
+// Mock env
+jest.mock("../../config/env", () => ({
+  env: {
+    BASE_URL: "https://api.example.com",
+    NODE_ENV: "test",
+    LOGTAIL_TOKEN: "",
+    LOGTAIL_SOURCE: "",
+  },
+}));
+
 import { TelegramUpdateHandler } from "./telegram-update.handler";
 import { BotRepository } from "../../domain/bots/BotRepository";
 import { PgBossClient } from "../../infra/jobs/pgBoss";
@@ -37,9 +47,17 @@ describe("TelegramUpdateHandler", () => {
   describe("handle", () => {
     const enabledBot = new Bot({
       id: "1",
-      enabled: true,
-      telegramMode: "webhook",
+      name: "Test Bot",
+      startMessage: "Hello",
+      errorMessage: "Error",
+      model: "gpt-4o-mini",
+      assistantId: "asst_123",
       token: "test-token",
+      enabled: true,
+      isActive: true,
+      telegramMode: "webhook",
+      error: null,
+      ownerUserId: null,
     });
 
     it("should parse and publish message update", async () => {
@@ -137,7 +155,9 @@ describe("TelegramUpdateHandler", () => {
           chatId: 12345,
           userId: 67890,
           messageId: 3,
+          text: undefined,
           callbackData: "button_data",
+          callbackQueryId: "callback-id",
           kind: "callback_query",
           raw: update,
         },
@@ -194,9 +214,17 @@ describe("TelegramUpdateHandler", () => {
     it("should skip processing when bot is disabled", async () => {
       const disabledBot = new Bot({
         id: "1",
-        enabled: false,
-        telegramMode: "webhook",
+        name: "Test Bot",
+        startMessage: "Hello",
+        errorMessage: "Error",
+        model: "gpt-4o-mini",
+        assistantId: "asst_123",
         token: "test-token",
+        enabled: false,
+        isActive: false,
+        telegramMode: "webhook",
+        error: null,
+        ownerUserId: null,
       });
 
       const update = {

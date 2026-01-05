@@ -3,19 +3,29 @@ jest.mock("../jobs/pgBoss", () => ({
   PgBossClient: jest.fn(),
 }));
 
+// Mock env
+jest.mock("../../config/env", () => ({
+  env: {
+    BASE_URL: "https://api.example.com",
+  },
+}));
+
 import { EffectRunner } from "./EffectRunner";
 import { TelegramClient } from "../telegram/telegramClient";
 import { PgBossClient } from "../jobs/pgBoss";
+import { SettingsRepository } from "../../domain/settings/SettingsRepository";
 import { Effect } from "../../domain/effects/Effect";
 
 describe("EffectRunner", () => {
   let runner: EffectRunner;
   let mockTelegramClient: jest.Mocked<TelegramClient>;
   let mockPgBossClient: jest.Mocked<PgBossClient>;
+  let mockSettingsRepository: jest.Mocked<SettingsRepository>;
 
   beforeEach(() => {
     mockTelegramClient = {
-      ensureWebhook: jest.fn(),
+      setWebhook: jest.fn(),
+      removeWebhook: jest.fn(),
       sendMessage: jest.fn(),
       editMessageText: jest.fn(),
       deleteMessage: jest.fn(),
@@ -30,7 +40,16 @@ describe("EffectRunner", () => {
       stop: jest.fn(),
     } as any;
 
-    runner = new EffectRunner(mockTelegramClient, mockPgBossClient);
+    mockSettingsRepository = {
+      getSetting: jest.fn(),
+      setSetting: jest.fn(),
+    } as any;
+
+    runner = new EffectRunner(
+      mockTelegramClient,
+      mockPgBossClient,
+      mockSettingsRepository
+    );
   });
 
   describe("run", () => {
@@ -38,13 +57,39 @@ describe("EffectRunner", () => {
       const effect: Effect = {
         type: "telegram.ensureWebhook",
         botId: "test-bot-id",
+        botToken: "test-bot-token",
       };
 
-      mockTelegramClient.ensureWebhook.mockResolvedValue(undefined);
+      const mockSetWebhook = jest.fn().mockResolvedValue(undefined);
+      jest
+        .spyOn(require("../telegram/telegramClient"), "TelegramClient")
+        .mockImplementation(() => ({
+          setWebhook: mockSetWebhook,
+        }));
 
       await runner.run(effect);
 
-      expect(mockTelegramClient.ensureWebhook).toHaveBeenCalledWith("test-bot-id");
+      expect(mockSetWebhook).toHaveBeenCalledWith(
+        "https://api.example.com/webhook/test-bot-id"
+      );
+    });
+
+    it("should execute telegram.removeWebhook effect", async () => {
+      const effect: Effect = {
+        type: "telegram.removeWebhook",
+        botToken: "test-bot-token",
+      };
+
+      const mockRemoveWebhook = jest.fn().mockResolvedValue(undefined);
+      jest
+        .spyOn(require("../telegram/telegramClient"), "TelegramClient")
+        .mockImplementation(() => ({
+          removeWebhook: mockRemoveWebhook,
+        }));
+
+      await runner.run(effect);
+
+      expect(mockRemoveWebhook).toHaveBeenCalled();
     });
 
     it("should execute jobs.publish effect", async () => {
@@ -102,11 +147,16 @@ describe("EffectRunner", () => {
       const effect: Effect = {
         type: "telegram.ensureWebhook",
         botId: "test-bot-id",
+        botToken: "test-bot-token",
       };
 
-      mockTelegramClient.ensureWebhook.mockRejectedValue(
-        new Error("Webhook setup failed")
-      );
+      jest
+        .spyOn(require("../telegram/telegramClient"), "TelegramClient")
+        .mockImplementation(() => ({
+          setWebhook: jest
+            .fn()
+            .mockRejectedValue(new Error("Webhook setup failed")),
+        }));
 
       await expect(runner.run(effect)).rejects.toThrow("Webhook setup failed");
     });
@@ -126,10 +176,18 @@ describe("EffectRunner", () => {
 
   describe("runAll", () => {
     it("should execute multiple effects sequentially", async () => {
+      const mockSetWebhook = jest.fn().mockResolvedValue(undefined);
+      jest
+        .spyOn(require("../telegram/telegramClient"), "TelegramClient")
+        .mockImplementation(() => ({
+          setWebhook: mockSetWebhook,
+        }));
+
       const effects: Effect[] = [
         {
           type: "telegram.ensureWebhook",
           botId: "bot-1",
+          botToken: "token-1",
         },
         {
           type: "jobs.publish",
@@ -139,17 +197,23 @@ describe("EffectRunner", () => {
         {
           type: "telegram.ensureWebhook",
           botId: "bot-2",
+          botToken: "token-2",
         },
       ];
 
-      mockTelegramClient.ensureWebhook.mockResolvedValue(undefined);
       mockPgBossClient.publish.mockResolvedValue("job-id");
 
       await runner.runAll(effects);
 
-      expect(mockTelegramClient.ensureWebhook).toHaveBeenCalledTimes(2);
-      expect(mockTelegramClient.ensureWebhook).toHaveBeenNthCalledWith(1, "bot-1");
-      expect(mockTelegramClient.ensureWebhook).toHaveBeenNthCalledWith(2, "bot-2");
+      expect(mockSetWebhook).toHaveBeenCalledTimes(2);
+      expect(mockSetWebhook).toHaveBeenNthCalledWith(
+        1,
+        "https://api.example.com/webhook/bot-1"
+      );
+      expect(mockSetWebhook).toHaveBeenNthCalledWith(
+        2,
+        "https://api.example.com/webhook/bot-2"
+      );
       expect(mockPgBossClient.publish).toHaveBeenCalledTimes(1);
       expect(mockPgBossClient.publish).toHaveBeenCalledWith(
         "job-1",
@@ -159,10 +223,19 @@ describe("EffectRunner", () => {
     });
 
     it("should stop on first error", async () => {
+      jest
+        .spyOn(require("../telegram/telegramClient"), "TelegramClient")
+        .mockImplementation(() => ({
+          setWebhook: jest
+            .fn()
+            .mockRejectedValue(new Error("First effect failed")),
+        }));
+
       const effects: Effect[] = [
         {
           type: "telegram.ensureWebhook",
           botId: "bot-1",
+          botToken: "token-1",
         },
         {
           type: "jobs.publish",
@@ -171,22 +244,61 @@ describe("EffectRunner", () => {
         },
       ];
 
-      mockTelegramClient.ensureWebhook.mockRejectedValue(
-        new Error("First effect failed")
+      await expect(runner.runAll(effects)).rejects.toThrow(
+        "First effect failed"
       );
 
-      await expect(runner.runAll(effects)).rejects.toThrow("First effect failed");
-
-      expect(mockTelegramClient.ensureWebhook).toHaveBeenCalledTimes(1);
       expect(mockPgBossClient.publish).not.toHaveBeenCalled();
     });
 
     it("should handle empty effects array", async () => {
       await runner.runAll([]);
 
-      expect(mockTelegramClient.ensureWebhook).not.toHaveBeenCalled();
       expect(mockPgBossClient.publish).not.toHaveBeenCalled();
     });
   });
-});
 
+  describe("notification.adminAlert", () => {
+    it("should skip notification when settings are not configured", async () => {
+      mockSettingsRepository.getSetting.mockResolvedValue(null);
+
+      const effect: Effect = {
+        type: "notification.adminAlert",
+        message: "Test notification",
+      };
+
+      // Should not throw
+      await runner.run(effect);
+
+      expect(mockSettingsRepository.getSetting).toHaveBeenCalled();
+    });
+
+    it("should send notification when settings are configured", async () => {
+      mockSettingsRepository.getSetting.mockImplementation(async (key) => {
+        if (key === "admin_notify_bot_token") return "test-bot-token";
+        if (key === "admin_notify_chat_id") return "123456";
+        return null;
+      });
+
+      // Mock TelegramClient constructor
+      const mockSendMessage = jest.fn().mockResolvedValue({ messageId: 1 });
+      jest
+        .spyOn(require("../telegram/telegramClient"), "TelegramClient")
+        .mockImplementation(() => ({
+          sendMessage: mockSendMessage,
+        }));
+
+      const effect: Effect = {
+        type: "notification.adminAlert",
+        message: "Test notification",
+      };
+
+      await runner.run(effect);
+
+      expect(mockSendMessage).toHaveBeenCalledWith({
+        chatId: 123456,
+        text: "Test notification",
+      });
+    });
+  });
+});

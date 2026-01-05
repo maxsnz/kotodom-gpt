@@ -34,6 +34,7 @@ describe("env config", () => {
     process.env.DATABASE_URL = "postgresql://localhost:5432/test";
     process.env.OPENAI_API_KEY = "test-api-key";
     process.env.COOKIE_SECRET = "test-secret";
+    process.env.BASE_URL = "https://api.example.com";
 
     // Re-import to trigger validation
     const { env } = require("./env");
@@ -41,12 +42,14 @@ describe("env config", () => {
     expect(env.DATABASE_URL).toBe("postgresql://localhost:5432/test");
     expect(env.OPENAI_API_KEY).toBe("test-api-key");
     expect(env.COOKIE_SECRET).toBe("test-secret");
+    expect(env.BASE_URL).toBe("https://api.example.com");
   });
 
   it("should throw error when DATABASE_URL is missing", () => {
     delete process.env.DATABASE_URL;
     process.env.OPENAI_API_KEY = "test-api-key";
     process.env.COOKIE_SECRET = "test-secret";
+    process.env.BASE_URL = "https://api.example.com";
 
     expect(() => {
       require("./env");
@@ -57,6 +60,7 @@ describe("env config", () => {
     process.env.DATABASE_URL = "postgresql://localhost:5432/test";
     delete process.env.OPENAI_API_KEY;
     process.env.COOKIE_SECRET = "test-secret";
+    process.env.BASE_URL = "https://api.example.com";
 
     expect(() => {
       require("./env");
@@ -67,26 +71,40 @@ describe("env config", () => {
     process.env.DATABASE_URL = "postgresql://localhost:5432/test";
     process.env.OPENAI_API_KEY = "test-api-key";
     delete process.env.COOKIE_SECRET;
+    process.env.BASE_URL = "https://api.example.com";
 
     expect(() => {
       require("./env");
     }).toThrow("Missing required environment variables: COOKIE_SECRET");
   });
 
+  it("should throw error when BASE_URL is missing", () => {
+    process.env.DATABASE_URL = "postgresql://localhost:5432/test";
+    process.env.OPENAI_API_KEY = "test-api-key";
+    process.env.COOKIE_SECRET = "test-secret";
+    delete process.env.BASE_URL;
+
+    expect(() => {
+      require("./env");
+    }).toThrow("Missing required environment variables: BASE_URL");
+  });
+
   it("should throw error when multiple required vars are missing", () => {
     delete process.env.DATABASE_URL;
     delete process.env.OPENAI_API_KEY;
     process.env.COOKIE_SECRET = "test-secret";
+    process.env.BASE_URL = "https://api.example.com";
 
     expect(() => {
       require("./env");
-    }).toThrow(/Missing required environment variables: (DATABASE_URL, OPENAI_API_KEY|OPENAI_API_KEY, DATABASE_URL)/);
+    }).toThrow(/Missing required environment variables: DATABASE_URL, OPENAI_API_KEY/);
   });
 
   it("should use default value for NODE_ENV when not set", () => {
     process.env.DATABASE_URL = "postgresql://localhost:5432/test";
     process.env.OPENAI_API_KEY = "test-api-key";
     process.env.COOKIE_SECRET = "test-secret";
+    process.env.BASE_URL = "https://api.example.com";
     delete process.env.NODE_ENV;
 
     const { env } = require("./env");
@@ -98,6 +116,7 @@ describe("env config", () => {
     process.env.DATABASE_URL = "postgresql://localhost:5432/test";
     process.env.OPENAI_API_KEY = "test-api-key";
     process.env.COOKIE_SECRET = "test-secret";
+    process.env.BASE_URL = "https://api.example.com";
     process.env.NODE_ENV = "production";
 
     const { env } = require("./env");
@@ -109,6 +128,7 @@ describe("env config", () => {
     process.env.DATABASE_URL = "postgresql://localhost:5432/test";
     process.env.OPENAI_API_KEY = "test-api-key";
     process.env.COOKIE_SECRET = "test-secret";
+    process.env.BASE_URL = "https://api.example.com";
     process.env.SERVER_PORT = "3000";
     process.env.LOGTAIL_TOKEN = "logtail-token";
     process.env.LOGTAIL_SOURCE = "logtail-source";
@@ -118,6 +138,7 @@ describe("env config", () => {
     expect(env).toHaveProperty("NODE_ENV");
     expect(env).toHaveProperty("DATABASE_URL");
     expect(env).toHaveProperty("SERVER_PORT");
+    expect(env).toHaveProperty("BASE_URL");
     expect(env).toHaveProperty("OPENAI_API_KEY");
     expect(env).toHaveProperty("COOKIE_SECRET");
     expect(env).toHaveProperty("LOGTAIL_TOKEN");
@@ -128,6 +149,7 @@ describe("env config", () => {
     process.env.DATABASE_URL = "postgresql://localhost:5432/test";
     process.env.OPENAI_API_KEY = "test-api-key";
     process.env.COOKIE_SECRET = "test-secret";
+    process.env.BASE_URL = "https://api.example.com";
     process.env.SERVER_PORT = "8080";
 
     const { env } = require("./env");
@@ -139,6 +161,7 @@ describe("env config", () => {
     process.env.DATABASE_URL = "postgresql://localhost:5432/test";
     process.env.OPENAI_API_KEY = "test-api-key";
     process.env.COOKIE_SECRET = "test-secret";
+    process.env.BASE_URL = "https://api.example.com";
     process.env.LOGTAIL_TOKEN = "custom-token";
 
     const { env } = require("./env");

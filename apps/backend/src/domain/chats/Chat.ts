@@ -2,6 +2,7 @@ export class Chat {
   constructor(
     private props: {
       id: string;
+      telegramChatId: bigint;
       botId: number | null;
       tgUserId: bigint;
       threadId: string | null;
@@ -12,6 +13,10 @@ export class Chat {
 
   get id() {
     return this.props.id;
+  }
+
+  get telegramChatId() {
+    return this.props.telegramChatId;
   }
 
   get botId() {

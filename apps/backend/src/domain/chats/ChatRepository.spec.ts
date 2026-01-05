@@ -1,5 +1,6 @@
-import { ChatRepository } from "./ChatRepository";
+import { ChatRepository, ChatFilters } from "./ChatRepository";
 import { Chat } from "./Chat";
+import type { TgUser } from "../../infra/db/prisma/generated/client";
 
 describe("ChatRepository", () => {
   it("should be an abstract class that cannot be instantiated", () => {
@@ -8,6 +9,10 @@ describe("ChatRepository", () => {
     class ConcreteChatRepository extends ChatRepository {
       async findById(id: string): Promise<Chat | null> {
         return null;
+      }
+
+      async findAll(filters?: ChatFilters): Promise<Chat[]> {
+        return [];
       }
 
       async findByUserId(tgUserId: bigint): Promise<Chat[]> {
@@ -25,7 +30,8 @@ describe("ChatRepository", () => {
       async findOrCreateChat(
         chatId: string,
         tgUserId: bigint,
-        botId: number
+        botId: number,
+        telegramChatId: bigint
       ): Promise<Chat> {
         throw new Error("Not implemented");
       }
@@ -37,7 +43,7 @@ describe("ChatRepository", () => {
           firstName?: string;
           lastName?: string;
         }
-      ) {
+      ): Promise<TgUser> {
         throw new Error("Not implemented");
       }
     }
@@ -49,19 +55,23 @@ describe("ChatRepository", () => {
 
   it("should require all abstract methods to be implemented", () => {
     // This test verifies that TypeScript enforces all abstract methods
-    // If we try to create a class without implementing all methods, TypeScript will error
-    // This is a compile-time check, so we just verify the structure exists
-
-    class IncompleteRepository extends ChatRepository {
-      async findById(id: string): Promise<Chat | null> {
-        return null;
-      }
-      // Missing other methods - TypeScript will error at compile time
-    }
-
     // TypeScript compilation will fail if methods are missing
-    // This test serves as documentation that all methods must be implemented
-    expect(true).toBe(true);
+    // We test this by trying to create an incomplete implementation
+    // and expecting a compile-time error
+
+    expect(() => {
+      // This will cause a TypeScript compilation error if uncommented:
+      // class IncompleteRepository extends ChatRepository {
+      //   async findById(id: string): Promise<Chat | null> {
+      //     return null;
+      //   }
+      //   // Missing other methods - TypeScript will error at compile time
+      // }
+
+      // Since we can't actually create an incomplete class,
+      // we just verify that the abstract class exists
+      expect(ChatRepository.prototype).toBeDefined();
+    }).not.toThrow();
   });
 
   it("should have all required abstract methods defined", () => {
@@ -80,6 +90,10 @@ describe("ChatRepository", () => {
         return null;
       }
 
+      async findAll(filters?: ChatFilters): Promise<Chat[]> {
+        return [];
+      }
+
       async findByUserId(tgUserId: bigint): Promise<Chat[]> {
         return [];
       }
@@ -95,7 +109,8 @@ describe("ChatRepository", () => {
       async findOrCreateChat(
         chatId: string,
         tgUserId: bigint,
-        botId: number
+        botId: number,
+        telegramChatId: bigint
       ): Promise<Chat> {
         throw new Error("Not implemented");
       }
@@ -107,7 +122,7 @@ describe("ChatRepository", () => {
           firstName?: string;
           lastName?: string;
         }
-      ) {
+      ): Promise<TgUser> {
         throw new Error("Not implemented");
       }
     }
@@ -122,4 +137,3 @@ describe("ChatRepository", () => {
     });
   });
 });
-

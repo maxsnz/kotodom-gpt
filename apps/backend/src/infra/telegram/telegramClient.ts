@@ -73,9 +73,11 @@ export class TelegramClient {
     } as any);
   }
 
-  async ensureWebhook(botId: string): Promise<void> {
-    await this.bot.telegram.setWebhook(
-      `https://api.telegram.org/bots/${botId}/webhook`
-    );
+  async setWebhook(url: string): Promise<void> {
+    await this.bot.telegram.setWebhook(url);
+  }
+
+  async removeWebhook(): Promise<void> {
+    await this.bot.telegram.deleteWebhook();
   }
 }

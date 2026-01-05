@@ -15,3 +15,31 @@ export const TelegramModeEnum = {
 } as const
 
 export type TelegramModeEnum = (typeof TelegramModeEnum)[keyof typeof TelegramModeEnum]
+
+
+export const UserRole = {
+  ADMIN: 'ADMIN',
+  MANAGER: 'MANAGER',
+  USER: 'USER'
+} as const
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
+
+export const UserStatus = {
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED'
+} as const
+
+export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
+
+
+export const MessageProcessingStatus = {
+  RECEIVED: 'RECEIVED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  TERMINAL: 'TERMINAL'
+} as const
+
+export type MessageProcessingStatus = (typeof MessageProcessingStatus)[keyof typeof MessageProcessingStatus]

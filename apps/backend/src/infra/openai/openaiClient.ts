@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import OpenAI from "openai";
 import fetch from "node-fetch";
 import { HttpsProxyAgent } from "https-proxy-agent";
@@ -11,6 +11,12 @@ import {
   type TokenUsage,
   type PricingInfo,
 } from "./pricing";
+import {
+  AppLogger,
+  LOGGER_FACTORY,
+  type LoggerFactory,
+  createConsoleLoggerFactory,
+} from "../logger";
 
 export interface GetAnswerParams {
   assistantId: string;
@@ -27,10 +33,15 @@ export interface GetAnswerResult {
 
 @Injectable()
 export class OpenAIClient {
-  private readonly logger = new Logger(OpenAIClient.name);
+  private readonly logger: AppLogger;
   private readonly client: OpenAI;
 
-  constructor(private readonly settingsRepository: SettingsRepository) {
+  constructor(
+    private readonly settingsRepository: SettingsRepository,
+    @Inject(LOGGER_FACTORY) createLogger?: LoggerFactory
+  ) {
+    const factory = createLogger ?? createConsoleLoggerFactory();
+    this.logger = factory(OpenAIClient.name);
     this.client = new OpenAI({
       apiKey: env.OPENAI_API_KEY,
       // @ts-expect-error - fetch override for proxy support
@@ -68,7 +79,7 @@ export class OpenAIClient {
    */
   private async checkRunStatus(
     threadId: string,
-    runId: string,
+    runId: string
   ): Promise<{ status: string; error?: any }> {
     try {
       const run = await this.client.beta.threads.runs.retrieve(threadId, runId);
@@ -88,7 +99,7 @@ export class OpenAIClient {
    */
   private async waitForRunCompletion(
     threadId: string,
-    runId: string,
+    runId: string
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const interval = setInterval(async () => {
@@ -101,8 +112,8 @@ export class OpenAIClient {
             clearInterval(interval);
             reject(
               new Error(
-                `OpenAI run failed: ${error?.message || JSON.stringify(error)}`,
-              ),
+                `OpenAI run failed: ${error?.message || JSON.stringify(error)}`
+              )
             );
           }
         } catch (error) {
@@ -117,7 +128,7 @@ export class OpenAIClient {
    * Extract text content from message list
    */
   private extractTextFromMessage(
-    messages: OpenAI.Beta.Threads.Messages.ThreadMessagesPage,
+    messages: OpenAI.Beta.Threads.Messages.MessagesPage
   ): string | null {
     if (messages.data.length === 0) {
       return null;
@@ -125,7 +136,7 @@ export class OpenAIClient {
 
     const firstMessage = messages.data[0];
     const textBlock = firstMessage.content.find(
-      (item): item is TextContentBlock => item.type === "text",
+      (item): item is TextContentBlock => item.type === "text"
     );
 
     return textBlock?.text.value || null;
@@ -135,8 +146,12 @@ export class OpenAIClient {
    * Get answer from OpenAI assistant
    */
   async getAnswer(params: GetAnswerParams): Promise<GetAnswerResult> {
-    const { assistantId, threadId: providedThreadId, messageText, model } =
-      params;
+    const {
+      assistantId,
+      threadId: providedThreadId,
+      messageText,
+      model,
+    } = params;
 
     let threadId = providedThreadId;
 
@@ -171,7 +186,7 @@ export class OpenAIClient {
       // Create and start run
       const run = await this.client.beta.threads.runs.create(
         threadId,
-        runConfig,
+        runConfig
       );
       const runId = run.id;
 
@@ -183,7 +198,7 @@ export class OpenAIClient {
       // Get completed run to access usage information
       const completedRun = await this.client.beta.threads.runs.retrieve(
         threadId,
-        runId,
+        runId
       );
 
       // Get messages from thread
@@ -194,7 +209,7 @@ export class OpenAIClient {
 
       if (!answerText) {
         this.logger.warn(
-          `No text content found in response for thread ${threadId}`,
+          `No text content found in response for thread ${threadId}`
         );
         return {
           answer: "no answer from chatGPT",
@@ -207,13 +222,12 @@ export class OpenAIClient {
       let pricing: PricingInfo | null = null;
       if (completedRun.usage) {
         this.logger.debug(
-          `Raw usage data: ${JSON.stringify(completedRun.usage, null, 2)}`,
+          `Raw usage data: ${JSON.stringify(completedRun.usage, null, 2)}`
         );
 
         // Use provided model or extract from assistant
         const modelToUse =
-          model ||
-          (await extractModelFromAssistant(assistantId, this.client));
+          model || (await extractModelFromAssistant(assistantId, this.client));
 
         const usage: TokenUsage = {
           prompt_tokens: completedRun.usage.prompt_tokens,
@@ -223,16 +237,16 @@ export class OpenAIClient {
 
         pricing = calculateOpenAICost(modelToUse, usage);
 
-        this.logger.log(
+        this.logger.info(
           `Model: ${modelToUse}${model ? " (overridden)" : ""}, Usage: ${
             usage.total_tokens
           } tokens (${usage.prompt_tokens} input + ${
             usage.completion_tokens
-          } output), Cost: $${pricing.totalCost.toFixed(6)}`,
+          } output), Cost: $${pricing.totalCost.toFixed(6)}`
         );
       } else {
         this.logger.warn(
-          `No usage information available for pricing calculation in thread ${threadId}`,
+          `No usage information available for pricing calculation in thread ${threadId}`
         );
       }
 
@@ -242,15 +256,14 @@ export class OpenAIClient {
         threadId,
       };
     } catch (error) {
-      this.logger.error(
-        `Failed to get answer from OpenAI: ${error}`,
-        error instanceof Error ? error.stack : undefined,
-      );
+      this.logger.error(`Failed to get answer from OpenAI: ${error}`, {
+        stack: error instanceof Error ? error.stack : undefined,
+      });
 
       // Re-throw with more context
       if (error instanceof Error) {
         throw new Error(
-          `OpenAI API error: ${error.message}. ThreadId: ${threadId || "none"}`,
+          `OpenAI API error: ${error.message}. ThreadId: ${threadId || "none"}`
         );
       }
       throw error;

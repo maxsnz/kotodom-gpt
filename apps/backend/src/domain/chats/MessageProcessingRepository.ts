@@ -1,0 +1,39 @@
+import { MessageProcessing } from "./MessageProcessing";
+
+export abstract class MessageProcessingRepository {
+  abstract getOrCreateForUserMessage(
+    userMessageId: number
+  ): Promise<MessageProcessing>;
+
+  abstract markProcessing(userMessageId: number): Promise<void>;
+
+  abstract markFailed(userMessageId: number, error: string): Promise<void>;
+
+  abstract markTerminal(userMessageId: number, reason: string): Promise<void>;
+
+  abstract markResponseGenerated(
+    userMessageId: number,
+    responseMessageId: number,
+    price?: import("@prisma/client/runtime/client").Decimal
+  ): Promise<void>;
+
+  abstract markResponseSent(
+    userMessageId: number,
+    telegramOutgoingMessageId?: number
+  ): Promise<void>;
+
+  abstract markCompleted(userMessageId: number): Promise<void>;
+
+  abstract findByUserMessageId(
+    userMessageId: number
+  ): Promise<MessageProcessing | null>;
+
+  abstract findFailed(limit?: number): Promise<MessageProcessing[]>;
+
+  abstract updateTelegramIds(
+    userMessageId: number,
+    telegramIncomingMessageId?: number,
+    telegramUpdateId?: bigint
+  ): Promise<void>;
+}
+

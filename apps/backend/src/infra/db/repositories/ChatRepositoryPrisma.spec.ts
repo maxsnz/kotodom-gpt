@@ -19,10 +19,20 @@ jest.mock("../prisma/client", () => ({
 describe("ChatRepositoryPrisma", () => {
   let repository: ChatRepositoryPrisma;
   let mockPrisma: jest.Mocked<typeof prisma>;
+  let prismaChatMock: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    upsert: jest.Mock;
+  };
+  let prismaTgUserMock: {
+    upsert: jest.Mock;
+  };
 
   beforeEach(() => {
     repository = new ChatRepositoryPrisma();
     mockPrisma = prisma as jest.Mocked<typeof prisma>;
+    prismaChatMock = mockPrisma.chat as unknown as typeof prismaChatMock;
+    prismaTgUserMock = mockPrisma.tgUser as unknown as typeof prismaTgUserMock;
     jest.clearAllMocks();
   });
 
@@ -30,6 +40,7 @@ describe("ChatRepositoryPrisma", () => {
     it("should return chat when found", async () => {
       const prismaChat = {
         id: "chat-1",
+        telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "thread-123",
@@ -37,23 +48,24 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       };
 
-      mockPrisma.chat.findUnique.mockResolvedValue(prismaChat as any);
+      prismaChatMock.findUnique.mockResolvedValue(prismaChat as any);
 
       const result = await repository.findById("chat-1");
 
       expect(result).toBeInstanceOf(Chat);
       expect(result?.id).toBe("chat-1");
+      expect(result?.telegramChatId).toBe(BigInt(12345678));
       expect(result?.botId).toBe(1);
       expect(result?.tgUserId).toBe(BigInt(123456789));
       expect(result?.threadId).toBe("thread-123");
       expect(result?.name).toBe("Test Chat");
-      expect(mockPrisma.chat.findUnique).toHaveBeenCalledWith({
+      expect(prismaChatMock.findUnique).toHaveBeenCalledWith({
         where: { id: "chat-1" },
       });
     });
 
     it("should return null when chat not found", async () => {
-      mockPrisma.chat.findUnique.mockResolvedValue(null);
+      prismaChatMock.findUnique.mockResolvedValue(null);
 
       const result = await repository.findById("non-existent");
 
@@ -63,6 +75,7 @@ describe("ChatRepositoryPrisma", () => {
     it("should handle chat with null fields", async () => {
       const prismaChat = {
         id: "chat-2",
+        telegramChatId: BigInt(987654321),
         botId: null,
         tgUserId: BigInt(987654321),
         threadId: null,
@@ -70,7 +83,7 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-02"),
       };
 
-      mockPrisma.chat.findUnique.mockResolvedValue(prismaChat as any);
+      prismaChatMock.findUnique.mockResolvedValue(prismaChat as any);
 
       const result = await repository.findById("chat-2");
 
@@ -88,6 +101,7 @@ describe("ChatRepositoryPrisma", () => {
       const prismaChats = [
         {
           id: "chat-1",
+          telegramChatId: BigInt(12345678),
           botId: 1,
           tgUserId,
           threadId: "thread-1",
@@ -96,6 +110,7 @@ describe("ChatRepositoryPrisma", () => {
         },
         {
           id: "chat-2",
+          telegramChatId: BigInt(12345678),
           botId: 2,
           tgUserId,
           threadId: null,
@@ -104,7 +119,7 @@ describe("ChatRepositoryPrisma", () => {
         },
       ];
 
-      mockPrisma.chat.findMany.mockResolvedValue(prismaChats as any);
+      prismaChatMock.findMany.mockResolvedValue(prismaChats as any);
 
       const result = await repository.findByUserId(tgUserId);
 
@@ -112,13 +127,13 @@ describe("ChatRepositoryPrisma", () => {
       expect(result[0]).toBeInstanceOf(Chat);
       expect(result[0].id).toBe("chat-1");
       expect(result[1].id).toBe("chat-2");
-      expect(mockPrisma.chat.findMany).toHaveBeenCalledWith({
+      expect(prismaChatMock.findMany).toHaveBeenCalledWith({
         where: { tgUserId },
       });
     });
 
     it("should return empty array when no chats found", async () => {
-      mockPrisma.chat.findMany.mockResolvedValue([]);
+      prismaChatMock.findMany.mockResolvedValue([]);
 
       const result = await repository.findByUserId(BigInt(999999999));
 
@@ -132,6 +147,7 @@ describe("ChatRepositoryPrisma", () => {
       const prismaChats = [
         {
           id: "chat-1",
+          telegramChatId: BigInt(111),
           botId,
           tgUserId: BigInt(111),
           threadId: "thread-1",
@@ -140,6 +156,7 @@ describe("ChatRepositoryPrisma", () => {
         },
         {
           id: "chat-2",
+          telegramChatId: BigInt(222),
           botId,
           tgUserId: BigInt(222),
           threadId: null,
@@ -148,7 +165,7 @@ describe("ChatRepositoryPrisma", () => {
         },
       ];
 
-      mockPrisma.chat.findMany.mockResolvedValue(prismaChats as any);
+      prismaChatMock.findMany.mockResolvedValue(prismaChats as any);
 
       const result = await repository.findByBotId(botId);
 
@@ -156,13 +173,13 @@ describe("ChatRepositoryPrisma", () => {
       expect(result[0]).toBeInstanceOf(Chat);
       expect(result[0].botId).toBe(botId);
       expect(result[1].botId).toBe(botId);
-      expect(mockPrisma.chat.findMany).toHaveBeenCalledWith({
+      expect(prismaChatMock.findMany).toHaveBeenCalledWith({
         where: { botId },
       });
     });
 
     it("should return empty array when no chats found for bot", async () => {
-      mockPrisma.chat.findMany.mockResolvedValue([]);
+      prismaChatMock.findMany.mockResolvedValue([]);
 
       const result = await repository.findByBotId(999);
 
@@ -174,6 +191,7 @@ describe("ChatRepositoryPrisma", () => {
     it("should create new chat when chat does not exist", async () => {
       const chat = new Chat({
         id: "new-chat",
+        telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "thread-123",
@@ -181,8 +199,9 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       });
 
-      mockPrisma.chat.upsert.mockResolvedValue({
+      prismaChatMock.upsert.mockResolvedValue({
         id: "new-chat",
+        telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "thread-123",
@@ -192,10 +211,11 @@ describe("ChatRepositoryPrisma", () => {
 
       await repository.save(chat);
 
-      expect(mockPrisma.chat.upsert).toHaveBeenCalledWith({
+      expect(prismaChatMock.upsert).toHaveBeenCalledWith({
         where: { id: "new-chat" },
         create: expect.objectContaining({
           id: "new-chat",
+          telegramChatId: BigInt(12345678),
           botId: 1,
           tgUserId: BigInt(123456789),
           threadId: "thread-123",
@@ -203,6 +223,7 @@ describe("ChatRepositoryPrisma", () => {
         }),
         update: expect.objectContaining({
           id: "new-chat",
+          telegramChatId: BigInt(12345678),
           botId: 1,
           tgUserId: BigInt(123456789),
           threadId: "thread-123",
@@ -214,6 +235,7 @@ describe("ChatRepositoryPrisma", () => {
     it("should update existing chat", async () => {
       const chat = new Chat({
         id: "existing-chat",
+        telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "updated-thread",
@@ -221,8 +243,9 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       });
 
-      mockPrisma.chat.upsert.mockResolvedValue({
+      prismaChatMock.upsert.mockResolvedValue({
         id: "existing-chat",
+        telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
         threadId: "updated-thread",
@@ -232,7 +255,7 @@ describe("ChatRepositoryPrisma", () => {
 
       await repository.save(chat);
 
-      expect(mockPrisma.chat.upsert).toHaveBeenCalledWith({
+      expect(prismaChatMock.upsert).toHaveBeenCalledWith({
         where: { id: "existing-chat" },
         create: expect.any(Object),
         update: expect.objectContaining({
@@ -245,6 +268,7 @@ describe("ChatRepositoryPrisma", () => {
     it("should handle chat with null fields", async () => {
       const chat = new Chat({
         id: "null-chat",
+        telegramChatId: BigInt(123456789),
         botId: null,
         tgUserId: BigInt(123456789),
         threadId: null,
@@ -252,8 +276,9 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       });
 
-      mockPrisma.chat.upsert.mockResolvedValue({
+      prismaChatMock.upsert.mockResolvedValue({
         id: "null-chat",
+        telegramChatId: BigInt(123456789),
         botId: null,
         tgUserId: BigInt(123456789),
         threadId: null,
@@ -263,7 +288,7 @@ describe("ChatRepositoryPrisma", () => {
 
       await repository.save(chat);
 
-      expect(mockPrisma.chat.upsert).toHaveBeenCalledWith({
+      expect(prismaChatMock.upsert).toHaveBeenCalledWith({
         where: { id: "null-chat" },
         create: expect.objectContaining({
           botId: null,
@@ -284,9 +309,11 @@ describe("ChatRepositoryPrisma", () => {
       const chatId = "chat-1";
       const tgUserId = BigInt(123456789);
       const botId = 1;
+      const telegramChatId = BigInt(12345678);
 
       const existingChat = {
         id: chatId,
+        telegramChatId,
         botId,
         tgUserId,
         threadId: "thread-123",
@@ -294,16 +321,23 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       };
 
-      mockPrisma.chat.upsert.mockResolvedValue(existingChat as any);
+      prismaChatMock.upsert.mockResolvedValue(existingChat as any);
 
-      const result = await repository.findOrCreateChat(chatId, tgUserId, botId);
+      const result = await repository.findOrCreateChat(
+        chatId,
+        tgUserId,
+        botId,
+        telegramChatId
+      );
 
       expect(result).toBeInstanceOf(Chat);
       expect(result.id).toBe(chatId);
-      expect(mockPrisma.chat.upsert).toHaveBeenCalledWith({
+      expect(result.telegramChatId).toBe(telegramChatId);
+      expect(prismaChatMock.upsert).toHaveBeenCalledWith({
         where: { id: chatId },
         create: {
           id: chatId,
+          telegramChatId,
           tgUserId,
           botId,
           threadId: null,
@@ -317,9 +351,11 @@ describe("ChatRepositoryPrisma", () => {
       const chatId = "new-chat";
       const tgUserId = BigInt(123456789);
       const botId = 1;
+      const telegramChatId = BigInt(12345678);
 
       const newChat = {
         id: chatId,
+        telegramChatId,
         botId,
         tgUserId,
         threadId: null,
@@ -327,20 +363,27 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       };
 
-      mockPrisma.chat.upsert.mockResolvedValue(newChat as any);
+      prismaChatMock.upsert.mockResolvedValue(newChat as any);
 
-      const result = await repository.findOrCreateChat(chatId, tgUserId, botId);
+      const result = await repository.findOrCreateChat(
+        chatId,
+        tgUserId,
+        botId,
+        telegramChatId
+      );
 
       expect(result).toBeInstanceOf(Chat);
       expect(result.id).toBe(chatId);
+      expect(result.telegramChatId).toBe(telegramChatId);
       expect(result.botId).toBe(botId);
       expect(result.tgUserId).toBe(tgUserId);
       expect(result.threadId).toBeNull();
       expect(result.name).toBeNull();
-      expect(mockPrisma.chat.upsert).toHaveBeenCalledWith({
+      expect(prismaChatMock.upsert).toHaveBeenCalledWith({
         where: { id: chatId },
         create: {
           id: chatId,
+          telegramChatId,
           tgUserId,
           botId,
           threadId: null,
@@ -362,7 +405,7 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       };
 
-      mockPrisma.tgUser.upsert.mockResolvedValue(existingUser as any);
+      prismaTgUserMock.upsert.mockResolvedValue(existingUser as any);
 
       const result = await repository.findOrCreateUser(tgUserId, {
         username: "existing_user",
@@ -371,7 +414,7 @@ describe("ChatRepositoryPrisma", () => {
       });
 
       expect(result).toEqual(existingUser);
-      expect(mockPrisma.tgUser.upsert).toHaveBeenCalledWith({
+      expect(prismaTgUserMock.upsert).toHaveBeenCalledWith({
         where: { id: tgUserId },
         create: {
           id: tgUserId,
@@ -397,7 +440,7 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       };
 
-      mockPrisma.tgUser.upsert.mockResolvedValue(newUser as any);
+      prismaTgUserMock.upsert.mockResolvedValue(newUser as any);
 
       const result = await repository.findOrCreateUser(tgUserId, {
         username: "new_user",
@@ -406,7 +449,7 @@ describe("ChatRepositoryPrisma", () => {
       });
 
       expect(result).toEqual(newUser);
-      expect(mockPrisma.tgUser.upsert).toHaveBeenCalledWith({
+      expect(prismaTgUserMock.upsert).toHaveBeenCalledWith({
         where: { id: tgUserId },
         create: {
           id: tgUserId,
@@ -432,14 +475,14 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       };
 
-      mockPrisma.tgUser.upsert.mockResolvedValue(newUser as any);
+      prismaTgUserMock.upsert.mockResolvedValue(newUser as any);
 
       const result = await repository.findOrCreateUser(tgUserId, {
         firstName: "Alice",
       });
 
       expect(result).toEqual(newUser);
-      expect(mockPrisma.tgUser.upsert).toHaveBeenCalledWith({
+      expect(prismaTgUserMock.upsert).toHaveBeenCalledWith({
         where: { id: tgUserId },
         create: {
           id: tgUserId,
@@ -465,7 +508,7 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       };
 
-      mockPrisma.tgUser.upsert.mockResolvedValue(newUser as any);
+      prismaTgUserMock.upsert.mockResolvedValue(newUser as any);
 
       const result = await repository.findOrCreateUser(tgUserId, {
         username: "bob",
@@ -473,7 +516,7 @@ describe("ChatRepositoryPrisma", () => {
       });
 
       expect(result).toEqual(newUser);
-      expect(mockPrisma.tgUser.upsert).toHaveBeenCalledWith({
+      expect(prismaTgUserMock.upsert).toHaveBeenCalledWith({
         where: { id: tgUserId },
         create: {
           id: tgUserId,
@@ -499,14 +542,14 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       };
 
-      mockPrisma.tgUser.upsert.mockResolvedValue(newUser as any);
+      prismaTgUserMock.upsert.mockResolvedValue(newUser as any);
 
       const result = await repository.findOrCreateUser(tgUserId, {
         username: "username_only",
       });
 
       expect(result).toEqual(newUser);
-      expect(mockPrisma.tgUser.upsert).toHaveBeenCalledWith({
+      expect(prismaTgUserMock.upsert).toHaveBeenCalledWith({
         where: { id: tgUserId },
         create: {
           id: tgUserId,
@@ -532,7 +575,7 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-01"),
       };
 
-      mockPrisma.tgUser.upsert.mockResolvedValue(updatedUser as any);
+      prismaTgUserMock.upsert.mockResolvedValue(updatedUser as any);
 
       const result = await repository.findOrCreateUser(tgUserId, {
         username: "new_username",
@@ -541,7 +584,7 @@ describe("ChatRepositoryPrisma", () => {
       });
 
       expect(result).toEqual(updatedUser);
-      expect(mockPrisma.tgUser.upsert).toHaveBeenCalledWith({
+      expect(prismaTgUserMock.upsert).toHaveBeenCalledWith({
         where: { id: tgUserId },
         create: {
           id: tgUserId,
@@ -562,6 +605,7 @@ describe("ChatRepositoryPrisma", () => {
     it("should map Prisma model to domain model correctly", async () => {
       const prismaChat = {
         id: "mapped-chat",
+        telegramChatId: BigInt(999999999),
         botId: 42,
         tgUserId: BigInt(999999999),
         threadId: "mapped-thread",
@@ -569,12 +613,13 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-15"),
       };
 
-      mockPrisma.chat.findUnique.mockResolvedValue(prismaChat as any);
+      prismaChatMock.findUnique.mockResolvedValue(prismaChat as any);
 
       const result = await repository.findById("mapped-chat");
 
       expect(result).toBeInstanceOf(Chat);
       expect(result?.id).toBe("mapped-chat");
+      expect(result?.telegramChatId).toBe(BigInt(999999999));
       expect(result?.botId).toBe(42);
       expect(result?.tgUserId).toBe(BigInt(999999999));
       expect(result?.threadId).toBe("mapped-thread");
@@ -584,6 +629,7 @@ describe("ChatRepositoryPrisma", () => {
     it("should map domain model to Prisma model correctly", async () => {
       const chat = new Chat({
         id: "domain-chat",
+        telegramChatId: BigInt(888888888),
         botId: 99,
         tgUserId: BigInt(888888888),
         threadId: "domain-thread",
@@ -591,8 +637,9 @@ describe("ChatRepositoryPrisma", () => {
         createdAt: new Date("2024-01-20"),
       });
 
-      mockPrisma.chat.upsert.mockResolvedValue({
+      prismaChatMock.upsert.mockResolvedValue({
         id: "domain-chat",
+        telegramChatId: BigInt(888888888),
         botId: 99,
         tgUserId: BigInt(888888888),
         threadId: "domain-thread",
@@ -602,10 +649,11 @@ describe("ChatRepositoryPrisma", () => {
 
       await repository.save(chat);
 
-      expect(mockPrisma.chat.upsert).toHaveBeenCalledWith({
+      expect(prismaChatMock.upsert).toHaveBeenCalledWith({
         where: { id: "domain-chat" },
         create: expect.objectContaining({
           id: "domain-chat",
+          telegramChatId: BigInt(888888888),
           botId: 99,
           tgUserId: BigInt(888888888),
           threadId: "domain-thread",
@@ -613,6 +661,7 @@ describe("ChatRepositoryPrisma", () => {
         }),
         update: expect.objectContaining({
           id: "domain-chat",
+          telegramChatId: BigInt(888888888),
           botId: 99,
           tgUserId: BigInt(888888888),
           threadId: "domain-thread",
@@ -622,4 +671,3 @@ describe("ChatRepositoryPrisma", () => {
     });
   });
 });
-

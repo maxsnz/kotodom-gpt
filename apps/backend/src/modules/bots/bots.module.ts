@@ -5,6 +5,7 @@ import { BotsAdminController } from "./bots-admin.controller";
 import { BotsWebhookController } from "./bots-webhook.controller";
 import { TelegramUpdateHandler } from "./telegram-update.handler";
 import { TelegramPollingWorker } from "../../workers/telegram-polling.worker";
+import { BotOwnershipGuard } from "./guards/bot-ownership.guard";
 
 // Domain interface token (see note below)
 import { BotRepository } from "../../domain/bots/BotRepository";
@@ -24,6 +25,7 @@ import { OpenAIClient } from "../../infra/openai/openaiClient";
     BotsService,
     TelegramUpdateHandler,
     TelegramPollingWorker,
+    BotOwnershipGuard,
 
     // Infra services used by effects/update handling
     TelegramClient,
@@ -41,6 +43,6 @@ import { OpenAIClient } from "../../infra/openai/openaiClient";
       useClass: SettingsRepositoryPrisma,
     },
   ],
-  exports: [BotsService],
+  exports: [BotsService, EffectRunner, PgBossClient, BotRepository],
 })
 export class BotsModule {}

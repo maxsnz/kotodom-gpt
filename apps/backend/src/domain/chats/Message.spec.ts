@@ -1,19 +1,17 @@
 import { Message } from "./Message";
-import * as runtime from "@prisma/client/runtime/client";
-const { Decimal } = runtime;
 
 describe("Message", () => {
   describe("constructor and getters", () => {
     it("should create a message with all properties", () => {
       const createdAt = new Date("2024-01-01T00:00:00Z");
-      const price = new Decimal("10.50");
       const message = new Message({
         id: 1,
         chatId: "chat-123",
         tgUserId: BigInt(123456789),
         botId: 1,
         text: "Hello, world!",
-        price,
+        telegramUpdateId: BigInt(111),
+        userMessageId: null,
         createdAt,
       });
 
@@ -22,20 +20,19 @@ describe("Message", () => {
       expect(message.tgUserId).toBe(BigInt(123456789));
       expect(message.botId).toBe(1);
       expect(message.text).toBe("Hello, world!");
-      expect(message.price).toBe(price);
       expect(message.createdAt).toBe(createdAt);
     });
 
     it("should create a message with null optional fields", () => {
       const createdAt = new Date("2024-01-01T00:00:00Z");
-      const price = new Decimal("0");
       const message = new Message({
         id: 2,
         chatId: null,
         tgUserId: null,
         botId: null,
         text: "Message without optional fields",
-        price,
+        telegramUpdateId: null,
+        userMessageId: null,
         createdAt,
       });
 
@@ -44,13 +41,10 @@ describe("Message", () => {
       expect(message.tgUserId).toBeNull();
       expect(message.botId).toBeNull();
       expect(message.text).toBe("Message without optional fields");
-      expect(message.price).toBe(price);
       expect(message.createdAt).toBe(createdAt);
     });
 
-    it("should handle Decimal price correctly", () => {
-      const price1 = new Decimal("0.0001");
-      const price2 = new Decimal("9999.9999");
+    it("should handle bigint telegramUpdateId correctly", () => {
       const createdAt = new Date();
 
       const message1 = new Message({
@@ -58,8 +52,9 @@ describe("Message", () => {
         chatId: "chat-123",
         tgUserId: BigInt(123456789),
         botId: 1,
-        text: "Low price message",
-        price: price1,
+        text: "Message with update ID",
+        telegramUpdateId: BigInt(222),
+        userMessageId: null,
         createdAt,
       });
 
@@ -68,25 +63,26 @@ describe("Message", () => {
         chatId: "chat-123",
         tgUserId: BigInt(123456789),
         botId: 1,
-        text: "High price message",
-        price: price2,
+        text: "Another message",
+        telegramUpdateId: BigInt(333),
+        userMessageId: null,
         createdAt,
       });
 
-      expect(message1.price.toString()).toBe("0.0001");
-      expect(message2.price.toString()).toBe("9999.9999");
+      expect(message1.telegramUpdateId).toBe(BigInt(222));
+      expect(message2.telegramUpdateId).toBe(BigInt(333));
     });
 
     it("should handle bigint values correctly", () => {
       const largeId = BigInt("9007199254740991");
-      const price = new Decimal("5.25");
       const message = new Message({
         id: 5,
         chatId: "chat-large",
         tgUserId: largeId,
         botId: 2,
         text: "Message with large user ID",
-        price,
+        telegramUpdateId: BigInt(444),
+        userMessageId: null,
         createdAt: new Date(),
       });
 
@@ -94,31 +90,32 @@ describe("Message", () => {
       expect(typeof message.tgUserId).toBe("bigint");
     });
 
-    it("should handle zero price", () => {
-      const price = new Decimal("0");
+    it("should handle userMessageId correctly", () => {
       const message = new Message({
         id: 6,
         chatId: "chat-123",
         tgUserId: BigInt(123456789),
         botId: 1,
-        text: "Free message",
-        price,
+        text: "Bot response message",
+        telegramUpdateId: BigInt(555),
+        userMessageId: 100,
         createdAt: new Date(),
       });
 
-      expect(message.price.toString()).toBe("0");
-      expect(message.price.toNumber()).toBe(0);
+      expect(message.userMessageId).toBe(100);
+      message.setUserMessageId(200);
+      expect(message.userMessageId).toBe(200);
     });
 
     it("should handle empty text", () => {
-      const price = new Decimal("1.00");
       const message = new Message({
         id: 7,
         chatId: "chat-123",
         tgUserId: BigInt(123456789),
         botId: 1,
         text: "",
-        price,
+        telegramUpdateId: BigInt(666),
+        userMessageId: null,
         createdAt: new Date(),
       });
 

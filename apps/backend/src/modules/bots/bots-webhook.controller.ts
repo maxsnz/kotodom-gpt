@@ -7,20 +7,30 @@ import {
   HttpStatus,
   NotFoundException,
   BadRequestException,
-  Logger,
+  Inject,
 } from "@nestjs/common";
 
 import { TelegramUpdateHandler } from "./telegram-update.handler";
 import { BotRepository } from "../../domain/bots/BotRepository";
+import {
+  AppLogger,
+  LOGGER_FACTORY,
+  type LoggerFactory,
+  createConsoleLoggerFactory,
+} from "../../infra/logger";
 
 @Controller("webhook")
 export class BotsWebhookController {
-  private readonly logger = new Logger(BotsWebhookController.name);
+  private readonly logger: AppLogger;
 
   constructor(
     private readonly telegramUpdateHandler: TelegramUpdateHandler,
-    private readonly botRepo: BotRepository
-  ) {}
+    private readonly botRepo: BotRepository,
+    @Inject(LOGGER_FACTORY) loggerFactory?: LoggerFactory
+  ) {
+    const factory = loggerFactory ?? createConsoleLoggerFactory();
+    this.logger = factory(BotsWebhookController.name);
+  }
 
   @Post(":botId")
   @HttpCode(HttpStatus.OK)
@@ -55,10 +65,9 @@ export class BotsWebhookController {
 
     // Process update asynchronously (don't await to return quickly to Telegram)
     this.telegramUpdateHandler.handle(botId, update).catch((error) => {
-      this.logger.error(
-        `Error processing webhook update for botId=${botId}`,
-        error
-      );
+      this.logger.error(`Error processing webhook update for botId=${botId}`, {
+        error,
+      });
     });
 
     // Return 200 OK immediately to Telegram (webhook best practice)
