@@ -1,13 +1,12 @@
 {
   "name": "kotodom-gpt",
   "version": "4.0.1",
-  "type": "module",
   "exports": "./src/index.ts",
   "author": "maxsnz",
   "license": "MIT",
   "scripts": {
     "dev:front": "vite --config ./apps/admin-web/vite.config.ts",
-    "dev:back": "nest start --watch",
+    "dev:back": "nest start --watch --tsc",
     "dev": "concurrently -n FRONT,BACK -c green,blue \"npm:dev:front\" \"npm:dev:back\"",
     "build:front": "tsc -b && vite build",
     "build:back": "nest build",
