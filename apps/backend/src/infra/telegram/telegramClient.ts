@@ -4,6 +4,10 @@ export type TelegramClientConfig = {
   token: string;
 };
 
+export interface TelegramClientFactory {
+  createClient(token: string): TelegramClient;
+}
+
 export type SendMessageInput = {
   chatId: number | string;
   text: string;
@@ -79,5 +83,11 @@ export class TelegramClient {
 
   async removeWebhook(): Promise<void> {
     await this.bot.telegram.deleteWebhook();
+  }
+}
+
+export class DefaultTelegramClientFactory implements TelegramClientFactory {
+  createClient(token: string): TelegramClient {
+    return new TelegramClient({ token });
   }
 }

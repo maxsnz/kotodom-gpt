@@ -19,5 +19,3 @@ export interface SessionStore {
    */
   delete(sessionId: string): Promise<void>;
 }
-
-

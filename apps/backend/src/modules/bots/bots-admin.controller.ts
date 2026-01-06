@@ -68,8 +68,16 @@ export class BotsAdminController {
   async listBots(
     @Req() request: FastifyRequest
   ): Promise<{ bots: BotResponse[] }> {
-    const bots = await this.botsService.getAll(request.user);
-    return { bots: bots.map(this.toBotResponse) };
+    const allBots = await this.botsService.getAll();
+
+    // Filter bots based on user permissions
+    const user = request.user;
+    const filteredBots =
+      user && user.role !== "ADMIN" && user.role !== "MANAGER"
+        ? allBots.filter((bot) => bot.ownerUserId === user.id)
+        : allBots;
+
+    return { bots: filteredBots.map(this.toBotResponse) };
   }
 
   /**

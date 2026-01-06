@@ -86,9 +86,9 @@ export class ChatRepositoryPrisma extends ChatRepository {
   async findOrCreateUser(
     tgUserId: bigint,
     userData: {
-      username?: string;
-      firstName?: string;
-      lastName?: string;
+      username?: string | undefined;
+      firstName?: string | undefined;
+      lastName?: string | undefined;
     }
   ): Promise<TgUser> {
     const fullName = this.buildFullName(userData.firstName, userData.lastName);

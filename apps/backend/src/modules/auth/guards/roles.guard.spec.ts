@@ -16,9 +16,10 @@ describe("RolesGuard", () => {
     guard = new RolesGuard(reflector);
   });
 
-  const createMockExecutionContext = (
-    user?: { id: string; role: UserRole }
-  ): ExecutionContext => {
+  const createMockExecutionContext = (user?: {
+    id: string;
+    role: UserRole;
+  }): ExecutionContext => {
     const mockRequest = { user };
 
     return {
@@ -82,7 +83,9 @@ describe("RolesGuard", () => {
       const context = createMockExecutionContext(undefined);
 
       expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
-      expect(() => guard.canActivate(context)).toThrow("User not authenticated");
+      expect(() => guard.canActivate(context)).toThrow(
+        "User not authenticated"
+      );
     });
 
     it("should use ROLES_KEY for metadata lookup", () => {
@@ -92,7 +95,11 @@ describe("RolesGuard", () => {
       const classRef = jest.fn();
 
       jest.spyOn(context, "getHandler").mockReturnValue(handler);
-      jest.spyOn(context, "getClass").mockReturnValue(classRef as unknown as new (...args: unknown[]) => unknown);
+      jest
+        .spyOn(context, "getClass")
+        .mockReturnValue(
+          classRef as unknown as new (...args: unknown[]) => unknown
+        );
 
       guard.canActivate(context);
 
@@ -103,4 +110,3 @@ describe("RolesGuard", () => {
     });
   });
 });
-

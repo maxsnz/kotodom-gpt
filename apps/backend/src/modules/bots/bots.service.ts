@@ -20,16 +20,10 @@ export class BotsService {
   ) {}
 
   /**
-   * Get all bots, filtered by ownership for USER role
+   * Get all bots
    */
-  async getAll(user?: AuthUser): Promise<Bot[]> {
-    // If no user provided or user is ADMIN/MANAGER, return all bots
-    if (!user || user.role === "ADMIN" || user.role === "MANAGER") {
-      return this.botRepo.findAll();
-    }
-
-    // USER role: return only their own bots
-    return this.botRepo.findByOwner(user.id);
+  async getAll(): Promise<Bot[]> {
+    return this.botRepo.findAll();
   }
 
   async getById(id: string): Promise<Bot | null> {

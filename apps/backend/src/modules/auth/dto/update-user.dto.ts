@@ -14,3 +14,4 @@ export const UpdateUserSchema = z.object({
 });
 
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
+

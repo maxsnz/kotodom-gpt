@@ -58,5 +58,3 @@ export class User {
     return this.props.role === "ADMIN";
   }
 }
-
-

@@ -61,13 +61,12 @@ export class RedisSessionStore implements SessionStore {
 
     try {
       const parsed = JSON.parse(data);
-      // Restore Date object for createdAt
-      if (parsed.createdAt) {
-        parsed.createdAt = new Date(parsed.createdAt);
-      }
       return parsed as SessionData;
     } catch {
-      console.error("[RedisSessionStore] Failed to parse session data:", sessionId);
+      console.error(
+        "[RedisSessionStore] Failed to parse session data:",
+        sessionId
+      );
       return null;
     }
   }
@@ -75,7 +74,11 @@ export class RedisSessionStore implements SessionStore {
   /**
    * Store session data with TTL
    */
-  async set(sessionId: string, data: SessionData, ttlSeconds: number): Promise<void> {
+  async set(
+    sessionId: string,
+    data: SessionData,
+    ttlSeconds: number
+  ): Promise<void> {
     const serialized = JSON.stringify(data);
     await this.client.setEx(this.prefix + sessionId, ttlSeconds, serialized);
   }
@@ -94,4 +97,3 @@ export class RedisSessionStore implements SessionStore {
     return this.isConnected;
   }
 }
-

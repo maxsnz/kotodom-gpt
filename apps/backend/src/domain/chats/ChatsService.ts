@@ -25,17 +25,10 @@ export class ChatsService {
   ) {}
 
   /**
-   * Find all chats, filtered by bot ownership for USER role
+   * Find all chats
    */
-  async findAll(filters?: ChatFilters, user?: AuthUser): Promise<Chat[]> {
-    const effectiveFilters = { ...filters };
-
-    // If USER role, filter by bot owner
-    if (user && user.role !== "ADMIN" && user.role !== "MANAGER") {
-      effectiveFilters.botOwnerUserId = user.id;
-    }
-
-    return this.chatRepository.findAll(effectiveFilters);
+  async findAll(filters?: ChatFilters): Promise<Chat[]> {
+    return this.chatRepository.findAll(filters);
   }
 
   async findById(id: string): Promise<Chat | null> {

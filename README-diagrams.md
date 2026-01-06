@@ -5,6 +5,7 @@
 ## О приложении
 
 Kotodom GPT - это Telegram бот платформа, построенная на:
+
 - **Backend**: NestJS, PostgreSQL, Redis, PgBoss (очереди)
 - **Frontend**: React (Admin Web + Landing Web)
 - **External APIs**: Telegram Bot API, OpenAI API
@@ -13,54 +14,70 @@ Kotodom GPT - это Telegram бот платформа, построенная 
 ## Архитектурные схемы
 
 ### 1. Общая архитектура (`architecture-diagrams.md`)
+
 Показывает компоненты системы и их взаимодействие:
+
 - Frontend приложения (Admin Web, Landing Web)
 - Backend модули (NestJS controllers, services)
 - Infrastructure (БД, кэш, очереди, внешние API)
 - Domain слой (репозитории, бизнес-логика)
 
 ### 2. Поток обработки сообщений
+
 Демонстрирует полный жизненный цикл обработки входящего сообщения от Telegram:
+
 - Webhook → Queue → Worker → OpenAI → Telegram response
 - Обработка ошибок и retry логика
 - Состояния MessageProcessing
 
 ### 3. Генерация ответов через OpenAI
+
 Детальный процесс AI генерации:
+
 - Обработка команд (/start, /help, /refresh)
 - Работа с OpenAI Assistant API
 - Управление thread'ами разговоров
 - Обработка ошибок генерации
 
 ### 4. Система очередей и обработки ошибок
+
 Классификация ошибок и стратегии обработки:
+
 - RETRYABLE: сетевые ошибки, rate limits
 - FATAL: проблемы аутентификации
 - TERMINAL: остальные ошибки
 - Уведомления администраторам
 
 ### 5. Схема базы данных
+
 ER-диаграмма основных сущностей:
+
 - User, Bot, Chat, Message, MessageProcessing
 - Связи и ограничения
 - Ключевые поля и типы данных
 
 ### 6. Поток администрирования
+
 Как администраторы управляют системой:
+
 - CRUD операции с ботами
 - Мониторинг чатов и сообщений
 - Управление задачами и настройками
 - Просмотр статистики
 
 ### 7. Система эффектов
+
 Асинхронные операции:
+
 - Настройка Telegram webhooks
 - Публикация задач в очереди
 - Уведомления администраторам
 - Дедупликация уведомлений
 
 ### 8. Мониторинг и логирование
+
 Система observability:
+
 - Логи через Pino + Logtail
 - Health checks
 - Метрики производительности
@@ -76,6 +93,7 @@ ER-диаграмма основных сущностей:
 ## Формат схем
 
 Все схемы созданы в формате [Mermaid](https://mermaid.js.org/), который поддерживается:
+
 - GitHub (нативно)
 - GitLab
 - Notion
@@ -84,23 +102,28 @@ ER-диаграмма основных сущностей:
 ## Ключевые концепции
 
 ### Message Processing Pipeline
+
 ```
 Telegram Update → Webhook → Queue → Worker → OpenAI → Telegram Response
 ```
 
 ### Состояния обработки
+
 ```
 RECEIVED → PROCESSING → COMPLETED | FAILED → retry | TERMINAL
 ```
 
 ### Архитектурные паттерны
+
 - **CQRS**: Разделение чтения/записи через репозитории
 - **Domain-Driven Design**: Бизнес-логика в domain слое
 - **Event-Driven**: Асинхронная обработка через очереди
 - **Repository Pattern**: Абстракция доступа к данным
 
 ### Резилиентность
+
 - Retry логика с экспоненциальной задержкой
 - Circuit breaker паттерн для внешних API
 - Graceful degradation при ошибках
 - Админ уведомления при критических сбоях
+

@@ -72,10 +72,7 @@ describe("RedisSessionStore", () => {
       const result = await store.get("session-123");
 
       expect(mockRedisClient.get).toHaveBeenCalledWith("session:session-123");
-      expect(result).toEqual({
-        ...testSessionData,
-        createdAt: new Date("2025-01-01T00:00:00.000Z"),
-      });
+      expect(result).toEqual(testSessionData);
     });
 
     it("should return null when session not found", async () => {

@@ -9,7 +9,7 @@ import {
   TerminalError,
   ErrorType,
   classifyError,
-} from "../../../workers/incoming-message.worker";
+} from "../../errors/ErrorClassifier";
 import { Job } from "pg-boss";
 
 /**
@@ -211,7 +211,8 @@ export async function registerWorkers(
         }
 
         // Retryable error - check if this is the last retry
-        const jobWithRetry = job as JobWithRetryCount<MessageProcessingTriggerPayload>;
+        const jobWithRetry =
+          job as JobWithRetryCount<MessageProcessingTriggerPayload>;
         const retryCount = jobWithRetry.retryCount;
         const isLastRetry =
           typeof retryCount === "number" &&

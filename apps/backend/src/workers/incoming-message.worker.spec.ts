@@ -3,11 +3,8 @@ import * as runtime from "@prisma/client/runtime/client";
 import { Bot } from "../domain/bots/Bot";
 import { Chat } from "../domain/chats/Chat";
 import { Message } from "../domain/chats/Message";
-import {
-  createProcessBotUpdate,
-  classifyError,
-  ErrorType,
-} from "./incoming-message.worker";
+import { createProcessBotUpdate } from "./incoming-message.worker";
+import { classifyError, ErrorType } from "../infra/errors/ErrorClassifier";
 import { BotHandleUpdatePayload } from "../infra/jobs/pgBoss/jobs";
 
 const { Decimal } = runtime;

@@ -14,7 +14,8 @@ import { SettingsRepository } from "../../domain/settings/SettingsRepository";
 // Infra implementations
 import { BotRepositoryPrisma } from "../../infra/db/repositories/BotRepositoryPrisma";
 import { SettingsRepositoryPrisma } from "../../infra/db/repositories/SettingsRepositoryPrisma";
-import { TelegramClient } from "../../infra/telegram/telegramClient";
+import { TelegramClient, DefaultTelegramClientFactory } from "../../infra/telegram/telegramClient";
+import type { TelegramClientFactory } from "../../infra/telegram/telegramClient";
 import { PgBossClient } from "../../infra/jobs/pgBoss";
 import { EffectRunner } from "../../infra/effects/EffectRunner";
 import { OpenAIClient } from "../../infra/openai/openaiClient";
@@ -28,7 +29,10 @@ import { OpenAIClient } from "../../infra/openai/openaiClient";
     BotOwnershipGuard,
 
     // Infra services used by effects/update handling
-    TelegramClient,
+    {
+      provide: "TelegramClientFactory",
+      useClass: DefaultTelegramClientFactory,
+    },
     PgBossClient,
     EffectRunner,
     OpenAIClient,

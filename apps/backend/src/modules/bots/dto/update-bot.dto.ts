@@ -14,3 +14,4 @@ export const UpdateBotSchema = z.object({
 
 export type UpdateBotDto = z.infer<typeof UpdateBotSchema>;
 
+

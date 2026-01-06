@@ -8,6 +8,7 @@ import {
 import { BotRepository } from "../domain/bots/BotRepository";
 import { TelegramUpdateHandler } from "../modules/bots/telegram-update.handler";
 import { TelegramClient } from "../infra/telegram/telegramClient";
+import type { TelegramClientFactory } from "../infra/telegram/telegramClient";
 import {
   AppLogger,
   LOGGER_FACTORY,
@@ -34,6 +35,8 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
   constructor(
     private readonly botRepo: BotRepository,
     private readonly telegramUpdateHandler: TelegramUpdateHandler,
+    @Inject("TelegramClientFactory")
+    private readonly telegramClientFactory: TelegramClientFactory,
     @Inject(LOGGER_FACTORY) loggerFactory?: LoggerFactory
   ) {
     const factory = loggerFactory ?? createConsoleLoggerFactory();
@@ -108,7 +111,7 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
-      const client = new TelegramClient({ token });
+      const client = this.telegramClientFactory.createClient(token);
       const state: BotPollingState = {
         botId,
         client,

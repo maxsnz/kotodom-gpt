@@ -22,9 +22,9 @@ export abstract class ChatRepository {
   abstract findOrCreateUser(
     tgUserId: bigint,
     userData: {
-      username?: string;
-      firstName?: string;
-      lastName?: string;
+      username?: string | undefined;
+      firstName?: string | undefined;
+      lastName?: string | undefined;
     }
   ): Promise<TgUser>;
 }

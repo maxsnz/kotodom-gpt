@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    "strict": true,
+
+    "sourceMap": true,
+    "resolveJsonModule": true,
+
+    "useDefineForClassFields": true,
+    "noImplicitOverride": true,
+    // "exactOptionalPropertyTypes": true,
+
+    "baseUrl": "./src",
+    "paths": { "@/*": ["*"] },
+
+    "esModuleInterop": true,
+    "types": ["jest", "node"],
+
+    "outDir": "../../dist"
+  },
+  "include": ["src"],
+  "exclude": ["dist"]
+}

@@ -81,7 +81,11 @@ export class ChatsAdminController {
     @Query("userId") userId?: string,
     @Query("botId") botId?: string
   ): Promise<{ chats: ChatResponse[] }> {
-    const filters: { userId?: bigint; botId?: number } = {};
+    const filters: {
+      userId?: bigint;
+      botId?: number;
+      botOwnerUserId?: string;
+    } = {};
 
     if (userId) {
       try {
@@ -99,9 +103,14 @@ export class ChatsAdminController {
       filters.botId = botIdNum;
     }
 
+    // Apply user-based filtering for non-admin users
+    const user = request.user;
+    if (user && user.role !== "ADMIN" && user.role !== "MANAGER") {
+      filters.botOwnerUserId = user.id;
+    }
+
     const chats = await this.chatsService.findAll(
-      Object.keys(filters).length > 0 ? filters : undefined,
-      request.user
+      Object.keys(filters).length > 0 ? filters : undefined
     );
     return { chats: chats.map(this.toChatResponse) };
   }

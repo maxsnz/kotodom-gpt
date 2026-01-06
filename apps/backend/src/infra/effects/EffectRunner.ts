@@ -2,6 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 
 import type { Effect } from "../../domain/effects/Effect";
 import { TelegramClient } from "../telegram/telegramClient";
+import type { TelegramClientFactory } from "../telegram/telegramClient";
 import { PgBossClient } from "../jobs/pgBoss";
 import { env } from "../../config/env";
 import { SettingsRepository } from "../../domain/settings/SettingsRepository";
@@ -25,7 +26,8 @@ export class EffectRunner {
   private readonly recentNotifications: Map<string, number> = new Map();
 
   constructor(
-    private readonly telegram: TelegramClient,
+    @Inject("TelegramClientFactory")
+    private readonly telegramClientFactory: TelegramClientFactory,
     private readonly boss: PgBossClient,
     private readonly settingsRepository: SettingsRepository,
     @Inject(LOGGER_FACTORY) loggerFactory?: LoggerFactory
@@ -45,13 +47,13 @@ export class EffectRunner {
     switch (effect.type) {
       case "telegram.ensureWebhook": {
         const webhookUrl = `${env.BASE_URL}/webhook/${effect.botId}`;
-        const client = new TelegramClient({ token: effect.botToken });
+        const client = this.telegramClientFactory.createClient(effect.botToken);
         await client.setWebhook(webhookUrl);
         return;
       }
 
       case "telegram.removeWebhook": {
-        const client = new TelegramClient({ token: effect.botToken });
+        const client = this.telegramClientFactory.createClient(effect.botToken);
         await client.removeWebhook();
         return;
       }
@@ -127,7 +129,7 @@ export class EffectRunner {
     }
 
     try {
-      const adminClient = new TelegramClient({ token: botToken });
+      const adminClient = this.telegramClientFactory.createClient(botToken);
       await adminClient.sendMessage({
         chatId,
         text: message,

@@ -18,8 +18,12 @@ import { ChatRepository } from "./domain/chats/ChatRepository";
 import { MessageRepository } from "./domain/chats/MessageRepository";
 import { MessageProcessingRepository } from "./domain/chats/MessageProcessingRepository";
 import { OpenAIClient } from "./infra/openai/openaiClient";
-import { TelegramClient } from "./infra/telegram/telegramClient";
+import {
+  TelegramClient,
+  DefaultTelegramClientFactory,
+} from "./infra/telegram/telegramClient";
 import { EffectRunner } from "./infra/effects/EffectRunner";
+import { WorkerRegistrationService } from "./infra/jobs/pgBoss/WorkerRegistrationService";
 import {
   LOGGER_FACTORY,
   LoggerFactory,
@@ -78,6 +82,7 @@ async function bootstrap() {
   const messageRepository = app.get(MessageRepository);
   const messageProcessingRepository = app.get(MessageProcessingRepository);
   const openAIClient = app.get(OpenAIClient);
+  const telegramClientFactoryInstance = app.get("TelegramClientFactory");
   const effectRunner = app.get(EffectRunner);
 
   // Start PgBoss
@@ -99,7 +104,8 @@ async function bootstrap() {
     messageRepository,
     messageProcessingRepository,
     openAIClient,
-    telegramClientFactory: (token: string) => new TelegramClient({ token }),
+    telegramClientFactory: (token: string) =>
+      telegramClientFactoryInstance.createClient(token),
     log: {
       info: (msg: string, meta?: Record<string, unknown>) =>
         processBotLogger.info(msg, meta),
@@ -112,11 +118,14 @@ async function bootstrap() {
     },
   };
 
+  // Get WorkerRegistrationService from DI container
+  const workerRegistrationService = app.get(WorkerRegistrationService);
+
   const processBotUpdate = createProcessBotUpdate(sharedDeps);
   const processMessageTrigger = createProcessMessageTrigger(sharedDeps);
 
   const workerLogger = loggerFactory("PgBossWorker");
-  await registerWorkers({
+  await workerRegistrationService.registerWorkers({
     boss: pgBossClient,
     processBotUpdate,
     processMessageTrigger,

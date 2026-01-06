@@ -55,3 +55,4 @@ WHERE m."tgUserId" IS NOT NULL -- Only user messages
   AND m.id NOT IN (SELECT "userMessageId" FROM "MessageProcessing" WHERE "userMessageId" IS NOT NULL)
 ON CONFLICT ("userMessageId") DO NOTHING;
 
+

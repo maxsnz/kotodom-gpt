@@ -128,7 +128,7 @@ describe("ChatsService", () => {
       const result = await service.findAll();
 
       expect(result).toEqual(chats);
-      expect(mockChatRepo.findAll).toHaveBeenCalledWith({});
+      expect(mockChatRepo.findAll).toHaveBeenCalledWith(undefined);
     });
 
     it("should return chats with filters", async () => {
@@ -142,36 +142,31 @@ describe("ChatsService", () => {
       expect(mockChatRepo.findAll).toHaveBeenCalledWith(filters);
     });
 
-    it("should filter by bot owner for USER role", async () => {
+    it("should find all chats", async () => {
       const chats = [createMockChat()];
       mockChatRepo.findAll.mockResolvedValue(chats);
 
-      const user = { id: "user-1", role: "USER" as const };
-      const result = await service.findAll({}, user);
-
-      expect(result).toEqual(chats);
-      expect(mockChatRepo.findAll).toHaveBeenCalledWith({
-        botOwnerUserId: "user-1",
-      });
-    });
-
-    it("should not filter for ADMIN role", async () => {
-      const chats = [createMockChat()];
-      mockChatRepo.findAll.mockResolvedValue(chats);
-
-      const admin = { id: "admin-1", role: "ADMIN" as const };
-      const result = await service.findAll({}, admin);
+      const result = await service.findAll({});
 
       expect(result).toEqual(chats);
       expect(mockChatRepo.findAll).toHaveBeenCalledWith({});
     });
 
-    it("should not filter for MANAGER role", async () => {
+    it("should find all chats", async () => {
       const chats = [createMockChat()];
       mockChatRepo.findAll.mockResolvedValue(chats);
 
-      const manager = { id: "manager-1", role: "MANAGER" as const };
-      const result = await service.findAll({}, manager);
+      const result = await service.findAll({});
+
+      expect(result).toEqual(chats);
+      expect(mockChatRepo.findAll).toHaveBeenCalledWith({});
+    });
+
+    it("should find all chats", async () => {
+      const chats = [createMockChat()];
+      mockChatRepo.findAll.mockResolvedValue(chats);
+
+      const result = await service.findAll({});
 
       expect(result).toEqual(chats);
       expect(mockChatRepo.findAll).toHaveBeenCalledWith({});

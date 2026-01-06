@@ -11,11 +11,16 @@ interface EnvironmentConfig {
   COOKIE_SECRET: string;
   LOGTAIL_TOKEN: string;
   LOGTAIL_SOURCE: string;
-  REDIS_URL?: string;
+  REDIS_URL: string | undefined;
 }
 
 function validateEnv(): EnvironmentConfig {
-  const requiredVars = ["DATABASE_URL", "OPENAI_API_KEY", "COOKIE_SECRET", "BASE_URL"];
+  const requiredVars = [
+    "DATABASE_URL",
+    "OPENAI_API_KEY",
+    "COOKIE_SECRET",
+    "BASE_URL",
+  ];
 
   const missingVars = requiredVars.filter((varName) => !process.env[varName]);
 

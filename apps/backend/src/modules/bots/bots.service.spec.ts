@@ -69,40 +69,34 @@ describe("BotsService", () => {
       expect(result).toEqual(allBots);
     });
 
-    it("should return all bots for ADMIN user", async () => {
+    it("should return all bots", async () => {
       const allBots = [createMockBot({ id: "1" }), createMockBot({ id: "2" })];
       mockBotRepo.findAll.mockResolvedValue(allBots);
-      const admin: AuthUser = { id: "admin-1", role: "ADMIN" };
 
-      const result = await service.getAll(admin);
+      const result = await service.getAll();
 
       expect(mockBotRepo.findAll).toHaveBeenCalled();
-      expect(mockBotRepo.findByOwner).not.toHaveBeenCalled();
       expect(result).toEqual(allBots);
     });
 
-    it("should return all bots for MANAGER user", async () => {
+    it("should return all bots", async () => {
       const allBots = [createMockBot({ id: "1" }), createMockBot({ id: "2" })];
       mockBotRepo.findAll.mockResolvedValue(allBots);
-      const manager: AuthUser = { id: "manager-1", role: "MANAGER" };
 
-      const result = await service.getAll(manager);
+      const result = await service.getAll();
 
       expect(mockBotRepo.findAll).toHaveBeenCalled();
-      expect(mockBotRepo.findByOwner).not.toHaveBeenCalled();
       expect(result).toEqual(allBots);
     });
 
-    it("should return only owned bots for USER", async () => {
-      const ownedBots = [createMockBot({ id: "1", ownerUserId: "user-1" })];
-      mockBotRepo.findByOwner.mockResolvedValue(ownedBots);
-      const user: AuthUser = { id: "user-1", role: "USER" };
+    it("should return all bots", async () => {
+      const allBots = [createMockBot({ id: "1" }), createMockBot({ id: "2" })];
+      mockBotRepo.findAll.mockResolvedValue(allBots);
 
-      const result = await service.getAll(user);
+      const result = await service.getAll();
 
-      expect(mockBotRepo.findByOwner).toHaveBeenCalledWith("user-1");
-      expect(mockBotRepo.findAll).not.toHaveBeenCalled();
-      expect(result).toEqual(ownedBots);
+      expect(mockBotRepo.findAll).toHaveBeenCalled();
+      expect(result).toEqual(allBots);
     });
   });
 

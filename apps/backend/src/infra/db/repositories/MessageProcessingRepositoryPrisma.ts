@@ -1,6 +1,12 @@
 import { MessageProcessingRepository } from "../../../domain/chats/MessageProcessingRepository";
-import { MessageProcessing, MessageProcessingStatus } from "../../../domain/chats/MessageProcessing";
-import type { Prisma, MessageProcessing as PrismaMessageProcessing } from "../prisma/generated/client";
+import {
+  MessageProcessing,
+  MessageProcessingStatus,
+} from "../../../domain/chats/MessageProcessing";
+import type {
+  Prisma,
+  MessageProcessing as PrismaMessageProcessing,
+} from "../prisma/generated/client";
 import { prisma } from "../prisma/client";
 import { createDecimal } from "../prisma/decimal";
 import type * as runtime from "@prisma/client/runtime/client";
@@ -163,4 +169,3 @@ export class MessageProcessingRepositoryPrisma extends MessageProcessingReposito
     });
   }
 }
-

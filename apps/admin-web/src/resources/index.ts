@@ -1,0 +1,63 @@
+import { userFields } from "./users/fields";
+import { adminFields } from "./admins/fields";
+import createResource from "../utils/createResource";
+import type { Field } from "../types/fields";
+
+export type ResourceDefinition = {
+  name: string;
+  fields: Field[];
+};
+
+/**
+ * Central registry of all resources in the application.
+ *
+ * To add a new resource:
+ * 1. Create a new folder in resources/ (e.g., resources/admins/)
+ * 2. Create fields.ts file with your field definitions (e.g., resources/admins/fields.ts)
+ * 3. Import the fields here
+ * 4. Add the resource to the resources object below
+ *
+ * Example:
+ * ```typescript
+ * import { adminFields } from "./admins/fields";
+ *
+ * export const resources = {
+ *   users: { name: "users", fields: userFields },
+ *   admins: { name: "admins", fields: adminFields },
+ * } as const;
+ * ```
+ */
+export const resources = {
+  users: {
+    name: "users",
+    fields: userFields,
+  },
+  admins: {
+    name: "admins",
+    fields: adminFields,
+  },
+} as const;
+
+// Helper function to get all resources for Refine
+export const getRefineResources = () => {
+  return Object.values(resources).map((resource) =>
+    createResource(resource.name)
+  );
+};
+
+// Helper function to get all routes
+export const getAllRoutes = () => {
+  return Object.values(resources).map((resource) => ({
+    name: resource.name,
+    fields: resource.fields,
+  }));
+};
+
+// Helper function to get navigation items
+export const getNavigationItems = () => {
+  return Object.values(resources).map((resource) => ({
+    name: resource.name,
+    label: resource.name.charAt(0).toUpperCase() + resource.name.slice(1),
+    path: `/admin/${resource.name}`,
+  }));
+};
