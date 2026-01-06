@@ -32,20 +32,21 @@ function buildTransport(): pino.TransportMultiOptions {
     },
   });
 
-  return pino.transport({
+  return {
     targets,
-  });
+    options: {
+      level: isProd ? "info" : "debug",
+      base: {
+        app: packageJson.name,
+        version: packageJson.version,
+        env: env.NODE_ENV,
+      },
+    },
+  };
 }
 
 function createRootPino() {
   return pino({
-    level: isProd ? "info" : "debug",
-    timestamp: pino.stdTimeFunctions.isoTime,
-    base: {
-      app: packageJson.name,
-      version: packageJson.version,
-      env: env.NODE_ENV,
-    },
     transport: buildTransport(),
   });
 }
