@@ -85,6 +85,25 @@ export class WorkerRegistrationService {
     const log = deps.log ?? console;
     const teamSize = deps.teamSize ?? Number(process.env.JOBS_CONCURRENCY ?? 5);
 
+    // Create queues before registering workers to ensure they exist
+    try {
+      await boss.createQueue(JOBS.BOT_HANDLE_UPDATE);
+      log.info(`Created queue: ${JOBS.BOT_HANDLE_UPDATE}`);
+    } catch (error) {
+      log.info(`Queue ${JOBS.BOT_HANDLE_UPDATE} already exists or creation failed`, {
+        error: error instanceof Error ? error.message : error,
+      });
+    }
+
+    try {
+      await boss.createQueue(JOBS.MESSAGE_PROCESSING_TRIGGER);
+      log.info(`Created queue: ${JOBS.MESSAGE_PROCESSING_TRIGGER}`);
+    } catch (error) {
+      log.info(`Queue ${JOBS.MESSAGE_PROCESSING_TRIGGER} already exists or creation failed`, {
+        error: error instanceof Error ? error.message : error,
+      });
+    }
+
     // Register bot.handle-update worker (for Telegram updates)
     await boss.register<BotHandleUpdatePayload>(
       JOBS.BOT_HANDLE_UPDATE,

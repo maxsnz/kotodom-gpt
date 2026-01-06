@@ -60,6 +60,13 @@ export class PgBossClient {
   }
 
   /**
+   * Create a queue if it doesn't exist
+   */
+  async createQueue(name: string): Promise<void> {
+    await this.boss.createQueue(name);
+  }
+
+  /**
    * Enqueue a job
    */
   async publish<TPayload extends object>(
