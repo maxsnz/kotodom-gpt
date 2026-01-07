@@ -5,6 +5,4 @@ export type Field = {
   label: string;
   type: FieldType;
   props: any;
-  header: string;
-  accessorKey: string;
 };

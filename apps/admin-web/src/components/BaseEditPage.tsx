@@ -24,7 +24,12 @@ const BaseEditPage = ({
   const user = query.data?.data;
 
   const initialValues = fields.reduce((acc, field) => {
-    acc[field.key] = user?.[field.key] || "";
+    // Handle boolean fields specially to preserve false values
+    if (field.type === "checkbox") {
+      acc[field.key] = user?.[field.key] ?? false;
+    } else {
+      acc[field.key] = user?.[field.key] || "";
+    }
     return acc;
   }, {} as Record<string, any>);
 

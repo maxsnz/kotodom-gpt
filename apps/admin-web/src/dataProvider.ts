@@ -118,13 +118,28 @@ const transformNestJSErrors = (error: any): any => {
   return error;
 };
 
+// Transform form data to ensure proper types
+const transformDataForAPI = (data: any, resource: string): any => {
+  if (resource === "bots") {
+    const transformed = { ...data };
+    // Ensure boolean fields are properly typed
+    if (transformed.enabled !== undefined) {
+      transformed.enabled = Boolean(transformed.enabled);
+    }
+    return transformed;
+  }
+  return data;
+};
+
 export const dataProvider = (apiUrl: string): DataProvider => {
   const baseDataProvider = dataProviderBase(apiUrl);
 
   // Custom create method to intercept HTTP response before nestjsx-crud processes it
   const createWithDirectFetch = async (params: any) => {
-    const dataToSend =
-      params.variables?.data || params.variables || params.data;
+    const dataToSend = transformDataForAPI(
+      params.variables?.data || params.variables || params.data,
+      params.resource
+    );
 
     try {
       const response = await fetch(`${apiUrl}/${params.resource}`, {
@@ -161,14 +176,16 @@ export const dataProvider = (apiUrl: string): DataProvider => {
 
   // Custom update method to intercept HTTP response before nestjsx-crud processes it
   const updateWithDirectFetch = async (params: any) => {
-    const dataToSend =
-      params.variables?.data || params.variables || params.data;
+    const dataToSend = transformDataForAPI(
+      params.variables?.data || params.variables || params.data,
+      params.resource
+    );
 
     try {
       const response = await fetch(
         `${apiUrl}/${params.resource}/${params.id}`,
         {
-          method: "PATCH",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },

@@ -1,5 +1,7 @@
 import { userFields } from "./users/fields";
-import { adminFields } from "./admins/fields";
+import { botFields } from "./bots/fields";
+import { chatFields } from "./chats/fields";
+// import { messageFields } from "./messages/fields";
 import createResource from "../utils/createResource";
 import type { Field } from "../types/fields";
 
@@ -32,11 +34,27 @@ export const resources = {
     name: "users",
     fields: userFields,
   },
-  admins: {
-    name: "admins",
-    fields: adminFields,
+  bots: {
+    name: "bots",
+    fields: botFields,
   },
+  chats: {
+    name: "chats",
+    fields: chatFields,
+  },
+  // messages: {
+  //   name: "messages",
+  //   fields: messageFields,
+  // },
 } as const;
+
+const prepareFieldsForRefine = (fields: Field[]) => {
+  return fields.map((field) => ({
+    ...field,
+    accessorKey: field.key,
+    header: field.label,
+  }));
+};
 
 // Helper function to get all resources for Refine
 export const getRefineResources = () => {
@@ -49,7 +67,7 @@ export const getRefineResources = () => {
 export const getAllRoutes = () => {
   return Object.values(resources).map((resource) => ({
     name: resource.name,
-    fields: resource.fields,
+    fields: prepareFieldsForRefine(resource.fields),
   }));
 };
 
@@ -58,6 +76,6 @@ export const getNavigationItems = () => {
   return Object.values(resources).map((resource) => ({
     name: resource.name,
     label: resource.name.charAt(0).toUpperCase() + resource.name.slice(1),
-    path: `/admin/${resource.name}`,
+    path: `/cp/${resource.name}`,
   }));
 };

@@ -6,15 +6,11 @@ export const userFields = [
     label: "Email",
     type: FieldType.TEXT,
     props: { required: true },
-    header: "Email",
-    accessorKey: "email",
   },
   {
-    key: "name",
-    label: "Name",
+    key: "role",
+    label: "Role",
     type: FieldType.TEXT,
     props: { required: true },
-    header: "Name",
-    accessorKey: "name",
   },
 ];

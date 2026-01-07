@@ -1,5 +1,5 @@
 import { Create, Edit, useForm } from "@refinedev/mantine";
-import { TextInput } from "@mantine/core";
+import { TextInput, Checkbox } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useGeneralErrors } from "../hooks/useGeneralErrors";
 import { GeneralErrors } from "./GeneralErrors";
@@ -38,7 +38,7 @@ const BaseForm = ({
       action: mode,
       redirect: false,
       onMutationSuccess: () => {
-        navigate(`/admin/${resource}`);
+        navigate(`/cp/${resource}`);
       },
       ...(mode === "edit" && id ? { id } : {}),
     },
@@ -60,7 +60,16 @@ const BaseForm = ({
     >
       {fields.map((field: Field) => {
         const inputProps = getInputProps(field.key);
-        return (
+        return field.type === "checkbox" ? (
+          <Checkbox
+            key={field.key}
+            mt="sm"
+            label={field.label}
+            {...inputProps}
+            // getInputProps should already include error, but we can override if needed
+            error={inputProps.error || errors?.[field.key]}
+          />
+        ) : (
           <TextInput
             key={field.key}
             mt="sm"

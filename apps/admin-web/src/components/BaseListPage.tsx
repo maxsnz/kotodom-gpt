@@ -110,7 +110,7 @@ const BaseListPage = <T extends { id: string | number }>({
             <Tooltip label="Show">
               <ActionIcon
                 component={Link}
-                to={`/admin/${resource}/${row.original.id}`}
+                to={`/cp/${resource}/${row.original.id}`}
                 variant="subtle"
                 color="gray"
               >
@@ -120,7 +120,7 @@ const BaseListPage = <T extends { id: string | number }>({
             <Tooltip label="Edit">
               <ActionIcon
                 component={Link}
-                to={`/admin/${resource}/edit/${row.original.id}`}
+                to={`/cp/${resource}/edit/${row.original.id}`}
                 variant="subtle"
                 color="blue"
               >
@@ -170,7 +170,7 @@ const BaseListPage = <T extends { id: string | number }>({
     renderTopToolbarCustomActions: () => (
       <Button
         component={Link}
-        to={`/admin/${resource}/create`}
+        to={`/cp/${resource}/create`}
         leftSection={<IconPlus size={16} />}
       >
         Create New Record
