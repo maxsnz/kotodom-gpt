@@ -90,18 +90,24 @@ export class WorkerRegistrationService {
       await boss.createQueue(JOBS.BOT_HANDLE_UPDATE);
       log.info(`Created queue: ${JOBS.BOT_HANDLE_UPDATE}`);
     } catch (error) {
-      log.info(`Queue ${JOBS.BOT_HANDLE_UPDATE} already exists or creation failed`, {
-        error: error instanceof Error ? error.message : error,
-      });
+      log.info(
+        `Queue ${JOBS.BOT_HANDLE_UPDATE} already exists or creation failed`,
+        {
+          error: error instanceof Error ? error.message : error,
+        }
+      );
     }
 
     try {
       await boss.createQueue(JOBS.MESSAGE_PROCESSING_TRIGGER);
       log.info(`Created queue: ${JOBS.MESSAGE_PROCESSING_TRIGGER}`);
     } catch (error) {
-      log.info(`Queue ${JOBS.MESSAGE_PROCESSING_TRIGGER} already exists or creation failed`, {
-        error: error instanceof Error ? error.message : error,
-      });
+      log.info(
+        `Queue ${JOBS.MESSAGE_PROCESSING_TRIGGER} already exists or creation failed`,
+        {
+          error: error instanceof Error ? error.message : error,
+        }
+      );
     }
 
     // Register bot.handle-update worker (for Telegram updates)
@@ -285,4 +291,3 @@ export class WorkerRegistrationService {
     this.logger.info("Workers registered successfully", { teamSize });
   }
 }
-

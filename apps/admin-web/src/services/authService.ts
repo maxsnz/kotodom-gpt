@@ -32,7 +32,9 @@ export class AuthService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Login failed: ${response.statusText}`);
+      throw new Error(
+        errorData.message || `Login failed: ${response.statusText}`
+      );
     }
 
     const data: LoginResponse = await response.json();
@@ -50,7 +52,9 @@ export class AuthService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Logout failed: ${response.statusText}`);
+      throw new Error(
+        errorData.message || `Logout failed: ${response.statusText}`
+      );
     }
   }
 
@@ -62,7 +66,10 @@ export class AuthService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Authentication check failed: ${response.statusText}`);
+      throw new Error(
+        errorData.message ||
+          `Authentication check failed: ${response.statusText}`
+      );
     }
 
     const data: LoginResponse = await response.json();
