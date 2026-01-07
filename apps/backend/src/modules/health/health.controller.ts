@@ -17,13 +17,13 @@ type PgBossHealthResponse = HealthResponse & {
   isReady?: boolean;
 };
 
-@Controller("health")
+@Controller("api/health")
 @SkipThrottle()
 export class HealthController {
   constructor(private readonly pgBossClient: PgBossClient) {}
 
   /**
-   * GET /health - Simple health check
+   * GET /api/health - Simple health check
    */
   @Get()
   async check(): Promise<HealthResponse> {
@@ -31,7 +31,7 @@ export class HealthController {
   }
 
   /**
-   * GET /health/db - Check database connection
+   * GET /api/health/db - Check database connection
    */
   @Get("db")
   async checkDb(): Promise<DbHealthResponse> {
@@ -55,7 +55,7 @@ export class HealthController {
   }
 
   /**
-   * GET /health/pgboss - Check PgBoss status
+   * GET /api/health/pgboss - Check PgBoss status
    */
   @Get("pgboss")
   async checkPgBoss(): Promise<PgBossHealthResponse> {

@@ -19,7 +19,7 @@ import {
 } from "../../infra/logger";
 import { SessionAuthGuard } from "../auth/guards/session-auth.guard";
 
-@Controller("admin/message-processing")
+@Controller("api/message-processing")
 @UseGuards(SessionAuthGuard)
 export class MessageProcessingAdminController {
   private readonly logger: AppLogger;
@@ -101,4 +101,3 @@ export class MessageProcessingAdminController {
     return { success: true };
   }
 }
-

@@ -48,7 +48,7 @@ type BotResponse = {
   ownerUserId: string | null;
 };
 
-@Controller("admin/bots")
+@Controller("api/bots")
 @UseGuards(SessionAuthGuard)
 export class BotsAdminController {
   private readonly logger: AppLogger;
@@ -62,7 +62,7 @@ export class BotsAdminController {
   }
 
   /**
-   * GET /admin/bots - List bots (filtered by ownership for USER role)
+   * GET /api/bots - List bots (filtered by ownership for USER role)
    */
   @Get()
   async listBots(
@@ -81,7 +81,7 @@ export class BotsAdminController {
   }
 
   /**
-   * GET /admin/bots/:id - Get bot by ID (ownership checked)
+   * GET /api/bots/:id - Get bot by ID (ownership checked)
    */
   @Get(":id")
   @UseGuards(BotOwnershipGuard)
@@ -92,7 +92,7 @@ export class BotsAdminController {
   }
 
   /**
-   * POST /admin/bots - Create new bot (owner set to current user)
+   * POST /api/bots - Create new bot (owner set to current user)
    */
   @Post()
   async createBot(
@@ -111,7 +111,7 @@ export class BotsAdminController {
   }
 
   /**
-   * PUT /admin/bots/:id - Update bot (ownership checked)
+   * PUT /api/bots/:id - Update bot (ownership checked)
    */
   @Put(":id")
   @UseGuards(BotOwnershipGuard)
@@ -132,7 +132,7 @@ export class BotsAdminController {
   }
 
   /**
-   * DELETE /admin/bots/:id - Delete bot (ownership checked)
+   * DELETE /api/bots/:id - Delete bot (ownership checked)
    */
   @Delete(":id")
   @UseGuards(BotOwnershipGuard)
@@ -150,7 +150,7 @@ export class BotsAdminController {
   }
 
   /**
-   * POST /admin/bots/:id/enable - Enable bot (ownership checked)
+   * POST /api/bots/:id/enable - Enable bot (ownership checked)
    */
   @Post(":id/enable")
   @UseGuards(BotOwnershipGuard)
@@ -168,7 +168,7 @@ export class BotsAdminController {
   }
 
   /**
-   * POST /admin/bots/:id/disable - Disable bot (ownership checked)
+   * POST /api/bots/:id/disable - Disable bot (ownership checked)
    */
   @Post(":id/disable")
   @UseGuards(BotOwnershipGuard)

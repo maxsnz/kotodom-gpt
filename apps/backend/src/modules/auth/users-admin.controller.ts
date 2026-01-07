@@ -36,14 +36,14 @@ interface UserResponse {
   updatedAt: string;
 }
 
-@Controller("admin/users")
+@Controller("api/users")
 @UseGuards(SessionAuthGuard, RolesGuard)
 @Roles("ADMIN")
 export class UsersAdminController {
   constructor(private readonly usersService: UsersService) {}
 
   /**
-   * GET /admin/users - List all users
+   * GET /api/users - List all users
    */
   @Get()
   async listUsers(): Promise<{ users: UserResponse[] }> {
@@ -52,7 +52,7 @@ export class UsersAdminController {
   }
 
   /**
-   * GET /admin/users/:id - Get user by ID
+   * GET /api/users/:id - Get user by ID
    */
   @Get(":id")
   async getUser(@Param("id") id: string): Promise<{ user: UserResponse }> {
@@ -64,7 +64,7 @@ export class UsersAdminController {
   }
 
   /**
-   * POST /admin/users - Create new user
+   * POST /api/users - Create new user
    */
   @Post()
   async createUser(
@@ -85,7 +85,7 @@ export class UsersAdminController {
   }
 
   /**
-   * PUT /admin/users/:id - Update user
+   * PUT /api/users/:id - Update user
    */
   @Put(":id")
   async updateUser(
@@ -127,7 +127,7 @@ export class UsersAdminController {
   }
 
   /**
-   * DELETE /admin/users/:id - Delete user
+   * DELETE /api/users/:id - Delete user
    */
   @Delete(":id")
   async deleteUser(@Param("id") id: string): Promise<{ success: boolean }> {

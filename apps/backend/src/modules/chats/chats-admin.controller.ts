@@ -57,7 +57,7 @@ type SendMessageInput = {
   text: string;
 };
 
-@Controller("admin/chats")
+@Controller("api/chats")
 @UseGuards(SessionAuthGuard)
 export class ChatsAdminController {
   private readonly logger: AppLogger;
@@ -73,7 +73,7 @@ export class ChatsAdminController {
   }
 
   /**
-   * GET /admin/chats - List chats (filtered by bot ownership for USER role)
+   * GET /api/chats - List chats (filtered by bot ownership for USER role)
    */
   @Get()
   async listChats(
@@ -116,7 +116,7 @@ export class ChatsAdminController {
   }
 
   /**
-   * GET /admin/chats/:id - Get chat by ID (ownership checked via bot)
+   * GET /api/chats/:id - Get chat by ID (ownership checked via bot)
    */
   @Get(":id")
   async getChat(
@@ -134,7 +134,7 @@ export class ChatsAdminController {
   }
 
   /**
-   * GET /admin/chats/:id/messages - Get messages for a chat (ownership checked)
+   * GET /api/chats/:id/messages - Get messages for a chat (ownership checked)
    */
   @Get(":id/messages")
   async getChatMessages(
@@ -160,7 +160,7 @@ export class ChatsAdminController {
   }
 
   /**
-   * POST /admin/chats/:id/messages - Send admin message to chat (ownership checked)
+   * POST /api/chats/:id/messages - Send admin message to chat (ownership checked)
    */
   @Post(":id/messages")
   async sendMessage(
