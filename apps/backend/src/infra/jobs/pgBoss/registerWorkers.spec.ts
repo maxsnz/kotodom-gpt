@@ -289,31 +289,6 @@ describe("registerWorkers", () => {
     );
   });
 
-  it("should use default teamSize from env when not provided", async () => {
-    const originalEnv = process.env.JOBS_CONCURRENCY;
-    process.env.JOBS_CONCURRENCY = "7";
-
-    await registerWorkers({
-      boss: mockPgBossClient,
-      processBotUpdate: mockProcessBotUpdate,
-      processMessageTrigger: mockProcessMessageTrigger,
-    });
-
-    expect(mockPgBossClient.register).toHaveBeenCalledWith(
-      JOBS.BOT_HANDLE_UPDATE,
-      expect.any(Function),
-      expect.objectContaining({
-        teamSize: 7,
-      })
-    );
-
-    if (originalEnv) {
-      process.env.JOBS_CONCURRENCY = originalEnv;
-    } else {
-      delete process.env.JOBS_CONCURRENCY;
-    }
-  });
-
   it("should handle non-Error objects in error logging", async () => {
     let registeredHandler: any;
 

@@ -54,6 +54,6 @@ create fresh database using `psql`
 
 `COOKIE_SECRET` - random secret for cookies
 
-`SERVER_PORT` - server port
+`BACKEND_PORT` - server port
 
 `DATABASE_URL` - database credentials like `"postgresql://username:@localhost:5432/database-name?schema=public"`

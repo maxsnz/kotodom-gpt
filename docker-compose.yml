@@ -14,7 +14,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LOGTAIL_TOKEN: ${LOGTAIL_TOKEN}
       LOGTAIL_SOURCE: ${LOGTAIL_SOURCE}
-      SERVER_PORT: ${SERVER_PORT}
+      BACKEND_PORT: ${BACKEND_PORT}
       COOKIE_SECRET: ${COOKIE_SECRET}
       NODE_ENV: production
     healthcheck:

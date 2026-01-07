@@ -143,7 +143,7 @@ async function bootstrap() {
   });
 
   // Get port from environment or use default
-  const port = parseInt(env.SERVER_PORT, 10);
+  const port = parseInt(env.BACKEND_PORT, 10);
   const host = "0.0.0.0"; // Listen on all interfaces
 
   // Start HTTP server with Fastify

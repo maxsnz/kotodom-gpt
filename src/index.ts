@@ -33,6 +33,6 @@ router.post(
   sendMessage
 );
 
-webServer.listen(process.env.SERVER_PORT, () => {
-  logger.info(`http://localhost:${process.env.SERVER_PORT || ""}/admin`);
+webServer.listen(process.env.BACKEND_PORT, () => {
+  logger.info(`http://localhost:${process.env.BACKEND_PORT || ""}/admin`);
 });

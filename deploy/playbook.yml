@@ -27,7 +27,7 @@
       DATABASE_URL: "{{ DATABASE_URL }}"
       OPENAI_API_KEY: "{{ OPENAI_API_KEY }}"
       COOKIE_SECRET: "{{ COOKIE_SECRET }}"
-      SERVER_PORT: "{{ SERVER_PORT | default('3000') }}"
+      BACKEND_PORT: "{{ BACKEND_PORT | default('3000') }}"
       LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN | default('') }}"
       LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE | default('') }}"
 

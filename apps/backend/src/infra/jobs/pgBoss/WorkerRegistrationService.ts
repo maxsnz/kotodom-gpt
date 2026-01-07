@@ -83,7 +83,7 @@ export class WorkerRegistrationService {
   async registerWorkers(deps: RegisterWorkersDeps): Promise<void> {
     const { boss, processBotUpdate, processMessageTrigger, onJobFailed } = deps;
     const log = deps.log ?? console;
-    const teamSize = deps.teamSize ?? Number(process.env.JOBS_CONCURRENCY ?? 5);
+    const teamSize = deps.teamSize ?? 5;
 
     // Create queues before registering workers to ensure they exist
     try {
