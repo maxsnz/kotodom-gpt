@@ -11,7 +11,6 @@ export class Bot {
       assistantId: string;
       token: string;
       enabled: boolean;
-      isActive: boolean;
       telegramMode: "webhook" | "polling";
       error: string | null;
       ownerUserId: string | null;
@@ -47,10 +46,6 @@ export class Bot {
 
   get enabled() {
     return this.props.enabled;
-  }
-
-  get isActive() {
-    return this.props.isActive;
   }
 
   get telegramMode() {

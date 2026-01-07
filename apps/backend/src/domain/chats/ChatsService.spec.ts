@@ -51,7 +51,6 @@ describe("ChatsService", () => {
       assistantId: "asst_123",
       token: "bot-token-123",
       enabled: true,
-      isActive: true,
       telegramMode: "webhook",
       error: null,
       ownerUserId: null,
