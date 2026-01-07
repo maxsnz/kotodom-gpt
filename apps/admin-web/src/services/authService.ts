@@ -12,11 +12,6 @@ export interface LogoutResponse {
   success: boolean;
 }
 
-export interface AuthError {
-  message: string;
-  statusCode?: number;
-}
-
 export class AuthService {
   constructor(private apiUrl: string) {}
 

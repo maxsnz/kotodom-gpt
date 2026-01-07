@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLogin, useIsAuthenticated } from "@refinedev/core";
 import {
   Paper,
@@ -21,6 +21,7 @@ export const LoginPage = () => {
   const { data: isAuthenticated } = useIsAuthenticated();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -40,20 +41,24 @@ export const LoginPage = () => {
     },
   });
 
-  // If already authenticated, redirect to admin panel
-  if (isAuthenticated?.authenticated) {
-    navigate("/cp");
-    return null;
-  }
+  // Redirect to admin panel if already authenticated
+  useEffect(() => {
+    if (isAuthenticated?.authenticated) {
+      navigate("/cp");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (values: { email: string; password: string }) => {
     setError(null);
+    setIsLoading(true);
 
     login(values, {
       onSuccess: () => {
+        setIsLoading(false);
         // Navigation is handled by authProvider
       },
       onError: (error: any) => {
+        setIsLoading(false);
         const errorMessage = error?.message || error?.error?.message || "Login failed";
         setError(errorMessage);
         form.setErrors({

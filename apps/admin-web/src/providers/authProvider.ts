@@ -1,6 +1,11 @@
 import type { AuthProvider } from "@refinedev/core";
 import { AuthService, User } from "../services/authService";
 
+interface LoginParams {
+  email: string;
+  password: string;
+}
+
 export const createAuthProvider = (apiUrl: string): AuthProvider => {
   const authService = new AuthService(apiUrl);
 
@@ -8,7 +13,7 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
   let currentUser: User | null = null;
 
   return {
-    login: async (params: any) => {
+    login: async (params: LoginParams) => {
       try {
         const { email, password } = params;
         const user = await authService.login(email, password);
@@ -17,11 +22,12 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
           success: true,
           redirectTo: "/cp",
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Login failed";
         return {
           success: false,
           error: {
-            message: error.message || "Login failed",
+            message,
             name: "Login Error",
           },
         };
