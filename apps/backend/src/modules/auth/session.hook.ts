@@ -40,12 +40,18 @@ export function createSessionHook(authService: AuthService) {
       return;
     }
 
-    // Get session ID from cookie
-    const sessionId = request.cookies[SESSION_COOKIE_NAME];
-
-    if (!sessionId) {
+    // Get session ID from signed cookie
+    const signedCookie = request.cookies[SESSION_COOKIE_NAME];
+    if (!signedCookie) {
       return;
     }
+
+    const unsignedResult = request.unsignCookie(signedCookie);
+    if (!unsignedResult.valid) {
+      return;
+    }
+
+    const sessionId = unsignedResult.value;
 
     // Validate session and attach user
     const authUser = await authService.validateSession(sessionId);

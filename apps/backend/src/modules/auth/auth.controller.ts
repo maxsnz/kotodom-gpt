@@ -27,7 +27,7 @@ interface UserResponse {
   role: string;
 }
 
-@Controller("auth")
+@Controller("api/auth")
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -35,7 +35,7 @@ export class AuthController {
   ) {}
 
   /**
-   * POST /auth/login - Authenticate user and create session
+   * POST /api/auth/login - Authenticate user and create session
    * Rate limited to 5 attempts per minute to prevent brute force attacks
    */
   @Post("login")
@@ -43,7 +43,8 @@ export class AuthController {
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   async login(
     @Body(new ZodValidationPipe(LoginSchema)) dto: LoginDto,
-    @Res({ passthrough: true }) reply: FastifyReply
+    @Res({ passthrough: true }) reply: FastifyReply,
+    @Req() request: FastifyRequest
   ): Promise<{ user: UserResponse }> {
     const { email, password } = dto;
 
@@ -60,9 +61,12 @@ export class AuthController {
     const isProduction = env.NODE_ENV === "production";
 
     reply.setCookie(SESSION_COOKIE_NAME, sessionId, {
+      // httpOnly: true,
       httpOnly: true,
-      secure: isProduction,
+      // secure: isProduction,
+      secure: false,
       sameSite: "lax",
+      // sameSite: "none",
       path: "/",
       maxAge: SESSION_TTL_SECONDS,
       signed: true,
@@ -78,7 +82,7 @@ export class AuthController {
   }
 
   /**
-   * POST /auth/logout - Destroy session
+   * POST /api/auth/logout - Destroy session
    */
   @Post("logout")
   @HttpCode(HttpStatus.OK)
@@ -102,7 +106,7 @@ export class AuthController {
   }
 
   /**
-   * GET /auth/me - Get current authenticated user
+   * GET /api/auth/me - Get current authenticated user
    */
   @Get("me")
   @SkipThrottle()
