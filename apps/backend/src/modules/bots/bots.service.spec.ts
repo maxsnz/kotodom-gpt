@@ -21,7 +21,9 @@ describe("BotsService", () => {
   let mockBotRepo: jest.Mocked<BotRepository>;
   let mockEffectRunner: jest.Mocked<EffectRunner>;
 
-  const createMockBot = (overrides: Partial<ConstructorParameters<typeof Bot>[0]> = {}): Bot => {
+  const createMockBot = (
+    overrides: Partial<ConstructorParameters<typeof Bot>[0]> = {}
+  ): Bot => {
     return new Bot({
       id: "1",
       name: "Test Bot",
@@ -31,7 +33,6 @@ describe("BotsService", () => {
       assistantId: "asst_123",
       token: "bot-token",
       enabled: false,
-      isActive: false,
       telegramMode: "webhook",
       error: null,
       ownerUserId: null,
@@ -111,7 +112,11 @@ describe("BotsService", () => {
         token: "new-token",
         telegramMode: "webhook" as const,
       };
-      const createdBot = createMockBot({ id: "2", name: "New Bot", ownerUserId: "user-1" });
+      const createdBot = createMockBot({
+        id: "2",
+        name: "New Bot",
+        ownerUserId: "user-1",
+      });
       mockBotRepo.create.mockResolvedValue(createdBot);
 
       const result = await service.create(input, "user-1");
@@ -134,7 +139,11 @@ describe("BotsService", () => {
         token: "new-token",
         telegramMode: "webhook" as const,
       };
-      const createdBot = createMockBot({ id: "2", name: "New Bot", ownerUserId: null });
+      const createdBot = createMockBot({
+        id: "2",
+        name: "New Bot",
+        ownerUserId: null,
+      });
       mockBotRepo.create.mockResolvedValue(createdBot);
 
       const result = await service.create(input);
@@ -191,7 +200,9 @@ describe("BotsService", () => {
     it("should throw error if bot not found", async () => {
       mockBotRepo.findById.mockResolvedValue(null);
 
-      await expect(service.enableBot("999")).rejects.toThrow("Bot not found: 999");
+      await expect(service.enableBot("999")).rejects.toThrow(
+        "Bot not found: 999"
+      );
     });
   });
 
@@ -224,8 +235,9 @@ describe("BotsService", () => {
     it("should throw error if bot not found", async () => {
       mockBotRepo.findById.mockResolvedValue(null);
 
-      await expect(service.disableBot("999")).rejects.toThrow("Bot not found: 999");
+      await expect(service.disableBot("999")).rejects.toThrow(
+        "Bot not found: 999"
+      );
     });
   });
 });
-

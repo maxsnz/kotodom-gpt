@@ -199,7 +199,6 @@ erDiagram
         string token
         string model
         datetime createdAt
-        boolean isActive
         boolean enabled
         string assistantId
         string error
@@ -362,4 +361,3 @@ flowchart TD
     style B fill:#fff3e0
     style D fill:#fff3e0
 ```
-

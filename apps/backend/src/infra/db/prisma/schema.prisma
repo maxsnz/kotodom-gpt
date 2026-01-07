@@ -86,7 +86,6 @@ model Bot {
   token String
   model String @default("gpt-4o-mini")
   createdAt DateTime @default(now())
-  isActive Boolean @default(false)
   enabled Boolean @default(false)
   messages Message[]
   assistantId String

@@ -36,7 +36,6 @@ describe("BotOwnershipGuard", () => {
       assistantId: "asst_123",
       token: "token123",
       enabled: true,
-      isActive: true,
       telegramMode: "webhook",
       error: null,
       ownerUserId,
@@ -151,4 +150,3 @@ describe("BotOwnershipGuard", () => {
     });
   });
 });
-

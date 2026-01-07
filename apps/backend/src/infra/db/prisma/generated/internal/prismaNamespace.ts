@@ -1021,7 +1021,6 @@ export const BotScalarFieldEnum = {
   token: 'token',
   model: 'model',
   createdAt: 'createdAt',
-  isActive: 'isActive',
   enabled: 'enabled',
   assistantId: 'assistantId',
   error: 'error',

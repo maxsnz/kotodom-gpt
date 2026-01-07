@@ -30,7 +30,6 @@ describe("BotRepositoryPrisma", () => {
     assistantId: "assistant-id",
     token: "token-1",
     enabled: true,
-    isActive: false,
     telegramMode: "webhook" as const,
     error: null as string | null,
     ownerUserId: null as string | null,
@@ -55,7 +54,6 @@ describe("BotRepositoryPrisma", () => {
         name: "Test Bot",
         model: "gpt-4o-mini",
         createdAt: new Date(),
-        isActive: false,
         assistantId: "assistant-id",
         error: null,
       };
@@ -110,7 +108,6 @@ describe("BotRepositoryPrisma", () => {
           name: "Bot 1",
           model: "gpt-4o-mini",
           createdAt: new Date(),
-          isActive: false,
           assistantId: "assistant-id",
           error: null,
         },
@@ -124,7 +121,6 @@ describe("BotRepositoryPrisma", () => {
           name: "Bot 2",
           model: "gpt-4o-mini",
           createdAt: new Date(),
-          isActive: false,
           assistantId: "assistant-id",
           error: null,
         },
@@ -172,7 +168,6 @@ describe("BotRepositoryPrisma", () => {
         name: "Test Bot",
         model: "gpt-4o-mini",
         createdAt: new Date(),
-        isActive: false,
         assistantId: "assistant-id",
         error: null,
       } as any);
@@ -253,7 +248,6 @@ describe("BotRepositoryPrisma", () => {
         name: "Mapped Bot",
         model: "gpt-4o-mini",
         createdAt: new Date(),
-        isActive: false,
         assistantId: "assistant-id",
         error: null,
       };

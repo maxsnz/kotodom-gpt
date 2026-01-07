@@ -20,7 +20,6 @@ describe("incoming-message.worker", () => {
     assistantId: "assistant-id",
     token: "bot-token",
     enabled: true,
-    isActive: true,
     telegramMode: "webhook",
     error: null,
   });

@@ -54,7 +54,6 @@ describe("TelegramUpdateHandler", () => {
       assistantId: "asst_123",
       token: "test-token",
       enabled: true,
-      isActive: true,
       telegramMode: "webhook",
       error: null,
       ownerUserId: null,
@@ -221,7 +220,6 @@ describe("TelegramUpdateHandler", () => {
         assistantId: "asst_123",
         token: "test-token",
         enabled: false,
-        isActive: false,
         telegramMode: "webhook",
         error: null,
         ownerUserId: null,
@@ -295,7 +293,9 @@ describe("TelegramUpdateHandler", () => {
       mockBotRepository.findById.mockResolvedValue(enabledBot);
       mockPgBossClient.publish.mockRejectedValue(new Error("Publish failed"));
 
-      await expect(handler.handle("1", update)).rejects.toThrow("Publish failed");
+      await expect(handler.handle("1", update)).rejects.toThrow(
+        "Publish failed"
+      );
     });
 
     it("should handle message without from field", async () => {
@@ -325,4 +325,3 @@ describe("TelegramUpdateHandler", () => {
     });
   });
 });
-
