@@ -1,11 +1,18 @@
-import { AppShell, Group, Text, NavLink } from "@mantine/core";
+import { AppShell, Group, Text, NavLink, Button } from "@mantine/core";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useLogout } from "@refinedev/core";
+import { IconLogout } from "@tabler/icons-react";
 import { getNavigationItems } from "../resources";
 
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { mutate: logout } = useLogout();
   const navItems = getNavigationItems();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <AppShell
@@ -14,10 +21,19 @@ const Layout = () => {
       padding="md"
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
+        <Group h="100%" px="md" justify="space-between">
           <Text size="lg" fw={700}>
             KotoAdmin
           </Text>
+          <Button
+            variant="light"
+            color="red"
+            leftSection={<IconLogout size={16} />}
+            onClick={handleLogout}
+            size="sm"
+          >
+            Logout
+          </Button>
         </Group>
       </AppShell.Header>
 
