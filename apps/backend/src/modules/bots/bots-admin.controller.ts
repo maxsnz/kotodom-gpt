@@ -29,7 +29,7 @@ import {
   type CreateBotDto,
   UpdateBotSchema,
   type UpdateBotDto,
-} from "./dto";
+} from "@shared/contracts/bots";
 
 /**
  * Bot response DTO - hides sensitive token field
@@ -42,7 +42,6 @@ type BotResponse = {
   model: string;
   assistantId: string;
   enabled: boolean;
-  isActive: boolean;
   telegramMode: "webhook" | "polling";
   error: string | null;
   ownerUserId: string | null;
@@ -67,7 +66,7 @@ export class BotsAdminController {
   @Get()
   async listBots(
     @Req() request: FastifyRequest
-  ): Promise<{ bots: BotResponse[] }> {
+  ): Promise<{ data: BotResponse[] }> {
     const allBots = await this.botsService.getAll();
 
     // Filter bots based on user permissions
@@ -77,7 +76,7 @@ export class BotsAdminController {
         ? allBots.filter((bot) => bot.ownerUserId === user.id)
         : allBots;
 
-    return { bots: filteredBots.map(this.toBotResponse) };
+    return { data: filteredBots.map(this.toBotResponse) };
   }
 
   /**
@@ -85,10 +84,10 @@ export class BotsAdminController {
    */
   @Get(":id")
   @UseGuards(BotOwnershipGuard)
-  async getBot(@Req() request: FastifyRequest): Promise<{ bot: BotResponse }> {
+  async getBot(@Req() request: FastifyRequest): Promise<BotResponse> {
     // Bot is loaded and attached by BotOwnershipGuard
     const bot = request.bot!;
-    return { bot: this.toBotResponse(bot) };
+    return this.toBotResponse(bot);
   }
 
   /**
@@ -194,7 +193,6 @@ export class BotsAdminController {
       model: bot.model,
       assistantId: bot.assistantId,
       enabled: bot.enabled,
-      isActive: bot.isActive,
       telegramMode: bot.telegramMode,
       error: bot.error,
       ownerUserId: bot.ownerUserId,

@@ -4,7 +4,10 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["jest"]
+    "types": ["jest"],
+    "paths": {
+      "@shared/contracts/*": ["./shared/contracts/src/*"]
+    }
   },
   "exclude": ["node_modules", "dist"]
 }

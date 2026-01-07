@@ -22,8 +22,11 @@
     "noImplicitOverride": true,
     // "exactOptionalPropertyTypes": true,
 
-    "baseUrl": "./src",
-    "paths": { "@/*": ["*"] },
+    "baseUrl": "../..",
+    "paths": {
+      "@/*": ["apps/backend/src/*"],
+      "@shared/contracts/*": ["shared/contracts/src/*"]
+    },
 
     "esModuleInterop": true,
     "types": ["jest", "node"],

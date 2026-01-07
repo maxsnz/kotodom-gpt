@@ -19,7 +19,7 @@ import {
 } from "./session/session.constants";
 import { env } from "../../config/env";
 import { ZodValidationPipe } from "../../common/pipes";
-import { LoginSchema, type LoginDto } from "./dto";
+import { LoginSchema, type LoginDto } from "@shared/contracts/auth";
 
 interface UserResponse {
   id: string;

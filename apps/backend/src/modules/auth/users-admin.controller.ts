@@ -22,7 +22,7 @@ import {
   type CreateUserDto,
   UpdateUserSchema,
   type UpdateUserDto,
-} from "./dto";
+} from "@shared/contracts/auth";
 
 /**
  * User response DTO - hides sensitive passwordHash field
@@ -46,9 +46,9 @@ export class UsersAdminController {
    * GET /api/users - List all users
    */
   @Get()
-  async listUsers(): Promise<{ users: UserResponse[] }> {
+  async listUsers(): Promise<{ data: UserResponse[] }> {
     const users = await this.usersService.findAll();
-    return { users: users.map(this.toUserResponse) };
+    return { data: users.map(this.toUserResponse) };
   }
 
   /**

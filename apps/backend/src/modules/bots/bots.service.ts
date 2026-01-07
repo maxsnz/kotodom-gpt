@@ -1,16 +1,22 @@
 import { Injectable } from "@nestjs/common";
 
-import {
-  BotRepository,
-  CreateBotData,
-} from "../../domain/bots/BotRepository";
+import { BotRepository, CreateBotData } from "../../domain/bots/BotRepository";
 import { Bot } from "../../domain/bots/Bot";
 import { EffectRunner } from "../../infra/effects/EffectRunner";
 import { AuthUser, UserRole } from "../../domain/users/types";
 
 export type CreateBotInput = Omit<CreateBotData, "ownerUserId">;
 
-export type UpdateBotInput = Partial<CreateBotInput>;
+export type UpdateBotInput = Partial<{
+  name: string;
+  startMessage: string;
+  errorMessage: string;
+  model: string;
+  assistantId: string;
+  token: string;
+  telegramMode: "webhook" | "polling";
+  enabled: boolean;
+}>;
 
 @Injectable()
 export class BotsService {
@@ -66,8 +72,7 @@ export class BotsService {
       model: input.model ?? bot.model,
       assistantId: input.assistantId ?? bot.assistantId,
       token: input.token ?? bot.token,
-      enabled: bot.enabled,
-      isActive: bot.isActive,
+      enabled: input.enabled ?? bot.enabled,
       telegramMode: input.telegramMode ?? bot.telegramMode,
       error: bot.error,
       ownerUserId: bot.ownerUserId, // Preserve owner

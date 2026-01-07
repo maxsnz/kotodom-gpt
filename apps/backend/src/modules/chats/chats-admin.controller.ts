@@ -80,7 +80,7 @@ export class ChatsAdminController {
     @Req() request: FastifyRequest,
     @Query("userId") userId?: string,
     @Query("botId") botId?: string
-  ): Promise<{ chats: ChatResponse[] }> {
+  ): Promise<{ data: ChatResponse[] }> {
     const filters: {
       userId?: bigint;
       botId?: number;
@@ -112,7 +112,7 @@ export class ChatsAdminController {
     const chats = await this.chatsService.findAll(
       Object.keys(filters).length > 0 ? filters : undefined
     );
-    return { chats: chats.map(this.toChatResponse) };
+    return { data: chats.map(this.toChatResponse) };
   }
 
   /**
@@ -122,7 +122,7 @@ export class ChatsAdminController {
   async getChat(
     @Req() request: FastifyRequest,
     @Param("id") id: string
-  ): Promise<{ chat: ChatResponse }> {
+  ): Promise<ChatResponse> {
     const chat = await this.chatsService.findById(id);
     if (!chat) {
       throw new NotFoundException(`Chat with id ${id} not found`);
@@ -130,7 +130,7 @@ export class ChatsAdminController {
 
     await this.checkChatOwnership(request, chat);
 
-    return { chat: this.toChatResponse(chat) };
+    return this.toChatResponse(chat);
   }
 
   /**
@@ -140,7 +140,7 @@ export class ChatsAdminController {
   async getChatMessages(
     @Req() request: FastifyRequest,
     @Param("id") id: string
-  ): Promise<{ messages: MessageResponse[] }> {
+  ): Promise<{ data: MessageResponse[] }> {
     try {
       const chat = await this.chatsService.findById(id);
       if (!chat) {
@@ -150,7 +150,7 @@ export class ChatsAdminController {
       await this.checkChatOwnership(request, chat);
 
       const messages = await this.chatsService.getMessages(id);
-      return { messages: messages.map(this.toMessageResponse) };
+      return { data: messages.map(this.toMessageResponse) };
     } catch (error) {
       if (error instanceof Error && error.message.includes("not found")) {
         throw new NotFoundException(error.message);
