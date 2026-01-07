@@ -26,3 +26,4 @@ dist-server
 .env
 .adminjs
 creds
+old/*
