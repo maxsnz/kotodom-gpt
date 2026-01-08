@@ -14,26 +14,26 @@ export type FieldVisibility = {
 
 type SelectOption = { label: string; value: string };
 
-type BaseField = {
+interface BaseField {
   key: string;
   label: string;
+  type: FieldType;
+  props: FieldProps;
+  isVisible?: FieldVisibility;
+}
+
+interface NotSelectField extends BaseField {
   type: Exclude<FieldType, typeof FieldTypeConst.SELECT>;
-  props: FieldProps;
-  isVisible?: FieldVisibility;
-};
+}
 
-type SelectField = {
-  key: string;
-  label: string;
+interface SelectField extends BaseField {
   type: typeof FieldTypeConst.SELECT;
-  props: FieldProps;
   options: SelectOption[];
-  isVisible?: FieldVisibility;
-};
+}
 
-export type Field = BaseField | SelectField;
+export type Field = NotSelectField | SelectField;
 
 export type FormValues = Record<
   string,
-  string | number | boolean | null | undefined
+  string | number | boolean | Date | null | undefined
 >;

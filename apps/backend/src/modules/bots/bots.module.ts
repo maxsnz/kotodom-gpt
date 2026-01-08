@@ -15,7 +15,10 @@ import { SettingsRepository } from "../../domain/settings/SettingsRepository";
 // Infra implementations
 import { BotRepositoryPrisma } from "../../infra/db/repositories/BotRepositoryPrisma";
 import { SettingsRepositoryPrisma } from "../../infra/db/repositories/SettingsRepositoryPrisma";
-import { TelegramClient, DefaultTelegramClientFactory } from "../../infra/telegram/telegramClient";
+import {
+  TelegramClient,
+  DefaultTelegramClientFactory,
+} from "../../infra/telegram/telegramClient";
 import type { TelegramClientFactory } from "../../infra/telegram/telegramClient";
 import { PgBossClient } from "../../infra/jobs/pgBoss";
 import { EffectRunner } from "../../infra/effects/EffectRunner";

@@ -9,23 +9,30 @@ import {
   type MRT_Row,
 } from "mantine-react-table";
 // import type { BaseRecord } from "@refinedev/core";
-import { useList, useDelete, useNotification } from "@refinedev/core";
+import {
+  useList,
+  useDelete,
+  useNotification,
+  useInvalidate,
+} from "@refinedev/core";
 import { ActionIcon, Tooltip, Flex, Text, Button } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { IconEdit, IconTrash, IconEye, IconPlus } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
-import type { MRT_Cell } from "mantine-react-table";
 import { filterFieldsForList } from "@/utils/filterFields";
 import { Field } from "@/types/fields";
+import { Action } from "@/types/action";
 
 type Props = {
   resource: string;
   fields: Field[];
+  actions: readonly Action[];
 };
 
 const BaseListPage = <T extends { id: string | number }>({
   resource,
   fields: columns,
+  actions = [],
 }: Props) => {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -33,6 +40,7 @@ const BaseListPage = <T extends { id: string | number }>({
   });
 
   const { open } = useNotification();
+  const invalidate = useInvalidate();
   const { result, query } = useList<T>({
     resource,
     pagination: {
@@ -81,32 +89,11 @@ const BaseListPage = <T extends { id: string | number }>({
 
   const tableColumns = useMemo<MRT_ColumnDef<T>[]>(
     () => [
-      {
-        header: "ID",
-        accessorKey: "id",
-        size: 80,
-      },
       ...filterFieldsForList(columns).map((field) => ({
         ...field,
         accessorKey: field.key,
         header: field.label,
       })),
-      {
-        header: "Created At",
-        accessorKey: "createdAt",
-        Cell: ({ cell }: { cell: MRT_Cell<T, string> }) => {
-          const date = new Date(cell.getValue<string>());
-          return date.toLocaleString();
-        },
-      },
-      {
-        header: "Updated At",
-        accessorKey: "updatedAt",
-        Cell: ({ cell }: { cell: MRT_Cell<T, string> }) => {
-          const date = new Date(cell.getValue<string>());
-          return date.toLocaleString();
-        },
-      },
       {
         header: "Actions",
         id: "actions",
@@ -142,13 +129,43 @@ const BaseListPage = <T extends { id: string | number }>({
                 <IconTrash size={16} />
               </ActionIcon>
             </Tooltip>
+            {actions
+              .filter((action) => action.available(row.original))
+              .map((action) => (
+                <Tooltip label={action.name}>
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    onClick={async () => {
+                      try {
+                        await action.action(row.original);
+                        await invalidate({ resource, invalidates: ["list"] });
+                        open?.({
+                          type: "success",
+                          message: "Action completed successfully",
+                        });
+                      } catch (error) {
+                        open?.({
+                          type: "error",
+                          message:
+                            error instanceof Error
+                              ? error.message
+                              : "Action failed",
+                        });
+                      }
+                    }}
+                  >
+                    {action.icon}
+                  </ActionIcon>
+                </Tooltip>
+              ))}
           </Flex>
         ),
         enableSorting: false,
         enableColumnFilter: false,
       },
     ],
-    [columns, resource, openDeleteConfirmModal]
+    [columns, resource, openDeleteConfirmModal, actions]
   );
 
   const table = useMantineReactTable({

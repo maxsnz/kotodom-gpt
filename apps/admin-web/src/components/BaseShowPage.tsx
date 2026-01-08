@@ -47,9 +47,6 @@ const BaseShow = ({ resource, fields: columns }: Props) => {
 
   return (
     <Show isLoading={query.isLoading}>
-      <Title my="xs" order={5}>
-        Id
-      </Title>
       <TextField value={record?.id ?? ""} />
       {visibleColumns.map((column) => (
         <Fragment key={column.key}>
@@ -75,14 +72,6 @@ const BaseShow = ({ resource, fields: columns }: Props) => {
           )}
         </Fragment>
       ))}
-      <Title my="xs" order={5}>
-        Created At
-      </Title>
-      <DateField value={record?.createdAt} />
-      <Title my="xs" order={5}>
-        Updated At
-      </Title>
-      <DateField value={record?.updatedAt} />
     </Show>
   );
 };

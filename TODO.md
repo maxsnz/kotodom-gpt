@@ -1,12 +1,7 @@
-- bots actions
-- fix date fields
-- fix boolean fields
-- filter for id, createdAt, updatedAt
 - create controllers for MessageProcessing
 - create ui for MessageProcessing
 - create controllers and ui for messages
 - fix logs
-- dev domain
 
 - switch from assistants API to composer API
 - metrics and monitoring

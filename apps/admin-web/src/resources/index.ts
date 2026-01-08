@@ -4,6 +4,7 @@ import { chatFields } from "./chats/fields";
 // import { messageFields } from "./messages/fields";
 import createResource from "../utils/createResource";
 import type { Field } from "../types/fields";
+import { botActions } from "./bots/actions";
 
 export type ResourceDefinition = {
   name: string;
@@ -33,14 +34,17 @@ export const resources = {
   users: {
     name: "users",
     fields: userFields,
+    actions: [],
   },
   bots: {
     name: "bots",
     fields: botFields,
+    actions: botActions,
   },
   chats: {
     name: "chats",
     fields: chatFields,
+    actions: [],
   },
   // messages: {
   //   name: "messages",
@@ -60,6 +64,7 @@ export const getAllRoutes = () => {
   return Object.values(resources).map((resource) => ({
     name: resource.name,
     fields: resource.fields,
+    actions: resource.actions,
   }));
 };
 

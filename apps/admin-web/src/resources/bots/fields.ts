@@ -1,18 +1,18 @@
+import { Field } from "@/types/fields";
 import { FieldType } from "../../types/fieldTypes";
 
-/*
-"name": "Test assistant",
-"startMessage": "This is a start message",
-"errorMessage": "some error occured, see logs",
-"model": "gpt-4.1-mini",
-"assistantId": "asst_Tbi4RuAMhSvI5p5hK9e8MPbk",
-"enabled": false,
-"telegramMode": "webhook",
-"error": "",
-"ownerUserId": null
-*/
-
 export const botFields = [
+  {
+    key: "id",
+    label: "ID",
+    type: FieldType.TEXT,
+    props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
+  },
   {
     key: "name",
     label: "Name",
@@ -64,6 +64,11 @@ export const botFields = [
     label: "Enabled",
     type: FieldType.BOOLEAN,
     props: { required: true },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: true,
+    },
   },
   {
     key: "telegramMode",
@@ -97,4 +102,26 @@ export const botFields = [
       edit: false,
     },
   },
-];
+  {
+    key: "createdAt",
+    label: "Created At",
+    type: FieldType.DATE,
+    props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
+  },
+  {
+    key: "updatedAt",
+    label: "Updated At",
+    type: FieldType.DATE,
+    props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
+  },
+] satisfies Field[];

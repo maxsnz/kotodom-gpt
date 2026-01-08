@@ -3,12 +3,12 @@ import {
   LogoutResponseSchema,
 } from "@shared/contracts/auth";
 import { validateResponse } from "../utils/validateResponse";
-import { UserResponse } from "@shared/contracts/users";
+import { LoginResponse } from "@shared/contracts/auth";
 
 export class AuthService {
   constructor(private apiUrl: string) {}
 
-  async login(email: string, password: string): Promise<UserResponse> {
+  async login(email: string, password: string): Promise<LoginResponse["user"]> {
     const response = await fetch(`${this.apiUrl}/auth/login`, {
       method: "POST",
       headers: {
@@ -52,7 +52,7 @@ export class AuthService {
     }
   }
 
-  async checkAuth(): Promise<UserResponse> {
+  async checkAuth(): Promise<LoginResponse["user"]> {
     const response = await fetch(`${this.apiUrl}/auth/me`, {
       method: "GET",
       credentials: "include",

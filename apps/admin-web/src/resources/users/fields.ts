@@ -1,6 +1,18 @@
+import { Field } from "@/types/fields";
 import { FieldType } from "../../types/fieldTypes";
 
 export const userFields = [
+  {
+    key: "id",
+    label: "ID",
+    type: FieldType.TEXT,
+    props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
+  },
   {
     key: "email",
     label: "Email",
@@ -13,4 +25,36 @@ export const userFields = [
     type: FieldType.TEXT,
     props: { required: true },
   },
-];
+  {
+    key: "status",
+    label: "Status",
+    type: FieldType.SELECT,
+    options: [
+      { label: "Active", value: "ACTIVE" },
+      { label: "Inactive", value: "INACTIVE" },
+    ],
+    props: { required: true },
+  },
+  {
+    key: "createdAt",
+    label: "Created At",
+    type: FieldType.DATE,
+    props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
+  },
+  {
+    key: "updatedAt",
+    label: "Updated At",
+    type: FieldType.DATE,
+    props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
+  },
+] satisfies Field[];

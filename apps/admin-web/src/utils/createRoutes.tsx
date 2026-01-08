@@ -4,20 +4,24 @@ import BaseShowPage from "../components/BaseShowPage";
 import BaseEditPage from "../components/BaseEditPage";
 import BaseCreatePage from "../components/BaseCreatePage";
 import type { Field } from "../types/fields";
+import { Action } from "@/types/action";
 
 type ResourceConfig = {
   name: string;
   fields: Field[];
+  actions: readonly Action[];
 };
 
 export const createRoutes = (config: ResourceConfig | ResourceConfig[]) => {
   const resources = Array.isArray(config) ? config : [config];
 
-  return resources.flatMap(({ name, fields }) => [
+  return resources.flatMap(({ name, fields, actions }) => [
     <Route
       key={`${name}-list`}
       path={name}
-      element={<BaseListPage resource={name} fields={fields} />}
+      element={
+        <BaseListPage resource={name} fields={fields} actions={actions} />
+      }
     />,
     <Route
       key={`${name}-create`}
