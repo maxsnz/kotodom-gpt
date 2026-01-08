@@ -1,5 +1,5 @@
 import { Field } from "@/types/fields";
-import { FieldType } from "../../types/fieldTypes";
+import { FieldType } from "@/types/fieldTypes";
 
 const fields = [
   {

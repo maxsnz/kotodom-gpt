@@ -4,7 +4,6 @@
 - sub resources
 - create controllers and ui for messages
   messages should be listed in the chat details page
-- create controller and ui for TgUsers
 - TgUsers has chats
 - fix logs
 
