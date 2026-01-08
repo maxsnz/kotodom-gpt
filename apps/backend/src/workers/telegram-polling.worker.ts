@@ -22,6 +22,7 @@ interface BotPollingState {
   lastUpdateId: number;
   intervalId: NodeJS.Timeout;
   isRunning: boolean;
+  isPolling: boolean;
 }
 
 @Injectable()
@@ -124,6 +125,7 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
           });
         }, this.POLLING_INTERVAL_MS),
         isRunning: true,
+        isPolling: false,
       };
 
       this.pollingStates.set(botId, state);
@@ -156,6 +158,13 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
+    // Prevent parallel polling calls - if already polling, skip this call
+    if (state.isPolling) {
+      return;
+    }
+
+    state.isPolling = true;
+
     try {
       // Use Telegraf's getUpdates API
       const updates = await state.client.raw.telegram.getUpdates(
@@ -169,12 +178,24 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
         return;
       }
 
-      this.logger.debug(
-        `Received ${updates.length} update(s) for bot ${botId}`
-      );
-
       // Process each update
       for (const update of updates) {
+        // Log incoming message text
+        const messageText =
+          (update as any).message?.text ||
+          (update as any).edited_message?.text ||
+          (update as any).callback_query?.data ||
+          null;
+        if (messageText) {
+          this.logger.info(`Incoming message: ${messageText}`, {
+            botId,
+            chatId:
+              (update as any).message?.chat?.id ||
+              (update as any).edited_message?.chat?.id ||
+              (update as any).callback_query?.message?.chat?.id,
+          });
+        }
+
         // Update lastUpdateId
         if (update.update_id >= state.lastUpdateId) {
           state.lastUpdateId = update.update_id;
@@ -184,7 +205,20 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
         this.telegramUpdateHandler.handle(botId, update).catch((error) => {
           this.logger.error(
             `Error processing update ${update.update_id} for bot ${botId}`,
-            { error }
+            {
+              error:
+                error instanceof Error
+                  ? { message: error.message, stack: error.stack }
+                  : error,
+              updateId: update.update_id,
+              updateKind: (update as any).message
+                ? "message"
+                : (update as any).edited_message
+                ? "edited_message"
+                : (update as any).callback_query
+                ? "callback_query"
+                : "unknown",
+            }
           );
         });
       }
@@ -202,6 +236,9 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
         this.logger.warn(`Fatal error for bot ${botId}, stopping polling`);
         await this.stopPollingForBot(botId);
       }
+    } finally {
+      // Always reset polling flag, even if error occurred
+      state.isPolling = false;
     }
   }
 

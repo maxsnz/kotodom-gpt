@@ -33,7 +33,7 @@ export class DefaultResponseSender implements ResponseSender {
       sendResult.messageId
     );
 
-    logger.info("Response sent to Telegram", {
+    logger.info(`Outgoing message: ${result.botMessage.text}`, {
       botId,
       chatId: telegramChatId,
       telegramMessageId: sendResult.messageId,

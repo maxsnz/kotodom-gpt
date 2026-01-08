@@ -48,9 +48,19 @@ export class MessageProcessingRepositoryPrisma extends MessageProcessingReposito
   }
 
   async markFailed(userMessageId: number, error: string): Promise<void> {
-    await prisma.messageProcessing.update({
+    // Use upsert instead of update because the record might not exist yet
+    // (e.g., if error occurs before markProcessing is called)
+    await prisma.messageProcessing.upsert({
       where: { userMessageId },
-      data: {
+      create: {
+        userMessageId,
+        status: MessageProcessingStatus.FAILED,
+        lastError: error,
+        lastErrorAt: new Date(),
+        attempts: 1,
+        price: createDecimal(0),
+      },
+      update: {
         status: MessageProcessingStatus.FAILED,
         lastError: error,
         lastErrorAt: new Date(),
@@ -62,9 +72,18 @@ export class MessageProcessingRepositoryPrisma extends MessageProcessingReposito
   }
 
   async markTerminal(userMessageId: number, reason: string): Promise<void> {
-    await prisma.messageProcessing.update({
+    // Use upsert instead of update because the record might not exist yet
+    // (e.g., if error occurs before markProcessing is called)
+    await prisma.messageProcessing.upsert({
       where: { userMessageId },
-      data: {
+      create: {
+        userMessageId,
+        status: MessageProcessingStatus.TERMINAL,
+        terminalReason: reason,
+        attempts: 0,
+        price: createDecimal(0),
+      },
+      update: {
         status: MessageProcessingStatus.TERMINAL,
         terminalReason: reason,
       },
@@ -137,14 +156,26 @@ export class MessageProcessingRepositoryPrisma extends MessageProcessingReposito
     telegramIncomingMessageId?: number,
     telegramUpdateId?: bigint
   ): Promise<void> {
-    await prisma.messageProcessing.update({
+    // Use upsert instead of update because the record might not exist yet
+    // (e.g., if called before markProcessing)
+    const updateData: Record<string, unknown> = {};
+    if (telegramIncomingMessageId !== undefined) {
+      updateData.telegramIncomingMessageId = telegramIncomingMessageId;
+    }
+    if (telegramUpdateId !== undefined) {
+      updateData.telegramUpdateId = telegramUpdateId;
+    }
+
+    await prisma.messageProcessing.upsert({
       where: { userMessageId },
-      data: {
-        ...(telegramIncomingMessageId !== undefined && {
-          telegramIncomingMessageId,
-        }),
-        ...(telegramUpdateId !== undefined && { telegramUpdateId }),
+      create: {
+        userMessageId,
+        status: MessageProcessingStatus.RECEIVED,
+        attempts: 0,
+        price: createDecimal(0),
+        ...updateData,
       },
+      update: updateData,
     });
   }
 

@@ -84,10 +84,10 @@ export class BotsAdminController {
    */
   @Get(":id")
   @UseGuards(BotOwnershipGuard)
-  async getBot(@Req() request: FastifyRequest): Promise<BotResponse> {
+  async getBot(@Req() request: FastifyRequest): Promise<{ data: BotResponse }> {
     // Bot is loaded and attached by BotOwnershipGuard
     const bot = request.bot!;
-    return this.toBotResponse(bot);
+    return { data: this.toBotResponse(bot) };
   }
 
   /**

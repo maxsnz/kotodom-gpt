@@ -100,6 +100,7 @@ describe("ChatsService", () => {
       findById: jest.fn(),
       findAll: jest.fn(),
       findPollingBots: jest.fn(),
+      findWebhookBots: jest.fn(),
       create: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),

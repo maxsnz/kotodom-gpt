@@ -16,6 +16,7 @@ export abstract class BotRepository {
   abstract findAll(): Promise<Bot[]>;
   abstract findByOwner(ownerUserId: string): Promise<Bot[]>;
   abstract findPollingBots(): Promise<Bot[]>;
+  abstract findWebhookBots(): Promise<Bot[]>;
   abstract create(data: CreateBotData): Promise<Bot>;
   abstract save(bot: Bot): Promise<void>;
   abstract delete(id: string): Promise<void>;

@@ -1,6 +1,13 @@
 // import dataProviderBase from "@refinedev/simple-rest";
 import dataProviderBase from "@refinedev/nestjsx-crud";
-import type { DataProvider } from "@refinedev/core";
+import type {
+  DataProvider,
+  GetOneParams,
+  GetOneResponse,
+  BaseRecord,
+} from "@refinedev/core";
+import { validateResponse } from "./utils/validateResponse";
+import { responseSchemas } from "./utils/responseSchemas";
 
 // Transform NestJS validation errors to Refine format
 // Now NestJS returns errors in structured format: { errors: { field: [messages] } }
@@ -119,27 +126,27 @@ const transformNestJSErrors = (error: any): any => {
 };
 
 // Transform form data to ensure proper types
-const transformDataForAPI = (data: any, resource: string): any => {
-  if (resource === "bots") {
-    const transformed = { ...data };
-    // Ensure boolean fields are properly typed
-    if (transformed.enabled !== undefined) {
-      transformed.enabled = Boolean(transformed.enabled);
-    }
-    return transformed;
-  }
-  return data;
-};
+// const transformDataForAPI = (data: any, resource: string): any => {
+//   if (resource === "bots") {
+//     const transformed = { ...data };
+//     // Ensure boolean fields are properly typed
+//     if (transformed.enabled !== undefined) {
+//       transformed.enabled = Boolean(transformed.enabled);
+//     }
+//     return transformed;
+//   }
+//   return data;
+// };
 
 export const dataProvider = (apiUrl: string): DataProvider => {
   const baseDataProvider = dataProviderBase(apiUrl);
 
   // Custom create method to intercept HTTP response before nestjsx-crud processes it
   const createWithDirectFetch = async (params: any) => {
-    const dataToSend = transformDataForAPI(
-      params.variables?.data || params.variables || params.data,
-      params.resource
-    );
+    // const dataToSend = transformDataForAPI(
+    //   params.variables?.data || params.variables || params.data,
+    //   params.resource
+    // );
 
     try {
       const response = await fetch(`${apiUrl}/${params.resource}`, {
@@ -147,7 +154,7 @@ export const dataProvider = (apiUrl: string): DataProvider => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(params.variables),
       });
 
       if (response.status < 200 || response.status > 299) {
@@ -166,8 +173,23 @@ export const dataProvider = (apiUrl: string): DataProvider => {
         throw error;
       }
 
-      const data = await response.json();
-      return { data };
+      const rawData = await response.json();
+
+      // Validate response based on resource
+      const resourceSchemas =
+        responseSchemas[params.resource as keyof typeof responseSchemas];
+      const schema =
+        resourceSchemas && "create" in resourceSchemas
+          ? resourceSchemas.create
+          : undefined;
+      if (schema) {
+        const validatedData = validateResponse(schema, rawData);
+        return {
+          data: validatedData,
+        };
+      }
+
+      return { data: rawData };
     } catch (error: any) {
       const transformedError = transformNestJSErrors(error);
       throw transformedError;
@@ -176,10 +198,10 @@ export const dataProvider = (apiUrl: string): DataProvider => {
 
   // Custom update method to intercept HTTP response before nestjsx-crud processes it
   const updateWithDirectFetch = async (params: any) => {
-    const dataToSend = transformDataForAPI(
-      params.variables?.data || params.variables || params.data,
-      params.resource
-    );
+    // const dataToSend = transformDataForAPI(
+    //   params.variables?.data || params.variables || params.data,
+    //   params.resource
+    // );
 
     try {
       const response = await fetch(
@@ -189,7 +211,7 @@ export const dataProvider = (apiUrl: string): DataProvider => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(dataToSend),
+          body: JSON.stringify(params.variables),
         }
       );
 
@@ -209,8 +231,23 @@ export const dataProvider = (apiUrl: string): DataProvider => {
         throw error;
       }
 
-      const data = await response.json();
-      return { data };
+      const rawData = await response.json();
+
+      // Validate response based on resource
+      const resourceSchemas =
+        responseSchemas[params.resource as keyof typeof responseSchemas];
+      const schema =
+        resourceSchemas && "update" in resourceSchemas
+          ? resourceSchemas.update
+          : undefined;
+      if (schema) {
+        const validatedData = validateResponse(schema, rawData);
+        return {
+          data: validatedData,
+        };
+      }
+
+      return { data: rawData };
     } catch (error: any) {
       const transformedError = transformNestJSErrors(error);
       throw transformedError;
@@ -221,6 +258,52 @@ export const dataProvider = (apiUrl: string): DataProvider => {
     ...baseDataProvider,
     create: createWithDirectFetch,
     update: updateWithDirectFetch,
+    getOne: async <TData extends BaseRecord = BaseRecord>(
+      params: GetOneParams
+    ): Promise<GetOneResponse<TData>> => {
+      try {
+        const response = await fetch(
+          `${apiUrl}/${params.resource}/${params.id}`
+        );
+
+        if (response.status < 200 || response.status > 299) {
+          const errorData = await response.json().catch(() => ({}));
+          throw {
+            statusCode: response.status,
+            status: response.status,
+            statusText: response.statusText,
+            response: {
+              status: response.status,
+              statusText: response.statusText,
+              data: errorData,
+            },
+            data: errorData,
+          };
+        }
+
+        const rawData = await response.json();
+
+        // Validate single item response
+        const resourceSchemas =
+          responseSchemas[params.resource as keyof typeof responseSchemas];
+        const schema =
+          resourceSchemas && "item" in resourceSchemas
+            ? resourceSchemas.item
+            : undefined;
+        if (!schema) {
+          throw new Error(`No schema found for resource: ${params.resource}`);
+        }
+
+        const validatedData = validateResponse(schema, rawData);
+        return {
+          // FIXME
+          data: validatedData.data as unknown as TData,
+        } as GetOneResponse<TData>;
+      } catch (error: unknown) {
+        const transformedError = transformNestJSErrors(error);
+        throw transformedError;
+      }
+    },
     getList: async ({ resource, pagination, filters, sorters }) => {
       const params = new URLSearchParams();
       if (pagination && pagination.currentPage && pagination.pageSize) {
@@ -243,12 +326,28 @@ export const dataProvider = (apiUrl: string): DataProvider => {
 
       if (response.status < 200 || response.status > 299) throw response;
 
-      const data = await response.json();
+      const rawData = await response.json();
+
+      // Validate list response
+      const resourceSchemas =
+        responseSchemas[resource as keyof typeof responseSchemas];
+      const schema =
+        resourceSchemas && "list" in resourceSchemas
+          ? resourceSchemas.list
+          : undefined;
+      if (schema) {
+        const validatedData = validateResponse(schema, rawData);
+        return {
+          data: validatedData.data,
+          total: validatedData.total ?? validatedData.data.length,
+          meta: validatedData.meta,
+        };
+      }
 
       return {
-        data: data.data,
-        total: Number(data.meta?.total),
-        meta: data.meta,
+        data: rawData.data || [],
+        total: Number(rawData.meta?.total) || (rawData.data?.length ?? 0),
+        meta: rawData.meta,
       };
     },
   };

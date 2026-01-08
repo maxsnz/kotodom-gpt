@@ -74,11 +74,11 @@ export async function registerWorkers(
         kind: payload.kind,
       };
 
-      log.info("Job start: BOT_HANDLE_UPDATE", meta);
+      // log.info("Job start: BOT_HANDLE_UPDATE", meta);
 
       try {
         await processBotUpdate(payload);
-        log.info("Job done: BOT_HANDLE_UPDATE", meta);
+        // log.info("Job done: BOT_HANDLE_UPDATE", meta);
       } catch (err) {
         const errorPayload =
           err instanceof Error

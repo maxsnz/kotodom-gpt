@@ -15,16 +15,18 @@ import { modals } from "@mantine/modals";
 import { IconEdit, IconTrash, IconEye, IconPlus } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import type { MRT_Cell } from "mantine-react-table";
+import { filterFieldsForList } from "@/utils/filterFields";
+import { Field } from "@/types/fields";
 
-type Props<T extends { id: string | number }> = {
+type Props = {
   resource: string;
-  fields: MRT_ColumnDef<T>[];
+  fields: Field[];
 };
 
 const BaseListPage = <T extends { id: string | number }>({
   resource,
   fields: columns,
-}: Props<T>) => {
+}: Props) => {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -84,7 +86,11 @@ const BaseListPage = <T extends { id: string | number }>({
         accessorKey: "id",
         size: 80,
       },
-      ...columns,
+      ...filterFieldsForList(columns).map((field) => ({
+        ...field,
+        accessorKey: field.key,
+        header: field.label,
+      })),
       {
         header: "Created At",
         accessorKey: "createdAt",

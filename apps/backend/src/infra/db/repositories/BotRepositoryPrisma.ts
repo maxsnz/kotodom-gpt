@@ -39,6 +39,16 @@ export class BotRepositoryPrisma extends BotRepository {
     return rows.map((row) => this.toDomain(row));
   }
 
+  async findWebhookBots(): Promise<Bot[]> {
+    const rows = await prisma.bot.findMany({
+      where: {
+        enabled: true,
+        telegramMode: "webhook",
+      },
+    });
+    return rows.map((row) => this.toDomain(row));
+  }
+
   async create(data: CreateBotData): Promise<Bot> {
     const row = await prisma.bot.create({
       data: {

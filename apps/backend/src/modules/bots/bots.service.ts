@@ -63,6 +63,14 @@ export class BotsService {
   async update(id: string, input: UpdateBotInput): Promise<Bot> {
     const bot = await this.getOrThrow(id);
 
+    const newTelegramMode = input.telegramMode ?? bot.telegramMode;
+
+    // Check if telegramMode is being changed
+    const modeChangeEffects =
+      input.telegramMode && input.telegramMode !== bot.telegramMode
+        ? bot.onModeChange(bot.telegramMode, input.telegramMode)
+        : [];
+
     // Create a new Bot with updated fields
     const updatedBot = new Bot({
       id: bot.id,
@@ -73,12 +81,18 @@ export class BotsService {
       assistantId: input.assistantId ?? bot.assistantId,
       token: input.token ?? bot.token,
       enabled: input.enabled ?? bot.enabled,
-      telegramMode: input.telegramMode ?? bot.telegramMode,
+      telegramMode: newTelegramMode,
       error: bot.error,
       ownerUserId: bot.ownerUserId, // Preserve owner
     });
 
     await this.botRepo.save(updatedBot);
+
+    // Run effects for mode change if any
+    if (modeChangeEffects.length > 0) {
+      await this.effectRunner.runAll(modeChangeEffects);
+    }
+
     return updatedBot;
   }
 

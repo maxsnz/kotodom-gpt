@@ -19,7 +19,7 @@ import {
   createConsoleLoggerFactory,
 } from "../../infra/logger";
 
-@Controller("webhook")
+@Controller("telegram/webhook")
 export class BotsWebhookController {
   private readonly logger: AppLogger;
 
@@ -58,9 +58,11 @@ export class BotsWebhookController {
     }
 
     // Check if bot is enabled
+    // TODO: Consider if we should silently accept webhooks for disabled bots or return an error
+    // Currently we silently accept to avoid Telegram retrying failed webhooks
     if (!bot.enabled) {
-      this.logger.warn(`Bot ${botId} is disabled`);
-      throw new BadRequestException(`Bot ${botId} is disabled`);
+      this.logger.debug(`Bot ${botId} is disabled, ignoring webhook update`);
+      return { ok: true };
     }
 
     // Process update asynchronously (don't await to return quickly to Telegram)

@@ -30,15 +30,18 @@ import { LoginSchema } from "@shared/contracts/auth";
 ## Schemas Available
 
 ### Auth
+
 - `LoginSchema` - Login form validation
 - `CreateUserSchema` - User creation validation
 - `UpdateUserSchema` - User update validation
 
 ### Bots
+
 - `CreateBotSchema` - Bot creation validation
 - `UpdateBotSchema` - Bot update validation
 
 ### Shared
+
 - `UserRoleSchema` - User roles enum
 - `UserStatusSchema` - User status enum
 - `TelegramModeSchema` - Bot telegram modes enum
@@ -46,6 +49,7 @@ import { LoginSchema } from "@shared/contracts/auth";
 ## TypeScript Types
 
 All schemas have corresponding inferred types available:
+
 - `LoginDto`, `CreateUserDto`, `UpdateUserDto`
 - `CreateBotDto`, `UpdateBotDto`
 - `UserRole`, `UserStatus`, `TelegramMode`

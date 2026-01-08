@@ -48,14 +48,6 @@ export const resources = {
   // },
 } as const;
 
-const prepareFieldsForRefine = (fields: Field[]) => {
-  return fields.map((field) => ({
-    ...field,
-    accessorKey: field.key,
-    header: field.label,
-  }));
-};
-
 // Helper function to get all resources for Refine
 export const getRefineResources = () => {
   return Object.values(resources).map((resource) =>
@@ -67,7 +59,7 @@ export const getRefineResources = () => {
 export const getAllRoutes = () => {
   return Object.values(resources).map((resource) => ({
     name: resource.name,
-    fields: prepareFieldsForRefine(resource.fields),
+    fields: resource.fields,
   }));
 };
 

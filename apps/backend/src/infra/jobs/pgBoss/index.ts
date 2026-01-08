@@ -74,21 +74,122 @@ export class PgBossClient {
     payload: TPayload,
     opts: PublishOptions = {}
   ): Promise<string> {
-    const jobId = await this.boss.send(name, payload, {
-      priority: opts.priority,
-      startAfter:
-        typeof opts.startAfterMs === "number"
-          ? `${opts.startAfterMs}ms`
-          : undefined,
-      retryLimit: opts.retryLimit,
-      retryDelay:
-        typeof opts.retryDelayMs === "number" ? opts.retryDelayMs : undefined,
-      expireInSeconds: opts.expireInSeconds,
-      singletonKey: opts.singletonKey, // for idempotency
-    });
+    // Ensure pg-boss is started - auto-start if not started
+    // This handles cases where different DI instances might have different _started flags
+    if (!this._started) {
+      try {
+        await this.start();
+      } catch (error) {
+        // If start fails, check if it's already started (race condition)
+        // pg-boss throws error if already started, but we can ignore it
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        if (!errorMessage.includes("already started") && !errorMessage.includes("already running")) {
+          throw new Error(
+            `pg-boss: cannot publish job "${name}" - failed to start pg-boss: ${errorMessage}`
+          );
+        }
+        // If already started, update our flag
+        this._started = true;
+      }
+    }
 
-    if (!jobId) throw new Error(`pg-boss: failed to publish job "${name}"`);
-    return jobId;
+    // Ensure queue exists before publishing
+    // This handles race conditions where polling starts before workers are registered
+    try {
+      await this.createQueue(name);
+    } catch (error) {
+      // Queue might already exist, which is fine
+      // Only log if it's not a "queue already exists" type error
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      if (!errorMessage.includes("already exists")) {
+        console.warn(
+          `Failed to ensure queue ${name} exists before publishing`,
+          { error: errorMessage }
+        );
+      }
+    }
+
+    // Build options object, only including defined values
+    // pg-boss validates that priority is an integer if provided, so we must not pass undefined
+    const sendOptions: Record<string, unknown> = {};
+
+    if (typeof opts.priority === "number") {
+      sendOptions.priority = opts.priority;
+    }
+
+    if (typeof opts.startAfterMs === "number") {
+      sendOptions.startAfter = `${opts.startAfterMs}ms`;
+    }
+
+    if (typeof opts.retryLimit === "number") {
+      sendOptions.retryLimit = opts.retryLimit;
+    }
+
+    if (typeof opts.retryDelayMs === "number") {
+      sendOptions.retryDelay = opts.retryDelayMs;
+    }
+
+    if (typeof opts.expireInSeconds === "number") {
+      sendOptions.expireInSeconds = opts.expireInSeconds;
+    }
+
+    if (opts.singletonKey) {
+      sendOptions.singletonKey = opts.singletonKey;
+    }
+
+    try {
+      const jobId = await this.boss.send(name, payload, sendOptions);
+
+      if (!jobId)
+        throw new Error(`pg-boss: failed to publish job "${name}"`);
+      return jobId;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      
+      // If pg-boss is not started, try to start it and retry
+      if (
+        errorMessage.includes("not started") ||
+        errorMessage.includes("Queue cache is not initialized")
+      ) {
+        // Try to start if not started
+        if (!this._started) {
+          try {
+            await this.start();
+          } catch (startError) {
+            const startErrorMessage =
+              startError instanceof Error ? startError.message : String(startError);
+            // Ignore "already started" errors
+            if (
+              !startErrorMessage.includes("already started") &&
+              !startErrorMessage.includes("already running")
+            ) {
+              throw new Error(
+                `pg-boss: cannot publish job "${name}" - failed to start: ${startErrorMessage}`
+              );
+            }
+            this._started = true;
+          }
+        }
+
+        // Ensure queue exists
+        try {
+          await this.createQueue(name);
+        } catch (queueError) {
+          // Queue might already exist, ignore
+        }
+
+        // Retry once
+        const jobId = await this.boss.send(name, payload, sendOptions);
+        if (!jobId)
+          throw new Error(`pg-boss: failed to publish job "${name}" after retry`);
+        return jobId;
+      }
+      
+      throw error;
+    }
   }
 
   /**

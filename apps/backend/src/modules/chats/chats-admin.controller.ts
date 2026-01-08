@@ -122,7 +122,7 @@ export class ChatsAdminController {
   async getChat(
     @Req() request: FastifyRequest,
     @Param("id") id: string
-  ): Promise<ChatResponse> {
+  ): Promise<{ data: ChatResponse }> {
     const chat = await this.chatsService.findById(id);
     if (!chat) {
       throw new NotFoundException(`Chat with id ${id} not found`);
@@ -130,7 +130,7 @@ export class ChatsAdminController {
 
     await this.checkChatOwnership(request, chat);
 
-    return this.toChatResponse(chat);
+    return { data: this.toChatResponse(chat) };
   }
 
   /**

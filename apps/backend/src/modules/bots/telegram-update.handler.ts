@@ -93,6 +93,27 @@ export class TelegramUpdateHandler {
     }
 
     // 3) Build job payload
+    // FIXME: Safely serialize raw update to prevent ERR_ASSERTION errors
+    // pg-boss requires JSON-serializable payload, but raw update may contain
+    // non-serializable data (functions, circular refs, etc.)
+    let safeRaw: unknown;
+    try {
+      safeRaw = JSON.parse(JSON.stringify(update));
+    } catch (error) {
+      this.logger.warn(
+        `Failed to serialize raw update for bot ${botId}, using fallback`,
+        {
+          error:
+            error instanceof Error
+              ? { message: error.message, stack: error.stack }
+              : error,
+          telegramUpdateId: parsed.telegramUpdateId,
+        }
+      );
+      // Fallback: minimal serializable object
+      safeRaw = { update_id: parsed.telegramUpdateId };
+    }
+
     const payload: BotHandleUpdatePayload = {
       botId,
       telegramUpdateId: parsed.telegramUpdateId,
@@ -103,16 +124,37 @@ export class TelegramUpdateHandler {
       callbackData: parsed.callbackData,
       callbackQueryId: parsed.callbackQueryId,
       kind: parsed.kind,
-      raw: update,
+      raw: safeRaw,
     };
 
     // 4) Enqueue async processing (OpenAI + DB writes, etc.)
-    // pg-boss supports unique jobs (dedupe) via options; if your PgBossClient wraps it, use it.
-    // Ideally dedupe by: `${botId}:${parsed.telegramUpdateId}`
-    await this.boss.publish(JOBS.BOT_HANDLE_UPDATE, payload, {
-      singletonKey: `${botId}:${parsed.telegramUpdateId}`,
-      retryLimit: DEFAULT_RETRY_LIMIT,
-    });
+    try {
+      await this.boss.publish(JOBS.BOT_HANDLE_UPDATE, payload, {
+        singletonKey: `${botId}:${parsed.telegramUpdateId}`,
+        retryLimit: DEFAULT_RETRY_LIMIT,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to publish job for bot ${botId}, update ${parsed.telegramUpdateId}`,
+        {
+          error:
+            error instanceof Error
+              ? {
+                  message: error.message,
+                  stack: error.stack,
+                  name: error.name,
+                }
+              : error,
+          payload: {
+            botId: payload.botId,
+            telegramUpdateId: payload.telegramUpdateId,
+            chatId: payload.chatId,
+            kind: payload.kind,
+          },
+        }
+      );
+      throw error;
+    }
   }
 
   private parseUpdate(update: unknown): null | {

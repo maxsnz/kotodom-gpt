@@ -1,5 +1,6 @@
 import type { AuthProvider } from "@refinedev/core";
-import { AuthService, User } from "../services/authService";
+import { AuthService } from "../services/authService";
+import type { UserResponse } from "@shared/contracts/users";
 
 interface LoginParams {
   email: string;
@@ -10,7 +11,7 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
   const authService = new AuthService(apiUrl);
 
   // Store authenticated user in memory (for this session)
-  let currentUser: User | null = null;
+  let currentUser: UserResponse | null = null;
 
   return {
     login: async (params: LoginParams) => {
@@ -95,7 +96,7 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
     },
 
     // Optional: register method if needed in the future
-    register: async (params: any) => {
+    register: async () => {
       return {
         success: false,
         error: {
@@ -106,7 +107,7 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
     },
 
     // Optional: forgotPassword method if needed in the future
-    forgotPassword: async (params: any) => {
+    forgotPassword: async () => {
       return {
         success: false,
         error: {
@@ -117,7 +118,7 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
     },
 
     // Optional: updatePassword method if needed in the future
-    updatePassword: async (params: any) => {
+    updatePassword: async () => {
       return {
         success: false,
         error: {

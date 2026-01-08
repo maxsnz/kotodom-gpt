@@ -1,15 +1,14 @@
 import { Create, Edit, useForm } from "@refinedev/mantine";
-import { TextInput, Checkbox } from "@mantine/core";
+import { TextInput, Checkbox, Select } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useGeneralErrors } from "../hooks/useGeneralErrors";
 import { GeneralErrors } from "./GeneralErrors";
-
-type Field = {
-  key: string;
-  label: string;
-  type: string;
-  props: any;
-};
+import type { Field, FormValues } from "../types/fields";
+import { FieldType } from "../types/fieldTypes";
+import {
+  filterFieldsForEdit,
+  getHiddenFieldsForEdit,
+} from "../utils/filterFields";
 
 const BaseForm = ({
   initialValues,
@@ -18,7 +17,7 @@ const BaseForm = ({
   resource,
   id,
 }: {
-  initialValues: any;
+  initialValues: FormValues;
   fields: Field[];
   mode?: "create" | "edit";
   resource: string;
@@ -52,33 +51,89 @@ const BaseForm = ({
 
   const FormWrapper = mode === "edit" ? Edit : Create;
 
+  const getFieldError = (fieldKey: string) => {
+    const inputProps = getInputProps(fieldKey);
+    return inputProps.error || errors?.[fieldKey];
+  };
+
+  const getCommonFieldProps = (field: Field) => ({
+    key: field.key,
+    mt: "sm" as const,
+    label: field.label,
+    error: getFieldError(field.key),
+  });
+
+  const visibleFields = filterFieldsForEdit(fields);
+
+  // Get hidden fields for edit mode (only in edit mode)
+  const hiddenFields =
+    mode === "edit" ? getHiddenFieldsForEdit(fields /*, initialValues*/) : [];
+
   return (
     <FormWrapper
       isLoading={formLoading}
       saveButtonProps={saveButtonProps}
       resource={resource}
     >
-      {fields.map((field: Field) => {
+      {visibleFields.map((field: Field) => {
         const inputProps = getInputProps(field.key);
-        return field.type === "checkbox" ? (
-          <Checkbox
-            key={field.key}
-            mt="sm"
-            label={field.label}
-            {...inputProps}
-            // getInputProps should already include error, but we can override if needed
-            error={inputProps.error || errors?.[field.key]}
-          />
-        ) : (
-          <TextInput
-            key={field.key}
-            mt="sm"
-            label={field.label}
-            {...inputProps}
-            // getInputProps should already include error, but we can override if needed
-            error={inputProps.error || errors?.[field.key]}
-          />
-        );
+        if (field.type === "checkbox") {
+          return (
+            <Checkbox
+              {...getCommonFieldProps(field)}
+              {...inputProps}
+              checked={inputProps.value}
+              key={field.key}
+            />
+          );
+        } else if (field.type === FieldType.SELECT) {
+          return (
+            <Select
+              {...getCommonFieldProps(field)}
+              data={field.options}
+              {...inputProps}
+              key={field.key}
+            />
+          );
+        } else {
+          return (
+            <TextInput
+              {...getCommonFieldProps(field)}
+              {...inputProps}
+              key={field.key}
+            />
+          );
+        }
+      })}
+
+      {/* Render hidden inputs for non-visible fields in edit mode */}
+      {hiddenFields.map((field) => {
+        const inputProps = getInputProps(field.key);
+        const value = inputProps.value;
+
+        // Handle different field types for hidden inputs
+        // Use getInputProps to ensure proper form integration with Mantine
+        if (field.type === "checkbox") {
+          // For checkbox, convert boolean to string for hidden input
+          return (
+            <input
+              key={field.key}
+              type="hidden"
+              name={field.key}
+              value={value ? "true" : "false"}
+            />
+          );
+        } else {
+          // For other types, use the value from inputProps
+          return (
+            <input
+              key={field.key}
+              type="hidden"
+              name={field.key}
+              value={value ?? ""}
+            />
+          );
+        }
       })}
 
       <GeneralErrors errors={generalErrors} />

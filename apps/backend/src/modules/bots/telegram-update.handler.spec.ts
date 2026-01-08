@@ -32,6 +32,7 @@ describe("TelegramUpdateHandler", () => {
       findById: jest.fn(),
       save: jest.fn(),
       findPollingBots: jest.fn(),
+      findWebhookBots: jest.fn(),
     } as any;
 
     mockPgBossClient = {

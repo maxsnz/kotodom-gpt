@@ -21,11 +21,11 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Path aliases */
-    "baseUrl": "./src",
+    "baseUrl": "../..",
     "paths": {
-      "@/*": ["*"],
-      "@shared/contracts/*": ["../../shared/contracts/src/*"]
+      "@/*": ["apps/admin-web/src/*"],
+      "@shared/contracts/*": ["shared/contracts/src/*"]
     }
   },
-  "include": ["."]
+  "include": [".", "../../shared/contracts/src/**/*"]
 }

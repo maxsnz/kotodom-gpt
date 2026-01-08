@@ -81,7 +81,7 @@ describe("EffectRunner", () => {
         "test-bot-token"
       );
       expect(mockSetWebhook).toHaveBeenCalledWith(
-        "https://api.example.com/webhook/test-bot-id"
+        "https://api.example.com/telegram/webhook/test-bot-id"
       );
     });
 
@@ -208,11 +208,11 @@ describe("EffectRunner", () => {
       expect(mockSetWebhook).toHaveBeenCalledTimes(2);
       expect(mockSetWebhook).toHaveBeenNthCalledWith(
         1,
-        "https://api.example.com/webhook/bot-1"
+        "https://api.example.com/telegram/webhook/bot-1"
       );
       expect(mockSetWebhook).toHaveBeenNthCalledWith(
         2,
-        "https://api.example.com/webhook/bot-2"
+        "https://api.example.com/telegram/webhook/bot-2"
       );
       expect(mockPgBossClient.publish).toHaveBeenCalledTimes(1);
       expect(mockPgBossClient.publish).toHaveBeenCalledWith(

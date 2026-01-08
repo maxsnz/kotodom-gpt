@@ -151,6 +151,62 @@ describe("BotRepositoryPrisma", () => {
     });
   });
 
+  describe("findWebhookBots", () => {
+    it("should return only enabled webhook bots", async () => {
+      const prismaBots = [
+        {
+          id: 1,
+          enabled: true,
+          telegramMode: "webhook" as const,
+          token: "token-1",
+          startMessage: "Start",
+          errorMessage: "",
+          name: "Bot 1",
+          model: "gpt-4o-mini",
+          createdAt: new Date(),
+          assistantId: "assistant-id",
+          error: null,
+        },
+        {
+          id: 2,
+          enabled: true,
+          telegramMode: "webhook" as const,
+          token: "token-2",
+          startMessage: "Start",
+          errorMessage: "",
+          name: "Bot 2",
+          model: "gpt-4o-mini",
+          createdAt: new Date(),
+          assistantId: "assistant-id",
+          error: null,
+        },
+      ];
+
+      prismaBotMock.findMany.mockResolvedValue(prismaBots as any);
+
+      const result = await repository.findWebhookBots();
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toBeInstanceOf(Bot);
+      expect(result[0].telegramMode).toBe("webhook");
+      expect(result[0].enabled).toBe(true);
+      expect(mockPrisma.bot.findMany).toHaveBeenCalledWith({
+        where: {
+          enabled: true,
+          telegramMode: "webhook",
+        },
+      });
+    });
+
+    it("should return empty array when no webhook bots found", async () => {
+      prismaBotMock.findMany.mockResolvedValue([]);
+
+      const result = await repository.findWebhookBots();
+
+      expect(result).toEqual([]);
+    });
+  });
+
   describe("save", () => {
     it("should create new bot when bot does not exist", async () => {
       const bot = new Bot({

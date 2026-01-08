@@ -91,4 +91,27 @@ export class Bot {
 
     return [];
   }
+
+  onModeChange(
+    oldMode: "webhook" | "polling",
+    newMode: "webhook" | "polling"
+  ): Effect[] {
+    const effects: Effect[] = [];
+
+    // When switching from webhook to polling, remove webhook
+    if (oldMode === "webhook" && newMode === "polling") {
+      effects.push({ type: "telegram.removeWebhook", botToken: this.token });
+    }
+
+    // When switching from polling to webhook and bot is enabled, set webhook
+    if (oldMode === "polling" && newMode === "webhook" && this.props.enabled) {
+      effects.push({
+        type: "telegram.ensureWebhook",
+        botId: this.id,
+        botToken: this.token,
+      });
+    }
+
+    return effects;
+  }
 }

@@ -18,11 +18,10 @@ import { Roles } from "./decorators/roles.decorator";
 import { UserRole, UserStatus } from "../../domain/users/types";
 import { ZodValidationPipe } from "../../common/pipes";
 import {
-  CreateUserSchema,
   type CreateUserDto,
-  UpdateUserSchema,
   type UpdateUserDto,
-} from "@shared/contracts/auth";
+} from "@shared/contracts/users";
+import { CreateUserSchema, UpdateUserSchema } from "@shared/contracts/users";
 
 /**
  * User response DTO - hides sensitive passwordHash field
@@ -55,12 +54,12 @@ export class UsersAdminController {
    * GET /api/users/:id - Get user by ID
    */
   @Get(":id")
-  async getUser(@Param("id") id: string): Promise<{ user: UserResponse }> {
+  async getUser(@Param("id") id: string): Promise<{ data: UserResponse }> {
     const user = await this.usersService.findById(id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    return { user: this.toUserResponse(user) };
+    return { data: this.toUserResponse(user) };
   }
 
   /**

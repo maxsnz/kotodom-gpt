@@ -147,6 +147,8 @@ async function bootstrap() {
   const host = "0.0.0.0"; // Listen on all interfaces
 
   // Start HTTP server with Fastify
+  // Note: TelegramWebhookRegistrationService will automatically register webhooks
+  // via OnModuleInit hook when the module is initialized
   await app.listen(port, host);
   bootstrapLogger.info(`Application is running on: http://localhost:${port}`);
 

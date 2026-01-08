@@ -24,6 +24,11 @@ export const botFields = [
     label: "Start Message",
     type: FieldType.TEXT,
     props: { required: true },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: true,
+    },
   },
 
   {
@@ -31,6 +36,11 @@ export const botFields = [
     label: "Error Message",
     type: FieldType.TEXT,
     props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: true,
+    },
   },
   {
     key: "model",
@@ -43,6 +53,11 @@ export const botFields = [
     label: "Assistant ID",
     type: FieldType.TEXT,
     props: { required: true },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: true,
+    },
   },
   {
     key: "enabled",
@@ -53,7 +68,11 @@ export const botFields = [
   {
     key: "telegramMode",
     label: "Telegram Mode",
-    type: FieldType.TEXT,
+    type: FieldType.SELECT,
+    options: [
+      { label: "Webhook", value: "webhook" },
+      { label: "Polling", value: "polling" },
+    ],
     props: { required: true },
   },
   {
@@ -61,11 +80,21 @@ export const botFields = [
     label: "Error",
     type: FieldType.TEXT,
     props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
   },
   {
     key: "ownerUserId",
     label: "Owner User ID",
     type: FieldType.TEXT,
     props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
   },
 ];

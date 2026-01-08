@@ -1,4 +1,4 @@
-import type { Field } from "../types/fields";
+import type { Field, FormValues } from "../types/fields";
 import BaseForm from "./BaseForm";
 
 const BaseCreatePage = ({
@@ -11,7 +11,7 @@ const BaseCreatePage = ({
   const initialValues = fields.reduce((acc, field) => {
     acc[field.key] = "";
     return acc;
-  }, {} as Record<string, any>);
+  }, {} as FormValues);
 
   return (
     <BaseForm

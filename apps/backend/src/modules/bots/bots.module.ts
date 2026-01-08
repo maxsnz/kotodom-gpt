@@ -5,6 +5,7 @@ import { BotsAdminController } from "./bots-admin.controller";
 import { BotsWebhookController } from "./bots-webhook.controller";
 import { TelegramUpdateHandler } from "./telegram-update.handler";
 import { TelegramPollingWorker } from "../../workers/telegram-polling.worker";
+import { TelegramWebhookRegistrationService } from "../../workers/telegram-webhook-registration.service";
 import { BotOwnershipGuard } from "./guards/bot-ownership.guard";
 
 // Domain interface token (see note below)
@@ -26,6 +27,7 @@ import { OpenAIClient } from "../../infra/openai/openaiClient";
     BotsService,
     TelegramUpdateHandler,
     TelegramPollingWorker,
+    TelegramWebhookRegistrationService,
     BotOwnershipGuard,
 
     // Infra services used by effects/update handling

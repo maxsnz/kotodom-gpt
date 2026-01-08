@@ -46,7 +46,7 @@ export class EffectRunner {
   async run(effect: Effect): Promise<void> {
     switch (effect.type) {
       case "telegram.ensureWebhook": {
-        const webhookUrl = `${env.BASE_URL}/webhook/${effect.botId}`;
+        const webhookUrl = `${env.BASE_URL}/telegram/webhook/${effect.botId}`;
         const client = this.telegramClientFactory.createClient(effect.botToken);
         await client.setWebhook(webhookUrl);
         return;

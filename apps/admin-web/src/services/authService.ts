@@ -1,21 +1,14 @@
-export interface User {
-  id: string;
-  email: string;
-  role: string;
-}
-
-export interface LoginResponse {
-  user: User;
-}
-
-export interface LogoutResponse {
-  success: boolean;
-}
+import {
+  LoginResponseSchema,
+  LogoutResponseSchema,
+} from "@shared/contracts/auth";
+import { validateResponse } from "../utils/validateResponse";
+import { UserResponse } from "@shared/contracts/users";
 
 export class AuthService {
   constructor(private apiUrl: string) {}
 
-  async login(email: string, password: string): Promise<User> {
+  async login(email: string, password: string): Promise<UserResponse> {
     const response = await fetch(`${this.apiUrl}/auth/login`, {
       method: "POST",
       headers: {
@@ -32,7 +25,8 @@ export class AuthService {
       );
     }
 
-    const data: LoginResponse = await response.json();
+    const rawData = await response.json();
+    const data = validateResponse(LoginResponseSchema, rawData);
     return data.user;
   }
 
@@ -51,9 +45,14 @@ export class AuthService {
         errorData.message || `Logout failed: ${response.statusText}`
       );
     }
+
+    const rawData = await response.json().catch(() => ({}));
+    if (Object.keys(rawData).length > 0) {
+      validateResponse(LogoutResponseSchema, rawData);
+    }
   }
 
-  async checkAuth(): Promise<User> {
+  async checkAuth(): Promise<UserResponse> {
     const response = await fetch(`${this.apiUrl}/auth/me`, {
       method: "GET",
       credentials: "include",
@@ -67,7 +66,8 @@ export class AuthService {
       );
     }
 
-    const data: LoginResponse = await response.json();
+    const rawData = await response.json();
+    const data = validateResponse(LoginResponseSchema, rawData);
     return data.user;
   }
 }

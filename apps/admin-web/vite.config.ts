@@ -28,11 +28,12 @@ export default defineConfig({
   },
 
   server: {
+    allowedHosts: [".ngrok-free.dev"],
     port: process.env.FRONTEND_PORT
       ? parseInt(process.env.FRONTEND_PORT)
       : 5173,
     proxy: {
-      "/api": {
+      "^/(api|telegram)": {
         target: `http://localhost:${process.env.BACKEND_PORT || 3000}`,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, "/api"),
