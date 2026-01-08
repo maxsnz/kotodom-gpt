@@ -8,6 +8,7 @@ import { MessageProcessingModule } from "./modules/message-processing/message-pr
 import { AuthModule } from "./modules/auth/auth.module";
 import { HealthModule } from "./modules/health/health.module";
 import { JobsModule } from "./modules/jobs/jobs.module";
+import { TgUsersModule } from "./modules/tg-users/tg-users.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { JobsModule } from "./modules/jobs/jobs.module";
     AuthModule,
     HealthModule,
     JobsModule,
+    TgUsersModule,
   ],
 })
 export class AppModule {}
