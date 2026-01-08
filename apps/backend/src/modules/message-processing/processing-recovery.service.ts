@@ -1,8 +1,8 @@
 import { Injectable, Inject } from "@nestjs/common";
 
-import { MessageProcessingRepository } from "../../domain/chats/MessageProcessingRepository";
+import { MessageProcessingRepository } from "../../domain/message-processing/MessageProcessingRepository";
 import { MessageRepository } from "../../domain/chats/MessageRepository";
-import { MessageProcessingStatus } from "../../domain/chats/MessageProcessing";
+import { MessageProcessingStatus } from "../../domain/message-processing/MessageProcessing";
 import { PgBossClient } from "../../infra/jobs/pgBoss";
 import {
   JOBS,
@@ -65,6 +65,25 @@ export class ProcessingRecoveryService {
     });
 
     return { retriedCount, messageIds };
+  }
+
+  /**
+   * Retry specific message processing by ID
+   * Publishes minimal payload job - worker will load all data from DB
+   */
+  async retryById(id: number): Promise<void> {
+    const processing = await this.messageProcessingRepository.findById(id);
+    if (!processing) {
+      throw new Error(`MessageProcessing not found for id: ${id}`);
+    }
+
+    // Delegate to retryByUserMessageId which has all the validation logic
+    await this.retryByUserMessageId(processing.userMessageId);
+
+    this.logger.info("Retried message processing by ID", {
+      id,
+      userMessageId: processing.userMessageId,
+    });
   }
 
   /**

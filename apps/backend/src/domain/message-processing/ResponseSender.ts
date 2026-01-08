@@ -1,5 +1,5 @@
 import { TelegramClient } from "../../infra/telegram/telegramClient";
-import { MessageProcessingRepository } from "../chats/MessageProcessingRepository";
+import { MessageProcessingRepository } from "./MessageProcessingRepository";
 import { SaveResult, ResponseSender, LoggerLike } from "./MessageProcessor";
 
 /**
@@ -41,4 +41,3 @@ export class DefaultResponseSender implements ResponseSender {
     });
   }
 }
-

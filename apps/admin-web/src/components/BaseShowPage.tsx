@@ -6,10 +6,10 @@ import { Fragment } from "react/jsx-runtime";
 import { FieldType } from "../types/fieldTypes";
 import type { Field } from "../types/fields";
 import { filterFieldsForShow } from "../utils/filterFields";
+import { Resource } from "@/types/resource";
 
 type Props = {
-  resource: string;
-  fields: Field[];
+  resource: Resource;
 };
 
 const getSelectDisplayValue = (field: Field, value: unknown): string => {
@@ -20,11 +20,11 @@ const getSelectDisplayValue = (field: Field, value: unknown): string => {
   return option ? option.label : String(value || "");
 };
 
-const BaseShow = ({ resource, fields: columns }: Props) => {
+const BaseShow = ({ resource }: Props) => {
   const { id } = useParams<{ id: string }>();
 
   const { query } = useOne({
-    resource,
+    resource: resource.name,
     id,
   });
 
@@ -37,13 +37,11 @@ const BaseShow = ({ resource, fields: columns }: Props) => {
   // Filter fields for show view
   // Note: filterFieldsForShow returns Field[], but we need FieldWithHeaderAndAccessorKey[]
   // Since FieldWithHeaderAndAccessorKey extends Field, we filter and then map to preserve header/accessorKey
-  const visibleColumns = filterFieldsForShow(columns as Field[]).map(
-    (field) => {
-      // Find original field to preserve header and accessorKey
-      const originalField = columns.find((col) => col.key === field.key);
-      return originalField || (field as Field);
-    }
-  );
+  const visibleColumns = filterFieldsForShow(resource.fields).map((field) => {
+    // Find original field to preserve header and accessorKey
+    const originalField = resource.fields.find((col) => col.key === field.key);
+    return originalField || (field as Field);
+  });
 
   return (
     <Show isLoading={query.isLoading}>

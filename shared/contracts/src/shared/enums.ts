@@ -8,3 +8,14 @@ export type UserStatus = z.infer<typeof UserStatusSchema>;
 
 export const TelegramModeSchema = z.enum(["webhook", "polling"]);
 export type TelegramMode = z.infer<typeof TelegramModeSchema>;
+
+export const MessageProcessingStatusSchema = z.enum([
+  "RECEIVED",
+  "PROCESSING",
+  "COMPLETED",
+  "FAILED",
+  "TERMINAL",
+]);
+export type MessageProcessingStatus = z.infer<
+  typeof MessageProcessingStatusSchema
+>;

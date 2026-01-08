@@ -1,7 +1,7 @@
 import { Field } from "@/types/fields";
 import { FieldType } from "../../types/fieldTypes";
 
-export const userFields = [
+const fields = [
   {
     key: "id",
     label: "ID",
@@ -58,3 +58,5 @@ export const userFields = [
     },
   },
 ] satisfies Field[];
+
+export default fields;

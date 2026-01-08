@@ -1,4 +1,7 @@
-import { MessageProcessing } from "./MessageProcessing";
+import {
+  MessageProcessing,
+  MessageProcessingStatus,
+} from "./MessageProcessing";
 
 export abstract class MessageProcessingRepository {
   abstract getOrCreateForUserMessage(
@@ -35,5 +38,17 @@ export abstract class MessageProcessingRepository {
     telegramIncomingMessageId?: number,
     telegramUpdateId?: bigint
   ): Promise<void>;
-}
 
+  abstract findAll(
+    filters?: {
+      status?: MessageProcessingStatus;
+      userMessageId?: number;
+    },
+    pagination?: {
+      skip?: number;
+      take?: number;
+    }
+  ): Promise<MessageProcessing[]>;
+
+  abstract findById(id: number): Promise<MessageProcessing | null>;
+}

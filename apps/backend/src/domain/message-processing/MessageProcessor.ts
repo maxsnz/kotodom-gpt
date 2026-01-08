@@ -1,8 +1,8 @@
 import { BotRepository } from "../bots/BotRepository";
 import { ChatRepository } from "../chats/ChatRepository";
 import { MessageRepository } from "../chats/MessageRepository";
-import { MessageProcessingRepository } from "../chats/MessageProcessingRepository";
-import { MessageProcessingStatus } from "../chats/MessageProcessing";
+import { MessageProcessingRepository } from "./MessageProcessingRepository";
+import { MessageProcessingStatus } from "./MessageProcessing";
 import { Bot } from "../bots/Bot";
 import { Chat } from "../chats/Chat";
 import { Message } from "../chats/Message";
@@ -33,7 +33,10 @@ export type SaveResult = GenerationResult & {
 };
 
 export interface ResponseGenerator {
-  generateResponse(ctx: IncomingContext, botId: number | null): Promise<GenerationResult>;
+  generateResponse(
+    ctx: IncomingContext,
+    botId: number | null
+  ): Promise<GenerationResult>;
 }
 
 export interface ResponseSender {
@@ -72,7 +75,9 @@ export class MessageProcessor {
    */
   async processUserMessage(userMessageId: number): Promise<void> {
     // Load user message
-    const userMessage = await this.deps.messageRepository.findById(userMessageId);
+    const userMessage = await this.deps.messageRepository.findById(
+      userMessageId
+    );
     if (!userMessage) {
       throw new TerminalError(`User message not found: ${userMessageId}`);
     }
@@ -86,7 +91,9 @@ export class MessageProcessor {
     }
 
     // Load bot
-    const bot = await this.deps.botRepository.findById(String(userMessage.botId));
+    const bot = await this.deps.botRepository.findById(
+      String(userMessage.botId)
+    );
     if (!bot) {
       throw new TerminalError(`Bot not found: ${userMessage.botId}`);
     }
@@ -114,11 +121,14 @@ export class MessageProcessor {
       processing.status === MessageProcessingStatus.COMPLETED ||
       processing.status === MessageProcessingStatus.TERMINAL
     ) {
-      this.deps.logger.info("Message processing already completed or terminal", {
-        botId: userMessage.botId,
-        userMessageId,
-        status: processing.status,
-      });
+      this.deps.logger.info(
+        "Message processing already completed or terminal",
+        {
+          botId: userMessage.botId,
+          userMessageId,
+          status: processing.status,
+        }
+      );
       return;
     }
 
@@ -127,10 +137,11 @@ export class MessageProcessor {
 
     // Step 4: Generate response if not already generated
     if (!processing.responseMessageId) {
-      const generationResult = await this.deps.responseGenerator.generateResponse(
-        incomingCtx,
-        userMessage.botId
-      );
+      const generationResult =
+        await this.deps.responseGenerator.generateResponse(
+          incomingCtx,
+          userMessage.botId
+        );
 
       const saveResult = await this.saveResponse(
         generationResult,
@@ -191,7 +202,9 @@ export class MessageProcessor {
     userMessageId: number
   ): Promise<SaveResult> {
     const existingBotMessage =
-      await this.deps.messageRepository.findBotResponseForUserMessage(userMessageId);
+      await this.deps.messageRepository.findBotResponseForUserMessage(
+        userMessageId
+      );
 
     if (existingBotMessage) {
       return { ...result, botMessage: existingBotMessage };

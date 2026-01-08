@@ -8,7 +8,7 @@ import {
   type MRT_ColumnDef,
   type MRT_Row,
 } from "mantine-react-table";
-// import type { BaseRecord } from "@refinedev/core";
+
 import {
   useList,
   useDelete,
@@ -20,19 +20,14 @@ import { modals } from "@mantine/modals";
 import { IconEdit, IconTrash, IconEye, IconPlus } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { filterFieldsForList } from "@/utils/filterFields";
-import { Field } from "@/types/fields";
-import { Action } from "@/types/action";
+import { Resource } from "@/types/resource";
 
 type Props = {
-  resource: string;
-  fields: Field[];
-  actions: readonly Action[];
+  resource: Resource;
 };
 
 const BaseListPage = <T extends { id: string | number }>({
   resource,
-  fields: columns,
-  actions = [],
 }: Props) => {
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -41,8 +36,9 @@ const BaseListPage = <T extends { id: string | number }>({
 
   const { open } = useNotification();
   const invalidate = useInvalidate();
+
   const { result, query } = useList<T>({
-    resource,
+    resource: resource.name,
     pagination: {
       currentPage: pagination.pageIndex + 1,
       pageSize: pagination.pageSize,
@@ -70,7 +66,7 @@ const BaseListPage = <T extends { id: string | number }>({
         onConfirm: () => {
           deleteRecord(
             {
-              resource: resource,
+              resource: resource.name,
               id: row.original.id,
             },
             {
@@ -89,7 +85,7 @@ const BaseListPage = <T extends { id: string | number }>({
 
   const tableColumns = useMemo<MRT_ColumnDef<T>[]>(
     () => [
-      ...filterFieldsForList(columns).map((field) => ({
+      ...filterFieldsForList(resource.fields).map((field) => ({
         ...field,
         accessorKey: field.key,
         header: field.label,
@@ -100,36 +96,48 @@ const BaseListPage = <T extends { id: string | number }>({
         size: 150,
         Cell: ({ row }) => (
           <Flex gap="xs">
-            <Tooltip label="Show">
-              <ActionIcon
-                component={Link}
-                to={`/cp/${resource}/${row.original.id}`}
-                variant="subtle"
-                color="gray"
-              >
-                <IconEye size={16} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="Edit">
-              <ActionIcon
-                component={Link}
-                to={`/cp/${resource}/edit/${row.original.id}`}
-                variant="subtle"
-                color="blue"
-              >
-                <IconEdit size={16} />
-              </ActionIcon>
-            </Tooltip>
-            <Tooltip label="Delete">
-              <ActionIcon
-                color="red"
-                variant="subtle"
-                onClick={() => openDeleteConfirmModal(row)}
-              >
-                <IconTrash size={16} />
-              </ActionIcon>
-            </Tooltip>
-            {actions
+            {resource.show && (
+              <Tooltip label="Show">
+                <ActionIcon
+                  component={Link}
+                  to={`/cp/${resource.show?.replace(
+                    ":id",
+                    row.original.id.toString()
+                  )}`}
+                  variant="subtle"
+                  color="gray"
+                >
+                  <IconEye size={16} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+            {resource.edit && (
+              <Tooltip label="Edit">
+                <ActionIcon
+                  component={Link}
+                  to={`/cp/${resource.edit?.replace(
+                    ":id",
+                    row.original.id.toString()
+                  )}`}
+                  variant="subtle"
+                  color="blue"
+                >
+                  <IconEdit size={16} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+            {resource.meta.canDelete && (
+              <Tooltip label="Delete">
+                <ActionIcon
+                  color="red"
+                  variant="subtle"
+                  onClick={() => openDeleteConfirmModal(row)}
+                >
+                  <IconTrash size={16} />
+                </ActionIcon>
+              </Tooltip>
+            )}
+            {resource.actions
               .filter((action) => action.available(row.original))
               .map((action) => (
                 <Tooltip label={action.name}>
@@ -139,7 +147,10 @@ const BaseListPage = <T extends { id: string | number }>({
                     onClick={async () => {
                       try {
                         await action.action(row.original);
-                        await invalidate({ resource, invalidates: ["list"] });
+                        await invalidate({
+                          resource: resource.name,
+                          invalidates: ["list"],
+                        });
                         open?.({
                           type: "success",
                           message: "Action completed successfully",
@@ -165,7 +176,7 @@ const BaseListPage = <T extends { id: string | number }>({
         enableColumnFilter: false,
       },
     ],
-    [columns, resource, openDeleteConfirmModal, actions]
+    [resource, openDeleteConfirmModal]
   );
 
   const table = useMantineReactTable({

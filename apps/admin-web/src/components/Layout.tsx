@@ -2,13 +2,14 @@ import { AppShell, Group, Text, NavLink, Button } from "@mantine/core";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useLogout } from "@refinedev/core";
 import { IconLogout } from "@tabler/icons-react";
-import { getNavigationItems } from "../resources";
+import { getNavigationItems } from "@/utils/getNavigationItems";
+import { resources } from "@/resources";
 
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { mutate: logout } = useLogout();
-  const navItems = getNavigationItems();
+  const navItems = getNavigationItems(resources);
 
   const handleLogout = () => {
     logout();

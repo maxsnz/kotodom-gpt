@@ -1,4 +1,3 @@
-// import dataProviderBase from "@refinedev/simple-rest";
 import dataProviderBase from "@refinedev/nestjsx-crud";
 import type {
   DataProvider,
@@ -6,8 +5,20 @@ import type {
   GetOneResponse,
   BaseRecord,
 } from "@refinedev/core";
-import { validateResponse } from "./utils/validateResponse";
-import { responseSchemas } from "./utils/responseSchemas";
+import { validateResponse } from "@/utils/validateResponse";
+import { Resource } from "@/types/resource";
+import { z } from "zod";
+
+// Helper function to validate response with proper typing
+function validateResponseWithType<T>(
+  schema: z.ZodTypeAny | undefined,
+  data: unknown
+): T {
+  if (!schema) {
+    throw new Error("Schema is required");
+  }
+  return validateResponse(schema, data) as T;
+}
 
 // Transform NestJS validation errors to Refine format
 // Now NestJS returns errors in structured format: { errors: { field: [messages] } }
@@ -138,7 +149,10 @@ const transformNestJSErrors = (error: any): any => {
 //   return data;
 // };
 
-export const dataProvider = (apiUrl: string): DataProvider => {
+export const dataProvider = (
+  apiUrl: string,
+  resources: Resource[]
+): DataProvider => {
   const baseDataProvider = dataProviderBase(apiUrl);
 
   // Custom create method to intercept HTTP response before nestjsx-crud processes it
@@ -175,9 +189,15 @@ export const dataProvider = (apiUrl: string): DataProvider => {
 
       const rawData = await response.json();
 
-      // Validate response based on resource
-      const resourceSchemas =
-        responseSchemas[params.resource as keyof typeof responseSchemas];
+      const resource = resources.find(
+        (resource) => resource.name === params.resource
+      );
+      if (!resource) {
+        throw new Error(`Resource not found: ${params.resource}`);
+      }
+
+      const resourceSchemas = resource.schemas;
+
       const schema =
         resourceSchemas && "create" in resourceSchemas
           ? resourceSchemas.create
@@ -233,9 +253,14 @@ export const dataProvider = (apiUrl: string): DataProvider => {
 
       const rawData = await response.json();
 
-      // Validate response based on resource
-      const resourceSchemas =
-        responseSchemas[params.resource as keyof typeof responseSchemas];
+      const resource = resources.find(
+        (resource) => resource.name === params.resource
+      );
+      if (!resource) {
+        throw new Error(`Resource not found: ${params.resource}`);
+      }
+
+      const resourceSchemas = resource.schemas;
       const schema =
         resourceSchemas && "update" in resourceSchemas
           ? resourceSchemas.update
@@ -283,9 +308,14 @@ export const dataProvider = (apiUrl: string): DataProvider => {
 
         const rawData = await response.json();
 
-        // Validate single item response
-        const resourceSchemas =
-          responseSchemas[params.resource as keyof typeof responseSchemas];
+        const resource = resources.find(
+          (resource) => resource.name === params.resource
+        );
+        if (!resource) {
+          throw new Error(`Resource not found: ${params.resource}`);
+        }
+
+        const resourceSchemas = resource.schemas;
         const schema =
           resourceSchemas && "item" in resourceSchemas
             ? resourceSchemas.item
@@ -294,17 +324,21 @@ export const dataProvider = (apiUrl: string): DataProvider => {
           throw new Error(`No schema found for resource: ${params.resource}`);
         }
 
-        const validatedData = validateResponse(schema, rawData);
+        const validatedData = validateResponseWithType<{ data: TData }>(
+          schema,
+          rawData
+        );
         return {
-          // FIXME
-          data: validatedData.data as unknown as TData,
-        } as GetOneResponse<TData>;
+          data: validatedData.data,
+        };
       } catch (error: unknown) {
+        console.error(error);
         const transformedError = transformNestJSErrors(error);
         throw transformedError;
       }
     },
-    getList: async ({ resource, pagination, filters, sorters }) => {
+    getList: async (props) => {
+      const { resource: resourceName, pagination, filters, sorters } = props;
       const params = new URLSearchParams();
       if (pagination && pagination.currentPage && pagination.pageSize) {
         params.set("page", pagination.currentPage.toString());
@@ -322,21 +356,30 @@ export const dataProvider = (apiUrl: string): DataProvider => {
           params.set(sorter.field, sorter.order.toString());
         });
       }
-      const response = await fetch(`/api/${resource}?${params.toString()}`);
+      const response = await fetch(`/api/${resourceName}?${params.toString()}`);
 
       if (response.status < 200 || response.status > 299) throw response;
 
       const rawData = await response.json();
 
-      // Validate list response
-      const resourceSchemas =
-        responseSchemas[resource as keyof typeof responseSchemas];
+      const resource = resources.find(
+        (resource) => resource.name === resourceName
+      );
+      if (!resource) {
+        throw new Error(`Resource not found: ${resourceName}`);
+      }
+
+      const resourceSchemas = resource.schemas;
       const schema =
         resourceSchemas && "list" in resourceSchemas
           ? resourceSchemas.list
           : undefined;
       if (schema) {
-        const validatedData = validateResponse(schema, rawData);
+        const validatedData = validateResponseWithType<{
+          data: BaseRecord[];
+          total?: number;
+          meta?: Record<string, unknown>;
+        }>(schema, rawData);
         return {
           data: validatedData.data,
           total: validatedData.total ?? validatedData.data.length,

@@ -8,8 +8,8 @@ import {
 } from "../domain/chats/MessageRepository";
 import { createDecimal } from "../infra/db/prisma/decimal";
 import { Message } from "../domain/chats/Message";
-import { MessageProcessingRepository } from "../domain/chats/MessageProcessingRepository";
-import { MessageProcessingStatus } from "../domain/chats/MessageProcessing";
+import { MessageProcessingRepository } from "../domain/message-processing/MessageProcessingRepository";
+import { MessageProcessingStatus } from "../domain/message-processing/MessageProcessing";
 import {
   BotHandleUpdatePayload,
   MessageProcessingTriggerPayload,

@@ -1,5 +1,3 @@
-- create controllers for MessageProcessing
-- create ui for MessageProcessing
 - create controllers and ui for messages
 - fix logs
 

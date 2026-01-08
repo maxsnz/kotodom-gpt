@@ -7,13 +7,14 @@ import routerProvider from "@refinedev/react-router";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Refine, useIsAuthenticated } from "@refinedev/core";
 import { useNotificationProvider } from "@refinedev/mantine";
-import Layout from "./components/Layout";
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import { LoginPage } from "./pages/LoginPage";
-import { dataProvider } from "./dataProvider";
-import { getRefineResources, getAllRoutes } from "./resources";
-import { createRoutes } from "./utils/createRoutes";
-import { createAuthProvider } from "./providers/authProvider";
+import Layout from "@/components/Layout";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { LoginPage } from "@/pages/LoginPage";
+import { dataProvider } from "@/providers/dataProvider";
+import { resources } from "@/resources";
+import { createAuthProvider } from "@/providers/authProvider";
+import getBaseRoutes from "@/utils/getBaseRoutes";
+import DashboardPage from "@/pages/DashboardPage";
 
 const myTheme = createTheme({
   primaryColor: "teal",
@@ -28,7 +29,7 @@ const App = () => {
       <ModalsProvider>
         <BrowserRouter>
           <Refine
-            dataProvider={dataProvider(apiUrl)}
+            dataProvider={dataProvider(apiUrl, resources)}
             routerProvider={routerProvider}
             notificationProvider={useNotificationProvider}
             authProvider={createAuthProvider(apiUrl)}
@@ -36,7 +37,7 @@ const App = () => {
               syncWithLocation: true,
               warnWhenUnsavedChanges: true,
             }}
-            resources={getRefineResources()}
+            resources={resources}
           >
             <Routes>
               <Route path="/login" element={<LoginPage />} />
@@ -48,8 +49,8 @@ const App = () => {
                   </ProtectedRoute>
                 }
               >
-                <Route path="" element={<Navigate to="users" replace />} />
-                {...createRoutes(getAllRoutes())}
+                <Route path="" element={<DashboardPage />} />
+                {resources.map((resource) => getBaseRoutes(resource))}
               </Route>
               <Route path="/" element={<RootRedirect />} />
               <Route path="*" element={<Navigate to="/" replace />} />

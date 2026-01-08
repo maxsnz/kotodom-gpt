@@ -4,6 +4,7 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { LoggerModule } from "./infra/logger";
 import { BotsModule } from "./modules/bots/bots.module";
 import { ChatsModule } from "./modules/chats/chats.module";
+import { MessageProcessingModule } from "./modules/message-processing/message-processing.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { HealthModule } from "./modules/health/health.module";
 import { JobsModule } from "./modules/jobs/jobs.module";
@@ -22,6 +23,7 @@ import { JobsModule } from "./modules/jobs/jobs.module";
     LoggerModule,
     BotsModule,
     ChatsModule,
+    MessageProcessingModule,
     AuthModule,
     HealthModule,
     JobsModule,

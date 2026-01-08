@@ -1,6 +1,6 @@
 import type { AuthProvider } from "@refinedev/core";
 import { AuthService } from "../services/authService";
-import type { UserResponse } from "@shared/contracts/users";
+import type { LoginResponse } from "@shared/contracts/auth";
 
 interface LoginParams {
   email: string;
@@ -11,7 +11,7 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
   const authService = new AuthService(apiUrl);
 
   // Store authenticated user in memory (for this session)
-  let currentUser: UserResponse | null = null;
+  let currentUser: LoginResponse["user"] | null = null;
 
   return {
     login: async (params: LoginParams) => {

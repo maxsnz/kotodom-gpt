@@ -9,18 +9,17 @@ import {
   filterFieldsForEdit,
   getHiddenFieldsForEdit,
 } from "../utils/filterFields";
+import { Resource } from "@/types/resource";
 
 const BaseForm = ({
   initialValues,
-  fields,
   mode = "create",
   resource,
   id,
 }: {
   initialValues: FormValues;
-  fields: Field[];
   mode?: "create" | "edit";
-  resource: string;
+  resource: Resource;
   id?: string;
 }) => {
   const navigate = useNavigate();
@@ -33,7 +32,7 @@ const BaseForm = ({
   } = useForm({
     initialValues,
     refineCoreProps: {
-      resource,
+      resource: resource.name,
       action: mode,
       redirect: false,
       onMutationSuccess: () => {
@@ -44,7 +43,7 @@ const BaseForm = ({
   });
 
   // Get field keys to check for general errors
-  const fieldKeys = fields.map((f) => f.key);
+  const fieldKeys = resource.fields.map((f) => f.key);
 
   // Extract general errors (errors not associated with form fields)
   const generalErrors = useGeneralErrors(errors, fieldKeys);
@@ -63,17 +62,19 @@ const BaseForm = ({
     error: getFieldError(field.key),
   });
 
-  const visibleFields = filterFieldsForEdit(fields);
+  const visibleFields = filterFieldsForEdit(resource.fields);
 
   // Get hidden fields for edit mode (only in edit mode)
   const hiddenFields =
-    mode === "edit" ? getHiddenFieldsForEdit(fields /*, initialValues*/) : [];
+    mode === "edit"
+      ? getHiddenFieldsForEdit(resource.fields /*, initialValues*/)
+      : [];
 
   return (
     <FormWrapper
       isLoading={formLoading}
       saveButtonProps={saveButtonProps}
-      resource={resource}
+      resource={resource.name}
     >
       {visibleFields.map((field: Field) => {
         const inputProps = getInputProps(field.key);

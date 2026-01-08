@@ -1,25 +1,15 @@
-import type { Field, FormValues } from "../types/fields";
+import type { FormValues } from "../types/fields";
 import BaseForm from "./BaseForm";
+import { Resource } from "@/types/resource";
 
-const BaseCreatePage = ({
-  resource,
-  fields,
-}: {
-  resource: string;
-  fields: Field[];
-}) => {
-  const initialValues = fields.reduce((acc, field) => {
+const BaseCreatePage = ({ resource }: { resource: Resource }) => {
+  const initialValues = resource.fields.reduce((acc, field) => {
     acc[field.key] = "";
     return acc;
   }, {} as FormValues);
 
   return (
-    <BaseForm
-      initialValues={initialValues}
-      resource={resource}
-      fields={fields}
-      mode="create"
-    />
+    <BaseForm initialValues={initialValues} resource={resource} mode="create" />
   );
 };
 

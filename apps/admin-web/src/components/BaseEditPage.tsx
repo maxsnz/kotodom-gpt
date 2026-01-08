@@ -1,19 +1,14 @@
 import { useOne } from "@refinedev/core";
 import { useParams } from "react-router-dom";
 import BaseForm from "./BaseForm";
-import type { Field, FormValues } from "../types/fields";
+import type { FormValues } from "../types/fields";
+import { Resource } from "@/types/resource";
 
-const BaseEditPage = ({
-  resource,
-  fields,
-}: {
-  resource: string;
-  fields: Field[];
-}) => {
+const BaseEditPage = ({ resource }: { resource: Resource }) => {
   const { id } = useParams<{ id: string }>();
 
   const { query } = useOne({
-    resource,
+    resource: resource.name,
     id,
   });
 
@@ -23,7 +18,7 @@ const BaseEditPage = ({
 
   const record = query.data?.data;
 
-  const initialValues = fields.reduce((acc, field) => {
+  const initialValues = resource.fields.reduce((acc, field) => {
     // Handle boolean fields specially to preserve false values
     if (field.type === "checkbox") {
       acc[field.key] = record?.[field.key] ?? false;
@@ -40,7 +35,6 @@ const BaseEditPage = ({
     <BaseForm
       mode="edit"
       initialValues={initialValues}
-      fields={fields}
       resource={resource}
       id={id}
     />

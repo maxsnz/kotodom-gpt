@@ -16,7 +16,7 @@ import {
 import { BotRepository } from "./domain/bots/BotRepository";
 import { ChatRepository } from "./domain/chats/ChatRepository";
 import { MessageRepository } from "./domain/chats/MessageRepository";
-import { MessageProcessingRepository } from "./domain/chats/MessageProcessingRepository";
+import { MessageProcessingRepository } from "./domain/message-processing/MessageProcessingRepository";
 import { OpenAIClient } from "./infra/openai/openaiClient";
 import {
   TelegramClient,

@@ -137,5 +137,3 @@ export class MessageProcessing {
     this.props.telegramUpdateId = updateId;
   }
 }
-
-

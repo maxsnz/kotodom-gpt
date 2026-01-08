@@ -1,7 +1,7 @@
 import { Field } from "@/types/fields";
 import { FieldType } from "../../types/fieldTypes";
 
-export const botFields = [
+const fields = [
   {
     key: "id",
     label: "ID",
@@ -125,3 +125,5 @@ export const botFields = [
     },
   },
 ] satisfies Field[];
+
+export default fields;

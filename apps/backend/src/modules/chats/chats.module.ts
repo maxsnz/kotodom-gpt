@@ -2,15 +2,14 @@ import { Module, forwardRef } from "@nestjs/common";
 
 import { ChatRepository } from "../../domain/chats/ChatRepository";
 import { MessageRepository } from "../../domain/chats/MessageRepository";
-import { MessageProcessingRepository } from "../../domain/chats/MessageProcessingRepository";
-import { ChatsService, TelegramClientFactory } from "../../domain/chats/ChatsService";
+import {
+  ChatsService,
+  TelegramClientFactory,
+} from "../../domain/chats/ChatsService";
 import { ChatRepositoryPrisma } from "../../infra/db/repositories/ChatRepositoryPrisma";
 import { MessageRepositoryPrisma } from "../../infra/db/repositories/MessageRepositoryPrisma";
-import { MessageProcessingRepositoryPrisma } from "../../infra/db/repositories/MessageProcessingRepositoryPrisma";
 import { TelegramClient } from "../../infra/telegram/telegramClient";
 import { ChatsAdminController } from "./chats-admin.controller";
-import { MessageProcessingAdminController } from "./message-processing-admin.controller";
-import { ProcessingRecoveryService } from "./processing-recovery.service";
 import { PgBossClient } from "../../infra/jobs/pgBoss";
 import { BotsModule } from "../bots/bots.module";
 import { BotRepository } from "../../domain/bots/BotRepository";
@@ -22,10 +21,7 @@ const defaultTelegramClientFactory: TelegramClientFactory = (token: string) =>
 
 @Module({
   imports: [forwardRef(() => BotsModule)],
-  controllers: [
-    ChatsAdminController,
-    MessageProcessingAdminController,
-  ],
+  controllers: [ChatsAdminController],
   providers: [
     {
       provide: ChatRepository,
@@ -34,10 +30,6 @@ const defaultTelegramClientFactory: TelegramClientFactory = (token: string) =>
     {
       provide: MessageRepository,
       useClass: MessageRepositoryPrisma,
-    },
-    {
-      provide: MessageProcessingRepository,
-      useClass: MessageProcessingRepositoryPrisma,
     },
     {
       provide: TELEGRAM_CLIENT_FACTORY,
@@ -50,17 +42,16 @@ const defaultTelegramClientFactory: TelegramClientFactory = (token: string) =>
         messageRepo: MessageRepository,
         botRepo: BotRepository,
         telegramClientFactory: TelegramClientFactory
-      ) => new ChatsService(chatRepo, messageRepo, botRepo, telegramClientFactory),
-      inject: [ChatRepository, MessageRepository, BotRepository, TELEGRAM_CLIENT_FACTORY],
+      ) =>
+        new ChatsService(chatRepo, messageRepo, botRepo, telegramClientFactory),
+      inject: [
+        ChatRepository,
+        MessageRepository,
+        BotRepository,
+        TELEGRAM_CLIENT_FACTORY,
+      ],
     },
-    ProcessingRecoveryService,
   ],
-  exports: [
-    ChatRepository,
-    MessageRepository,
-    MessageProcessingRepository,
-    ChatsService,
-    ProcessingRecoveryService,
-  ],
+  exports: [ChatRepository, MessageRepository, ChatsService],
 })
 export class ChatsModule {}

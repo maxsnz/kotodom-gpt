@@ -1,8 +1,8 @@
-import { MessageProcessingRepository } from "../../../domain/chats/MessageProcessingRepository";
+import { MessageProcessingRepository } from "../../../domain/message-processing/MessageProcessingRepository";
 import {
   MessageProcessing,
   MessageProcessingStatus,
-} from "../../../domain/chats/MessageProcessing";
+} from "../../../domain/message-processing/MessageProcessing";
 import type {
   Prisma,
   MessageProcessing as PrismaMessageProcessing,
@@ -177,6 +177,46 @@ export class MessageProcessingRepositoryPrisma extends MessageProcessingReposito
       },
       update: updateData,
     });
+  }
+
+  async findAll(
+    filters?: {
+      status?: MessageProcessingStatus;
+      userMessageId?: number;
+    },
+    pagination?: {
+      skip?: number;
+      take?: number;
+    }
+  ): Promise<MessageProcessing[]> {
+    const where: Record<string, unknown> = {};
+
+    if (filters?.status) {
+      where.status = filters.status;
+    }
+
+    if (filters?.userMessageId) {
+      where.userMessageId = filters.userMessageId;
+    }
+
+    const rows = await prisma.messageProcessing.findMany({
+      where,
+      skip: pagination?.skip,
+      take: pagination?.take,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return rows.map((row) => this.toDomain(row));
+  }
+
+  async findById(id: number): Promise<MessageProcessing | null> {
+    const row = await prisma.messageProcessing.findUnique({
+      where: { id },
+    });
+
+    return row ? this.toDomain(row) : null;
   }
 
   private toDomain(row: PrismaMessageProcessing): MessageProcessing {
