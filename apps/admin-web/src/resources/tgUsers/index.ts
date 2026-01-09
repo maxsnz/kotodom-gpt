@@ -5,7 +5,7 @@ import {
 import { TgUserResponseSchema } from "@shared/contracts/tg-users";
 import fields from "./fields";
 import { z } from "zod";
-import { Resource } from "@/types/resource";
+import { Resource } from "@kotoadmin/types/resource";
 
 const resource = {
   name: "tg-users",
@@ -13,11 +13,11 @@ const resource = {
   fields,
   actions: [],
 
-  // TODO: routes: {
-  list: "tg-users",
-  edit: "tg-users/edit/:id",
-  show: "tg-users/:id",
-  // TODO: }
+  routes: {
+    list: "tg-users",
+    edit: "tg-users/edit/:id",
+    show: "tg-users/:id",
+  },
 
   meta: {
     canDelete: true,

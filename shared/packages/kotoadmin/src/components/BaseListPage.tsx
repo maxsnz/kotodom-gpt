@@ -19,8 +19,8 @@ import { ActionIcon, Tooltip, Flex, Text, Button } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { IconEdit, IconTrash, IconEye, IconPlus } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
-import { filterFieldsForList } from "@/utils/filterFields";
-import { Resource } from "@/types/resource";
+import { filterFieldsForList } from "../utils/filterFields";
+import { Resource } from "../types/resource";
 
 type Props = {
   resource: Resource;
@@ -96,11 +96,11 @@ const BaseListPage = <T extends { id: string | number }>({
         size: 150,
         Cell: ({ row }) => (
           <Flex gap="xs">
-            {resource.show && (
+            {resource.routes.show && (
               <Tooltip label="Show">
                 <ActionIcon
                   component={Link}
-                  to={`/cp/${resource.show?.replace(
+                  to={`/cp/${resource.routes.show?.replace(
                     ":id",
                     row.original.id.toString()
                   )}`}
@@ -111,11 +111,11 @@ const BaseListPage = <T extends { id: string | number }>({
                 </ActionIcon>
               </Tooltip>
             )}
-            {resource.edit && (
+            {resource.routes.edit && (
               <Tooltip label="Edit">
                 <ActionIcon
                   component={Link}
-                  to={`/cp/${resource.edit?.replace(
+                  to={`/cp/${resource.routes.edit?.replace(
                     ":id",
                     row.original.id.toString()
                   )}`}

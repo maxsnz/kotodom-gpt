@@ -1,5 +1,5 @@
-import { Field } from "@/types/fields";
-import { FieldType } from "@/types/fieldTypes";
+import { Field } from "@kotoadmin/types/fields";
+import { FieldType } from "@kotoadmin/types/fieldTypes";
 
 const fields = [
   {

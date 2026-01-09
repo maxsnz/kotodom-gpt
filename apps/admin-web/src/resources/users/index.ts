@@ -5,7 +5,7 @@ import {
   createListResponseSchema,
 } from "@/utils/responseSchemas";
 import fields from "./fields";
-import { Resource } from "@/types/resource";
+import { Resource } from "@kotoadmin/types/resource";
 
 const resource = {
   name: "users",
@@ -13,12 +13,12 @@ const resource = {
   fields,
   actions: [],
 
-  // TODO: routes: {
-  list: "users",
-  create: "users/create",
-  edit: "users/edit/:id",
-  show: "users/:id",
-  // TODO: }
+  routes: {
+    list: "users",
+    create: "users/create",
+    edit: "users/edit/:id",
+    show: "users/:id",
+  },
 
   meta: {
     canDelete: true,

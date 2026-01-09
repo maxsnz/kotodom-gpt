@@ -1,7 +1,7 @@
 import { ChatResponseSchema } from "@shared/contracts/chats";
 import { createItemResponseSchema } from "@/utils/responseSchemas";
 import fields from "./fields";
-import { Resource } from "@/types/resource";
+import { Resource } from "@kotoadmin/types/resource";
 import { createListResponseSchema } from "@/utils/responseSchemas";
 
 const resource = {
@@ -10,10 +10,12 @@ const resource = {
   fields,
   actions: [],
 
-  list: "chats",
-  create: "chats/create",
-  edit: "chats/edit/:id",
-  show: "chats/:id",
+  routes: {
+    list: "chats",
+    create: "chats/create",
+    edit: "chats/edit/:id",
+    show: "chats/:id",
+  },
 
   meta: {
     canDelete: true,

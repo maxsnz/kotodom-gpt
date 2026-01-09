@@ -13,7 +13,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { dataProvider } from "@/providers/dataProvider";
 import { resources } from "@/resources";
 import { createAuthProvider } from "@/providers/authProvider";
-import getBaseRoutes from "@/utils/getBaseRoutes";
+import getBaseRoutes from "@kotoadmin/utils/getBaseRoutes";
 import DashboardPage from "@/pages/DashboardPage";
 
 const myTheme = createTheme({

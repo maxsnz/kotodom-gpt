@@ -1,6 +1,6 @@
 import type { FormValues } from "../types/fields";
 import BaseForm from "./BaseForm";
-import { Resource } from "@/types/resource";
+import { Resource } from "../types/resource";
 
 const BaseCreatePage = ({ resource }: { resource: Resource }) => {
   const initialValues = resource.fields.reduce((acc, field) => {

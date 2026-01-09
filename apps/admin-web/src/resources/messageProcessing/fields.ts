@@ -1,5 +1,5 @@
-import { FieldType } from "@/types/fieldTypes";
-import { Field } from "@/types/fields";
+import { FieldType } from "@kotoadmin/types/fieldTypes";
+import { Field } from "@kotoadmin/types/fields";
 
 /*
 id: z.number(),

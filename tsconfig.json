@@ -6,7 +6,8 @@
     "resolveJsonModule": true,
     "types": ["jest"],
     "paths": {
-      "@shared/contracts/*": ["./shared/contracts/src/*"]
+      "@shared/contracts/*": ["./shared/contracts/src/*"],
+      "@kotoadmin/*": ["./shared/packages/kotoadmin/src/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

@@ -6,7 +6,7 @@ import { Fragment } from "react/jsx-runtime";
 import { FieldType } from "../types/fieldTypes";
 import type { Field } from "../types/fields";
 import { filterFieldsForShow } from "../utils/filterFields";
-import { Resource } from "@/types/resource";
+import { Resource } from "../types/resource";
 
 type Props = {
   resource: Resource;

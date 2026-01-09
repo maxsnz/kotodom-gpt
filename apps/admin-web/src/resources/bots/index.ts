@@ -1,5 +1,5 @@
 import fields from "./fields";
-import { Resource } from "@/types/resource";
+import { Resource } from "@kotoadmin/types/resource";
 import { botActions } from "./actions";
 import { z } from "zod";
 import { BotResponseSchema } from "@shared/contracts/bots";
@@ -14,10 +14,12 @@ const resource = {
   fields,
   actions: botActions,
 
-  list: "bots",
-  create: "bots/create",
-  edit: "bots/edit/:id",
-  show: "bots/:id",
+  routes: {
+    list: "bots",
+    create: "bots/create",
+    edit: "bots/edit/:id",
+    show: "bots/:id",
+  },
 
   meta: {
     canDelete: true,

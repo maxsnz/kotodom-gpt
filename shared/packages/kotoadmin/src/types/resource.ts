@@ -7,10 +7,12 @@ export type Resource = {
   label: string;
   fields: Field[];
   actions: readonly Action[];
-  list?: string;
-  create?: string;
-  edit?: string;
-  show?: string;
+  routes: {
+    list?: string;
+    create?: string;
+    edit?: string;
+    show?: string;
+  };
   meta: {
     canDelete: boolean;
   };

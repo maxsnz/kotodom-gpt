@@ -6,7 +6,7 @@ import type {
   BaseRecord,
 } from "@refinedev/core";
 import { validateResponse } from "@/utils/validateResponse";
-import { Resource } from "@/types/resource";
+import { Resource } from "@kotoadmin/types/resource";
 import { z } from "zod";
 
 // Helper function to validate response with proper typing

@@ -16,7 +16,10 @@ import { SessionAuthGuard } from "../auth/guards/session-auth.guard";
 import { RolesGuard } from "../auth/guards/roles.guard";
 import { Roles } from "../auth/decorators/roles.decorator";
 import { ZodValidationPipe } from "../../common/pipes";
-import { UpdateTgUserSchema, UpdateTgUserDto } from "@shared/contracts/tg-users";
+import {
+  UpdateTgUserSchema,
+  type UpdateTgUserDto,
+} from "@shared/contracts/tg-users";
 
 /**
  * TgUser response DTO - converts BigInt id to string

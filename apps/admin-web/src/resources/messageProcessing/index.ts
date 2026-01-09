@@ -1,6 +1,6 @@
 import { MessageProcessingResponseSchema } from "@shared/contracts/messageProcessing";
 import fields from "./fields";
-import { Resource } from "@/types/resource";
+import { Resource } from "@kotoadmin/types/resource";
 import {
   createListResponseSchema,
   createItemResponseSchema,
@@ -12,8 +12,10 @@ const resource = {
   fields,
   actions: [],
 
-  list: "message-processing",
-  show: "message-processing/:id",
+  routes: {
+    list: "message-processing",
+    show: "message-processing/:id",
+  },
 
   meta: {
     canDelete: false,

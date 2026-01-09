@@ -19,6 +19,7 @@ export default defineConfig({
     alias: {
       "@": resolve(__dirname, "src"),
       "@shared/contracts": resolve(__dirname, "../../shared/contracts/src"),
+      "@kotoadmin": resolve(__dirname, "../../shared/packages/kotoadmin/src"),
     },
   },
 

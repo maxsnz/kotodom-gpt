@@ -9,7 +9,7 @@ import {
   filterFieldsForEdit,
   getHiddenFieldsForEdit,
 } from "../utils/filterFields";
-import { Resource } from "@/types/resource";
+import { Resource } from "../types/resource";
 
 const BaseForm = ({
   initialValues,
