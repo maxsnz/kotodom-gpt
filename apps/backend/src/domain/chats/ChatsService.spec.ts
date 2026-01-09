@@ -90,6 +90,7 @@ describe("ChatsService", () => {
       findUserMessageByTelegramUpdate: jest.fn(),
       findBotResponseForUserMessage: jest.fn(),
       findByChatId: jest.fn(),
+      findById: jest.fn(),
       save: jest.fn(),
       createUserMessage: jest.fn(),
       createBotMessage: jest.fn(),
@@ -239,6 +240,49 @@ describe("ChatsService", () => {
 
       await expect(service.getMessages("non-existent")).rejects.toThrow(
         "Chat not found: non-existent"
+      );
+    });
+  });
+
+  describe("getMessage", () => {
+    it("should return message for chat", async () => {
+      const chat = createMockChat();
+      const message = createMockMessage({ id: 123, text: "Test message" });
+      mockChatRepo.findById.mockResolvedValue(chat);
+      mockMessageRepo.findById.mockResolvedValue(message);
+
+      const result = await service.getMessage("chat-123", 123);
+
+      expect(result).toEqual(message);
+      expect(mockMessageRepo.findById).toHaveBeenCalledWith(123);
+    });
+
+    it("should throw error when chat not found", async () => {
+      mockChatRepo.findById.mockResolvedValue(null);
+
+      await expect(service.getMessage("non-existent", 123)).rejects.toThrow(
+        "Chat not found: non-existent"
+      );
+    });
+
+    it("should throw error when message not found", async () => {
+      const chat = createMockChat();
+      mockChatRepo.findById.mockResolvedValue(chat);
+      mockMessageRepo.findById.mockResolvedValue(null);
+
+      await expect(service.getMessage("chat-123", 999)).rejects.toThrow(
+        "Message not found: 999"
+      );
+    });
+
+    it("should throw error when message does not belong to chat", async () => {
+      const chat = createMockChat();
+      const message = createMockMessage({ id: 123, chatId: "different-chat" });
+      mockChatRepo.findById.mockResolvedValue(chat);
+      mockMessageRepo.findById.mockResolvedValue(message);
+
+      await expect(service.getMessage("chat-123", 123)).rejects.toThrow(
+        "Message 123 does not belong to chat chat-123"
       );
     });
   });

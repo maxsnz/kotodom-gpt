@@ -1,6 +1,16 @@
 import { Field } from "@kotoadmin/types/fields";
 import { FieldType } from "@kotoadmin/types/fieldTypes";
 
+/*
+  id: z.number(),
+  chatId: z.string().nullable(),
+  tgUserId: z.string().nullable(),
+  botId: z.number().nullable(),
+  text: z.string(),
+  userMessageId: z.number().nullable(),
+  createdAt: z.string().datetime(),
+*/
+
 const fields = [
   {
     key: "id",
@@ -14,27 +24,15 @@ const fields = [
     },
   },
   {
-    key: "name",
-    label: "Name",
+    key: "text",
+    label: "Text",
     type: FieldType.TEXT,
     props: { required: false },
   },
   {
-    key: "telegramChatId",
-    label: "Telegram Chat ID",
-    type: FieldType.TEXT,
-    props: { required: true },
-    isVisible: {
-      list: false,
-      show: true,
-      edit: false,
-    },
-  },
-  {
     key: "botId",
     label: "Bot ID",
-    type: FieldType.RECORD_LINK,
-    resource: "bots",
+    type: FieldType.TEXT,
     props: { required: true },
     isVisible: {
       list: false,
@@ -45,8 +43,7 @@ const fields = [
   {
     key: "tgUserId",
     label: "TG User ID",
-    type: FieldType.RECORD_LINK,
-    resource: "tg-users",
+    type: FieldType.TEXT,
     props: { required: true },
     isVisible: {
       list: false,
@@ -55,8 +52,8 @@ const fields = [
     },
   },
   {
-    key: "threadId",
-    label: "Thread ID",
+    key: "userMessageId",
+    label: "User Message ID",
     type: FieldType.TEXT,
     props: { required: false },
     isVisible: {
@@ -68,17 +65,6 @@ const fields = [
   {
     key: "createdAt",
     label: "Created At",
-    type: FieldType.DATE,
-    props: { required: false },
-    isVisible: {
-      list: false,
-      show: true,
-      edit: false,
-    },
-  },
-  {
-    key: "updatedAt",
-    label: "Updated At",
     type: FieldType.DATE,
     props: { required: false },
     isVisible: {

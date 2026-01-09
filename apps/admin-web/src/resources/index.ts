@@ -3,12 +3,17 @@ import bots from "./bots";
 import chats from "./chats";
 import tgUsers from "./tgUsers";
 import messageProcessing from "./messageProcessing";
-import { Resource } from "@kotoadmin/types/resource";
+import messages from "./messages";
+import { ResourceConfig } from "@kotoadmin/types/resource";
+import ResourceStore from "@kotoadmin/utils/resourceStore";
 
 export const resources = [
   users,
   bots,
   chats,
+  messages,
   messageProcessing,
   tgUsers,
-] satisfies Resource[];
+] satisfies ResourceConfig[];
+
+export const resourceStore = new ResourceStore(resources, "/cp/");

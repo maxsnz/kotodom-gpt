@@ -5,18 +5,20 @@ import {
 import { TgUserResponseSchema } from "@shared/contracts/tg-users";
 import fields from "./fields";
 import { z } from "zod";
-import { Resource } from "@kotoadmin/types/resource";
+import { ResourceConfig } from "@kotoadmin/types/resource";
+
+const key = "tg-users";
 
 const resource = {
-  name: "tg-users",
+  name: key,
   label: "Telegram Users",
   fields,
   actions: [],
 
   routes: {
-    list: "tg-users",
-    edit: "tg-users/edit/:id",
-    show: "tg-users/:id",
+    list: { path: `${key}` },
+    edit: { path: `${key}/edit/:id` },
+    show: { path: `${key}/:id` },
   },
 
   meta: {
@@ -28,6 +30,12 @@ const resource = {
     item: createItemResponseSchema(TgUserResponseSchema),
     update: z.object({ user: TgUserResponseSchema }),
   },
-};
 
-export default resource satisfies Resource;
+  api: {
+    list: "/tg-users",
+    item: "/tg-users/:id",
+    update: "/tg-users/:id",
+  },
+} satisfies ResourceConfig;
+
+export default resource;

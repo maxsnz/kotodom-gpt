@@ -47,6 +47,21 @@ export class ChatsService {
     return this.messageRepository.findByChatId(chat.id);
   }
 
+  async getMessage(chatId: string, messageId: number): Promise<Message> {
+    const chat = await this.getOrThrow(chatId);
+    const message = await this.messageRepository.findById(messageId);
+
+    if (!message) {
+      throw new Error(`Message not found: ${messageId}`);
+    }
+
+    if (message.chatId !== chat.id) {
+      throw new Error(`Message ${messageId} does not belong to chat ${chatId}`);
+    }
+
+    return message;
+  }
+
   async sendAdminMessage(
     chatId: string,
     text: string

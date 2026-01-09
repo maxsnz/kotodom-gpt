@@ -2,8 +2,7 @@
   POST /api/message-processing/:id/retry
   POST /api/message-processing/retry-failed
 - sub resources
-- create controllers and ui for messages
-  messages should be listed in the chat details page
+- messages should be listed in the chat details page
 - TgUsers has chats
 - fix logs
 

@@ -10,6 +10,7 @@ import {
   getHiddenFieldsForEdit,
 } from "../utils/filterFields";
 import { Resource } from "../types/resource";
+import { useResourcePathParams } from "../hooks/useResourcePathParams";
 
 const BaseForm = ({
   initialValues,
@@ -23,6 +24,7 @@ const BaseForm = ({
   id?: string;
 }) => {
   const navigate = useNavigate();
+  const resourcePathParams = useResourcePathParams(resource);
 
   const {
     getInputProps,
@@ -32,11 +34,12 @@ const BaseForm = ({
   } = useForm({
     initialValues,
     refineCoreProps: {
+      meta: { resourcePathParams },
       resource: resource.name,
       action: mode,
       redirect: false,
       onMutationSuccess: () => {
-        navigate(`/cp/${resource}`);
+        navigate(`${resource.getListPath()}`);
       },
       ...(mode === "edit" && id ? { id } : {}),
     },

@@ -3,13 +3,16 @@ import { useParams } from "react-router-dom";
 import BaseForm from "./BaseForm";
 import type { FormValues } from "../types/fields";
 import { Resource } from "../types/resource";
+import { useResourcePathParams } from "../hooks/useResourcePathParams";
 
 const BaseEditPage = ({ resource }: { resource: Resource }) => {
   const { id } = useParams<{ id: string }>();
+  const resourcePathParams = useResourcePathParams(resource);
 
   const { query } = useOne({
     resource: resource.name,
     id,
+    meta: { resourcePathParams },
   });
 
   if (query.isLoading) {

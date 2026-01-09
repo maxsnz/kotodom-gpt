@@ -22,8 +22,20 @@ interface BaseField {
   isVisible?: FieldVisibility;
 }
 
-interface NotSelectField extends BaseField {
-  type: Exclude<FieldType, typeof FieldTypeConst.SELECT>;
+interface BooleanField extends BaseField {
+  type: typeof FieldTypeConst.BOOLEAN;
+}
+
+interface DateField extends BaseField {
+  type: typeof FieldTypeConst.DATE;
+}
+
+interface EmailField extends BaseField {
+  type: typeof FieldTypeConst.EMAIL;
+}
+
+interface TextField extends BaseField {
+  type: typeof FieldTypeConst.TEXT;
 }
 
 interface SelectField extends BaseField {
@@ -31,7 +43,24 @@ interface SelectField extends BaseField {
   options: SelectOption[];
 }
 
-export type Field = NotSelectField | SelectField;
+interface LinkField extends BaseField {
+  type: typeof FieldTypeConst.LINK;
+  url: string;
+}
+
+interface RecordLinkField extends BaseField {
+  type: typeof FieldTypeConst.RECORD_LINK;
+  resource: string;
+}
+
+export type Field =
+  | BooleanField
+  | DateField
+  | EmailField
+  | TextField
+  | SelectField
+  | LinkField
+  | RecordLinkField;
 
 export type FormValues = Record<
   string,

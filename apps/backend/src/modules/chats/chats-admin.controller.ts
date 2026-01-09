@@ -160,6 +160,43 @@ export class ChatsAdminController {
   }
 
   /**
+   * GET /api/chats/:chatId/messages/:messageId - Get a specific message from a chat (ownership checked)
+   */
+  @Get(":chatId/messages/:messageId")
+  async getChatMessage(
+    @Req() request: FastifyRequest,
+    @Param("chatId") chatId: string,
+    @Param("messageId") messageId: string
+  ): Promise<{ data: MessageResponse }> {
+    try {
+      const messageIdNum = parseInt(messageId, 10);
+      if (Number.isNaN(messageIdNum)) {
+        throw new BadRequestException("Invalid messageId format");
+      }
+
+      const chat = await this.chatsService.findById(chatId);
+      if (!chat) {
+        throw new NotFoundException(`Chat with id ${chatId} not found`);
+      }
+
+      await this.checkChatOwnership(request, chat);
+
+      const message = await this.chatsService.getMessage(chatId, messageIdNum);
+      return { data: this.toMessageResponse(message) };
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes("not found")) {
+          throw new NotFoundException(error.message);
+        }
+        if (error.message.includes("does not belong to chat")) {
+          throw new ForbiddenException(error.message);
+        }
+      }
+      throw error;
+    }
+  }
+
+  /**
    * POST /api/chats/:id/messages - Send admin message to chat (ownership checked)
    */
   @Post(":id/messages")

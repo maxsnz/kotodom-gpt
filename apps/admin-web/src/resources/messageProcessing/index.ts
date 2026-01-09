@@ -1,20 +1,22 @@
 import { MessageProcessingResponseSchema } from "@shared/contracts/messageProcessing";
 import fields from "./fields";
-import { Resource } from "@kotoadmin/types/resource";
+import { ResourceConfig } from "@kotoadmin/types/resource";
 import {
   createListResponseSchema,
   createItemResponseSchema,
 } from "@/utils/responseSchemas";
 
+const key = "message-processing";
+
 const resource = {
-  name: "message-processing",
+  name: key,
   label: "Messages Processing",
   fields,
   actions: [],
 
   routes: {
-    list: "message-processing",
-    show: "message-processing/:id",
+    list: { path: `${key}` },
+    show: { path: `${key}/:id` },
   },
 
   meta: {
@@ -25,6 +27,11 @@ const resource = {
     list: createListResponseSchema(MessageProcessingResponseSchema),
     item: createItemResponseSchema(MessageProcessingResponseSchema),
   },
-};
 
-export default resource satisfies Resource;
+  api: {
+    list: "/message-processing",
+    item: "/message-processing/:id",
+  },
+} satisfies ResourceConfig;
+
+export default resource;

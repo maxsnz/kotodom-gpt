@@ -1,5 +1,5 @@
 import fields from "./fields";
-import { Resource } from "@kotoadmin/types/resource";
+import { ResourceConfig } from "@kotoadmin/types/resource";
 import { botActions } from "./actions";
 import { z } from "zod";
 import { BotResponseSchema } from "@shared/contracts/bots";
@@ -8,17 +8,19 @@ import {
   createItemResponseSchema,
 } from "@/utils/responseSchemas";
 
+const key = "bots";
+
 const resource = {
-  name: "bots",
+  name: key,
   label: "Bots",
   fields,
   actions: botActions,
 
   routes: {
-    list: "bots",
-    create: "bots/create",
-    edit: "bots/edit/:id",
-    show: "bots/:id",
+    list: { path: `${key}` },
+    create: { path: `${key}/create` },
+    edit: { path: `${key}/edit/:id` },
+    show: { path: `${key}/:id` },
   },
 
   meta: {
@@ -31,6 +33,13 @@ const resource = {
     create: z.object({ bot: BotResponseSchema }),
     update: z.object({ bot: BotResponseSchema }),
   },
-};
 
-export default resource satisfies Resource;
+  api: {
+    list: "/bots",
+    item: "/bots/:id",
+    create: "/bots",
+    update: "/bots/:id",
+  },
+} satisfies ResourceConfig;
+
+export default resource;

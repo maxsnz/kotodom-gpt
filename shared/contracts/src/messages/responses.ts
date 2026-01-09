@@ -19,6 +19,11 @@ export const SendMessageResponseSchema = z.object({
   telegramMessageId: z.number(),
 });
 
+export const ItemMessageResponseSchema = z.object({
+  data: MessageResponseSchema,
+});
+
 export type MessageResponse = z.infer<typeof MessageResponseSchema>;
 export type SendMessageInput = z.infer<typeof SendMessageInputSchema>;
 export type SendMessageResponse = z.infer<typeof SendMessageResponseSchema>;
+export type ItemMessageResponse = z.infer<typeof ItemMessageResponseSchema>;

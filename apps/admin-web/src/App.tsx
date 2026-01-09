@@ -11,9 +11,8 @@ import Layout from "@/components/Layout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { LoginPage } from "@/pages/LoginPage";
 import { dataProvider } from "@/providers/dataProvider";
-import { resources } from "@/resources";
+import { resourceStore } from "@/resources";
 import { createAuthProvider } from "@/providers/authProvider";
-import getBaseRoutes from "@kotoadmin/utils/getBaseRoutes";
 import DashboardPage from "@/pages/DashboardPage";
 
 const myTheme = createTheme({
@@ -29,7 +28,7 @@ const App = () => {
       <ModalsProvider>
         <BrowserRouter>
           <Refine
-            dataProvider={dataProvider(apiUrl, resources)}
+            dataProvider={dataProvider(apiUrl, resourceStore)}
             routerProvider={routerProvider}
             notificationProvider={useNotificationProvider}
             authProvider={createAuthProvider(apiUrl)}
@@ -37,7 +36,6 @@ const App = () => {
               syncWithLocation: true,
               warnWhenUnsavedChanges: true,
             }}
-            resources={resources}
           >
             <Routes>
               <Route path="/login" element={<LoginPage />} />
@@ -50,7 +48,7 @@ const App = () => {
                 }
               >
                 <Route path="" element={<DashboardPage />} />
-                {resources.map((resource) => getBaseRoutes(resource))}
+                {resourceStore.getRoutes()}
               </Route>
               <Route path="/" element={<RootRedirect />} />
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,5 +1,5 @@
 import { useOne } from "@refinedev/core";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Show, EmailField, TextField, DateField } from "@refinedev/mantine";
 import { Checkbox, Title } from "@mantine/core";
 import { Fragment } from "react/jsx-runtime";
@@ -7,9 +7,12 @@ import { FieldType } from "../types/fieldTypes";
 import type { Field } from "../types/fields";
 import { filterFieldsForShow } from "../utils/filterFields";
 import { Resource } from "../types/resource";
+import { useResourcePathParams } from "../hooks/useResourcePathParams";
+import ResourceStore from "../utils/resourceStore";
 
 type Props = {
   resource: Resource;
+  resourceStore: ResourceStore;
 };
 
 const getSelectDisplayValue = (field: Field, value: unknown): string => {
@@ -20,12 +23,14 @@ const getSelectDisplayValue = (field: Field, value: unknown): string => {
   return option ? option.label : String(value || "");
 };
 
-const BaseShow = ({ resource }: Props) => {
+const BaseShow = ({ resource, resourceStore }: Props) => {
   const { id } = useParams<{ id: string }>();
+  const resourcePathParams = useResourcePathParams(resource);
 
   const { query } = useOne({
     resource: resource.name,
     id,
+    meta: { resourcePathParams },
   });
 
   const record = query.data?.data;
@@ -67,6 +72,18 @@ const BaseShow = ({ resource }: Props) => {
             <TextField
               value={getSelectDisplayValue(column, record[column.key])}
             />
+          )}
+          {column.type === FieldType.LINK && (
+            <Link to={column.url}>{column.label}</Link>
+          )}
+          {column.type === FieldType.RECORD_LINK && (
+            <Link
+              to={resourceStore
+                .getResource(column.resource)
+                .getShowPath({ id: record[column.key] })}
+            >
+              {record[column.key]}
+            </Link>
           )}
         </Fragment>
       ))}

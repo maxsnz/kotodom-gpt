@@ -6,7 +6,7 @@ import type {
   BaseRecord,
 } from "@refinedev/core";
 import { validateResponse } from "@/utils/validateResponse";
-import { Resource } from "@kotoadmin/types/resource";
+import ResourceStore from "@kotoadmin/utils/resourceStore";
 import { z } from "zod";
 
 // Helper function to validate response with proper typing
@@ -151,7 +151,7 @@ const transformNestJSErrors = (error: any): any => {
 
 export const dataProvider = (
   apiUrl: string,
-  resources: Resource[]
+  resourceStore: ResourceStore
 ): DataProvider => {
   const baseDataProvider = dataProviderBase(apiUrl);
 
@@ -163,7 +163,12 @@ export const dataProvider = (
     // );
 
     try {
-      const response = await fetch(`${apiUrl}/${params.resource}`, {
+      const resource = resourceStore.getResource(params.resource);
+      let url = `${apiUrl}${resource.getApiCreatePath(
+        params.meta?.resourcePathParams
+      )}`;
+
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -188,13 +193,6 @@ export const dataProvider = (
       }
 
       const rawData = await response.json();
-
-      const resource = resources.find(
-        (resource) => resource.name === params.resource
-      );
-      if (!resource) {
-        throw new Error(`Resource not found: ${params.resource}`);
-      }
 
       const resourceSchemas = resource.schemas;
 
@@ -224,16 +222,20 @@ export const dataProvider = (
     // );
 
     try {
-      const response = await fetch(
-        `${apiUrl}/${params.resource}/${params.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(params.variables),
-        }
-      );
+      const resource = resourceStore.getResource(params.resource);
+
+      const url = `${apiUrl}${resource.getApiUpdatePath(
+        params.id,
+        params.meta?.resourcePathParams
+      )}`;
+
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(params.variables),
+      });
 
       if (response.status < 200 || response.status > 299) {
         const errorData = await response.json();
@@ -252,13 +254,6 @@ export const dataProvider = (
       }
 
       const rawData = await response.json();
-
-      const resource = resources.find(
-        (resource) => resource.name === params.resource
-      );
-      if (!resource) {
-        throw new Error(`Resource not found: ${params.resource}`);
-      }
 
       const resourceSchemas = resource.schemas;
       const schema =
@@ -287,9 +282,15 @@ export const dataProvider = (
       params: GetOneParams
     ): Promise<GetOneResponse<TData>> => {
       try {
-        const response = await fetch(
-          `${apiUrl}/${params.resource}/${params.id}`
-        );
+        const { resource: resourceName, meta } = params;
+        const resource = resourceStore.getResource(resourceName);
+
+        const url = `${apiUrl}${resource.getApiItemPath(
+          params.id,
+          meta?.resourcePathParams
+        )}`;
+
+        const response = await fetch(url);
 
         if (response.status < 200 || response.status > 299) {
           const errorData = await response.json().catch(() => ({}));
@@ -307,13 +308,6 @@ export const dataProvider = (
         }
 
         const rawData = await response.json();
-
-        const resource = resources.find(
-          (resource) => resource.name === params.resource
-        );
-        if (!resource) {
-          throw new Error(`Resource not found: ${params.resource}`);
-        }
 
         const resourceSchemas = resource.schemas;
         const schema =
@@ -338,60 +332,73 @@ export const dataProvider = (
       }
     },
     getList: async (props) => {
-      const { resource: resourceName, pagination, filters, sorters } = props;
-      const params = new URLSearchParams();
-      if (pagination && pagination.currentPage && pagination.pageSize) {
-        params.set("page", pagination.currentPage.toString());
-        params.set("limit", pagination.pageSize.toString());
-      }
-      if (filters) {
-        filters.forEach((filter) => {
-          if ("field" in filter) {
-            params.set(filter.field, filter.value.toString());
-          }
-        });
-      }
-      if (sorters) {
-        sorters.forEach((sorter) => {
-          params.set(sorter.field, sorter.order.toString());
-        });
-      }
-      const response = await fetch(`/api/${resourceName}?${params.toString()}`);
+      try {
+        const {
+          resource: resourceName,
+          pagination,
+          filters,
+          sorters,
+          meta,
+        } = props;
 
-      if (response.status < 200 || response.status > 299) throw response;
+        const resource = resourceStore.getResource(resourceName);
 
-      const rawData = await response.json();
+        const params = new URLSearchParams();
+        if (pagination && pagination.currentPage && pagination.pageSize) {
+          params.set("page", pagination.currentPage.toString());
+          params.set("limit", pagination.pageSize.toString());
+        }
+        if (filters) {
+          filters.forEach((filter) => {
+            if ("field" in filter) {
+              params.set(filter.field, filter.value.toString());
+            }
+          });
+        }
+        if (sorters) {
+          sorters.forEach((sorter) => {
+            params.set(sorter.field, sorter.order.toString());
+          });
+        }
 
-      const resource = resources.find(
-        (resource) => resource.name === resourceName
-      );
-      if (!resource) {
-        throw new Error(`Resource not found: ${resourceName}`);
-      }
+        const url = `${apiUrl}${resource.getApiListPath(
+          meta?.resourcePathParams
+        )}?${params.toString()}`;
 
-      const resourceSchemas = resource.schemas;
-      const schema =
-        resourceSchemas && "list" in resourceSchemas
-          ? resourceSchemas.list
-          : undefined;
-      if (schema) {
-        const validatedData = validateResponseWithType<{
-          data: BaseRecord[];
-          total?: number;
-          meta?: Record<string, unknown>;
-        }>(schema, rawData);
+        const response = await fetch(url);
+
+        if (response.status < 200 || response.status > 299) throw response;
+
+        const rawData = await response.json();
+
+        const resourceSchemas = resource.schemas;
+        const schema =
+          resourceSchemas && "list" in resourceSchemas
+            ? resourceSchemas.list
+            : undefined;
+        if (schema) {
+          const validatedData = validateResponseWithType<{
+            data: BaseRecord[];
+            total?: number;
+            meta?: Record<string, unknown>;
+          }>(schema, rawData);
+          return {
+            data: validatedData.data,
+            total: validatedData.total ?? validatedData.data.length,
+            meta: validatedData.meta,
+          };
+        }
+
         return {
-          data: validatedData.data,
-          total: validatedData.total ?? validatedData.data.length,
-          meta: validatedData.meta,
+          data: rawData.data || [],
+          total: Number(rawData.meta?.total) || (rawData.data?.length ?? 0),
+          meta: rawData.meta,
         };
+      } catch (error: unknown) {
+        console.error(error);
+        const transformedError = transformNestJSErrors(error);
+        throw transformedError;
       }
-
-      return {
-        data: rawData.data || [],
-        total: Number(rawData.meta?.total) || (rawData.data?.length ?? 0),
-        meta: rawData.meta,
-      };
     },
   };
 };

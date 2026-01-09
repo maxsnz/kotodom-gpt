@@ -21,6 +21,7 @@ import { IconEdit, IconTrash, IconEye, IconPlus } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { filterFieldsForList } from "../utils/filterFields";
 import { Resource } from "../types/resource";
+import { useResourcePathParams } from "../hooks/useResourcePathParams";
 
 type Props = {
   resource: Resource;
@@ -29,6 +30,7 @@ type Props = {
 const BaseListPage = <T extends { id: string | number }>({
   resource,
 }: Props) => {
+  const resourcePathParams = useResourcePathParams(resource);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -43,6 +45,7 @@ const BaseListPage = <T extends { id: string | number }>({
       currentPage: pagination.pageIndex + 1,
       pageSize: pagination.pageSize,
     },
+    meta: { resourcePathParams },
   });
 
   const { mutate: deleteRecord } = useDelete();
@@ -100,10 +103,7 @@ const BaseListPage = <T extends { id: string | number }>({
               <Tooltip label="Show">
                 <ActionIcon
                   component={Link}
-                  to={`/cp/${resource.routes.show?.replace(
-                    ":id",
-                    row.original.id.toString()
-                  )}`}
+                  to={resource.getShowPath(row.original, resourcePathParams)}
                   variant="subtle"
                   color="gray"
                 >
@@ -115,10 +115,7 @@ const BaseListPage = <T extends { id: string | number }>({
               <Tooltip label="Edit">
                 <ActionIcon
                   component={Link}
-                  to={`/cp/${resource.routes.edit?.replace(
-                    ":id",
-                    row.original.id.toString()
-                  )}`}
+                  to={resource.getEditPath(row.original, resourcePathParams)}
                   variant="subtle"
                   color="blue"
                 >

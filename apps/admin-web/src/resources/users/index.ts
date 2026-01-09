@@ -5,19 +5,21 @@ import {
   createListResponseSchema,
 } from "@/utils/responseSchemas";
 import fields from "./fields";
-import { Resource } from "@kotoadmin/types/resource";
+import { ResourceConfig } from "@kotoadmin/types/resource";
+
+const key = "users";
 
 const resource = {
-  name: "users",
+  name: key,
   label: "Users",
   fields,
   actions: [],
 
   routes: {
-    list: "users",
-    create: "users/create",
-    edit: "users/edit/:id",
-    show: "users/:id",
+    list: { path: `${key}` },
+    create: { path: `${key}/create` },
+    edit: { path: `${key}/edit/:id` },
+    show: { path: `${key}/:id` },
   },
 
   meta: {
@@ -30,6 +32,13 @@ const resource = {
     create: z.object({ user: UserResponseSchema }),
     update: z.object({ user: UserResponseSchema }),
   },
-};
 
-export default resource satisfies Resource;
+  api: {
+    list: "/users",
+    item: "/users/:id",
+    create: "/users",
+    update: "/users/:id",
+  },
+} satisfies ResourceConfig;
+
+export default resource;

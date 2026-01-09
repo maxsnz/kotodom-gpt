@@ -3,7 +3,9 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useLogout } from "@refinedev/core";
 import { IconLogout } from "@tabler/icons-react";
 import { getNavigationItems } from "@/utils/getNavigationItems";
-import { resources } from "@/resources";
+import { resourceStore } from "@/resources";
+
+const resources = resourceStore.getResources();
 
 const Layout = () => {
   const navigate = useNavigate();
