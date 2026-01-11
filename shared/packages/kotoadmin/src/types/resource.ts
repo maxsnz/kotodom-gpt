@@ -3,6 +3,31 @@ import { Action } from "./action";
 import { z } from "zod";
 import getRouter from "../utils/getRouter";
 import ResourceStore from "../utils/resourceStore";
+import { BaseRecord } from "@refinedev/core";
+import { NavigateFunction } from "react-router-dom";
+
+export interface ResourceApiEndpointConfig {
+  path: string;
+  schema: z.ZodSchema;
+  method?: "get" | "post" | "put" | "delete";
+}
+
+export interface ResourceRouteConfig {
+  path: string;
+  component?: React.ReactNode;
+  footerButtons?: {
+    label: string;
+    onClick: (
+      event: React.MouseEvent<HTMLButtonElement>,
+      params: {
+        resource?: Resource;
+        record?: BaseRecord;
+        navigate?: NavigateFunction;
+      }
+    ) => void;
+  }[];
+  // TODO role
+}
 
 export interface ResourceConfig {
   name: string;
@@ -11,29 +36,17 @@ export interface ResourceConfig {
   fields: Field[];
   actions: Action[];
   routes: {
-    [key: string]: {
-      path: string;
-      component?: React.ReactNode;
-      // TODO role
-    };
+    [key: string]: ResourceRouteConfig;
   };
   meta: {
-    canDelete: boolean;
-  };
-  schemas: {
-    list?: z.ZodSchema;
-    item?: z.ZodSchema;
-    create?: z.ZodSchema;
-    update?: z.ZodSchema;
+    canDelete?: boolean;
+    canCreate?: boolean;
+    canUpdate?: boolean;
+    canRead?: boolean;
+    hideInNavigation?: boolean;
   };
 
-  api: {
-    list?: string;
-    item?: string;
-    create?: string;
-    update?: string;
-    delete?: string;
-  };
+  api: { [key: string]: ResourceApiEndpointConfig };
 }
 
 export class Resource {
@@ -61,42 +74,19 @@ export class Resource {
     return this.config.actions;
   }
 
-  get routes(): {
-    [key: string]: {
-      path: string;
-      component?: React.ReactNode;
-      // TODO role
-    };
-  } {
+  get routes() {
     return this.config.routes;
   }
 
-  get meta(): {
-    canDelete: boolean;
-  } {
+  get meta() {
     return this.config.meta;
   }
 
-  get schemas() {
-    return this.config.schemas;
-  }
-
-  get api(): {
-    list?: string;
-    item?: string;
-    create?: string;
-    update?: string;
-    delete?: string;
-  } {
+  get api() {
     return this.config.api;
   }
 
-  get param(): string {
-    return this.config.param || "id";
-  }
-
   // Routes paths
-
   getEditPath(
     record: { id: string | number },
     pathParams?: Map<string, string>
@@ -107,7 +97,7 @@ export class Resource {
       path = path.replace(`:${param}`, value);
     }
 
-    return path.replace(`:${this.param}`, record.id.toString());
+    return path.replace(":id", record.id.toString());
   }
 
   getShowPath(
@@ -120,7 +110,7 @@ export class Resource {
       path = path.replace(`:${param}`, value);
     }
 
-    return path.replace(`:${this.param}`, record.id.toString());
+    return path.replace(":id", record.id.toString());
   }
 
   getListPath(pathParams?: Map<string, string>): string {
@@ -136,7 +126,7 @@ export class Resource {
   // API paths
 
   getApiListPath(pathParams?: Map<string, string>): string {
-    let path = this.config.api.list || `/${this.config.name}`;
+    let path = this.config.api.list?.path || `/${this.config.name}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
@@ -149,7 +139,7 @@ export class Resource {
     id: string | number,
     pathParams?: Map<string, string>
   ): string {
-    let path = this.config.api.item || `/${this.config.name}`;
+    let path = this.config.api.item?.path || `/${this.config.name}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
@@ -162,7 +152,7 @@ export class Resource {
     id: string | number,
     pathParams?: Map<string, string>
   ): string {
-    let path = this.config.api.update || `/${this.config.name}/${id}`;
+    let path = this.config.api.update?.path || `/${this.config.name}/${id}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
@@ -175,7 +165,7 @@ export class Resource {
     id: string | number,
     pathParams?: Map<string, string>
   ): string {
-    let path = this.config.api.delete || `/${this.config.name}/${id}`;
+    let path = this.config.api.delete?.path || `/${this.config.name}/${id}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
@@ -185,7 +175,7 @@ export class Resource {
   }
 
   getApiCreatePath(pathParams?: Map<string, string>): string {
-    let path = this.config.api.create || `/${this.config.name}`;
+    let path = this.config.api.create?.path || `/${this.config.name}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);

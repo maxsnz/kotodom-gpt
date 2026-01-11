@@ -67,6 +67,13 @@ export class MessageRepositoryPrisma extends MessageRepository {
     return row ? this.toDomain(row) : null;
   }
 
+  async findAll(): Promise<Message[]> {
+    const rows = await prisma.message.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return rows.map((row) => this.toDomain(row));
+  }
+
   async save(message: Message): Promise<void> {
     await prisma.message.update({
       where: { id: message.id },
@@ -83,11 +90,30 @@ export class MessageRepositoryPrisma extends MessageRepository {
 
   async createUserMessage(input: CreateUserMessageInput): Promise<Message> {
     // Idempotent creation: try to find existing message first
-    if (input.telegramUpdateId !== null && input.botId !== null) {
-      const existing = await this.findByTelegramUpdate(
-        input.botId,
-        Number(input.telegramUpdateId)
-      );
+    // For user messages (botId is null), search by chatId, tgUserId, and telegramUpdateId
+    // For bot messages (botId is not null), use the existing findByTelegramUpdate method
+    if (input.telegramUpdateId !== null) {
+      let existing: Message | null = null;
+
+      if (input.botId !== null) {
+        // Bot message - use existing method
+        existing = await this.findByTelegramUpdate(
+          input.botId,
+          Number(input.telegramUpdateId)
+        );
+      } else {
+        // User message - search by chatId, tgUserId, and telegramUpdateId
+        const row = await prisma.message.findFirst({
+          where: {
+            chatId: input.chatId,
+            tgUserId: input.tgUserId,
+            telegramUpdateId: input.telegramUpdateId,
+            botId: null, // Ensure it's a user message
+          },
+        });
+        existing = row ? this.toDomain(row) : null;
+      }
+
       if (existing) {
         return existing;
       }
@@ -97,7 +123,7 @@ export class MessageRepositoryPrisma extends MessageRepository {
       data: {
         chatId: input.chatId,
         tgUserId: input.tgUserId,
-        botId: input.botId,
+        botId: input.botId, // null for user messages
         text: input.text,
         telegramUpdateId: input.telegramUpdateId,
         userMessageId: null,
@@ -135,6 +161,12 @@ export class MessageRepositoryPrisma extends MessageRepository {
     });
 
     return this.toDomain(row);
+  }
+
+  async delete(id: number): Promise<void> {
+    await prisma.message.delete({
+      where: { id },
+    });
   }
 
   private toDomain(row: PrismaMessage): Message {

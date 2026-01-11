@@ -23,18 +23,27 @@ const resource = {
 
   meta: {
     canDelete: true,
-  },
-
-  schemas: {
-    list: createListResponseSchema(TgUserResponseSchema),
-    item: createItemResponseSchema(TgUserResponseSchema),
-    update: z.object({ user: TgUserResponseSchema }),
+    canRead: true,
+    canUpdate: true,
   },
 
   api: {
-    list: "/tg-users",
-    item: "/tg-users/:id",
-    update: "/tg-users/:id",
+    list: {
+      path: "/tg-users",
+      schema: createListResponseSchema(TgUserResponseSchema),
+    },
+    item: {
+      path: "/tg-users/:id",
+      schema: createItemResponseSchema(TgUserResponseSchema),
+    },
+    update: {
+      path: "/tg-users/:id",
+      schema: z.object({ user: TgUserResponseSchema }),
+    },
+    delete: {
+      path: "/tg-users/:id",
+      schema: z.object({ user: TgUserResponseSchema }),
+    },
   },
 } satisfies ResourceConfig;
 

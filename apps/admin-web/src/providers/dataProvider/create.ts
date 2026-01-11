@@ -42,20 +42,15 @@ export const createCreate =
 
       const rawData = await response.json();
 
-      const resourceSchemas = resource.schemas;
-
-      const schema =
-        resourceSchemas && "create" in resourceSchemas
-          ? resourceSchemas.create
-          : undefined;
-      if (schema) {
-        const validatedData = validateResponse(schema, rawData);
-        return {
-          data: validatedData,
-        };
+      const schema = resource.api.create?.schema;
+      if (!schema) {
+        throw new Error(
+          `No create schema found for resource: ${resource.name}`
+        );
       }
 
-      return { data: rawData };
+      const validatedData = validateResponse(schema, rawData);
+      return { data: validatedData };
     } catch (error: any) {
       console.error(error);
       const transformedError = transformNestJSErrors(error);

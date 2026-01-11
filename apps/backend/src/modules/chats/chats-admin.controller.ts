@@ -134,13 +134,37 @@ export class ChatsAdminController {
   }
 
   /**
-   * GET /api/chats/:id/messages - Get messages for a chat (ownership checked)
+   * GET /api/chats/:id/messages - Get messages for a chat with chat data and participants (ownership checked)
    */
   @Get(":id/messages")
   async getChatMessages(
     @Req() request: FastifyRequest,
     @Param("id") id: string
-  ): Promise<{ data: MessageResponse[] }> {
+  ): Promise<{
+    data: {
+      chat: ChatResponse;
+      participants: {
+        bot: {
+          id: string;
+          name: string;
+          avatarUrl: string | null;
+        } | null;
+        user: {
+          id: string;
+          username: string | null;
+          firstName: string | null;
+        } | null;
+      };
+      messages: Array<{
+        id: number;
+        text: string;
+        createdAt: string;
+        author:
+          | { type: "bot"; botId: number }
+          | { type: "user"; tgUserId: string };
+      }>;
+    };
+  }> {
     try {
       const chat = await this.chatsService.findById(id);
       if (!chat) {
@@ -149,8 +173,25 @@ export class ChatsAdminController {
 
       await this.checkChatOwnership(request, chat);
 
-      const messages = await this.chatsService.getMessages(id);
-      return { data: messages.map(this.toMessageResponse) };
+      const result = await this.chatsService.getChatMessagesWithParticipants(
+        id
+      );
+
+      return {
+        data: {
+          chat: this.toChatResponse(result.chat),
+          participants: {
+            bot: result.bot,
+            user: result.user,
+          },
+          messages: result.messages.map((msg) => ({
+            id: msg.id,
+            text: msg.text,
+            createdAt: msg.createdAt.toISOString(),
+            author: msg.author,
+          })),
+        },
+      };
     } catch (error) {
       if (error instanceof Error && error.message.includes("not found")) {
         throw new NotFoundException(error.message);

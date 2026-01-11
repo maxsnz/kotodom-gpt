@@ -20,17 +20,19 @@ const resource = {
   },
 
   meta: {
-    canDelete: false,
-  },
-
-  schemas: {
-    list: createListResponseSchema(MessageProcessingResponseSchema),
-    item: createItemResponseSchema(MessageProcessingResponseSchema),
+    canRead: true,
+    hideInNavigation: true,
   },
 
   api: {
-    list: "/message-processing",
-    item: "/message-processing/:id",
+    list: {
+      path: "/message-processing",
+      schema: createListResponseSchema(MessageProcessingResponseSchema),
+    },
+    item: {
+      path: "/message-processing/:id",
+      schema: createItemResponseSchema(MessageProcessingResponseSchema),
+    },
   },
 } satisfies ResourceConfig;
 

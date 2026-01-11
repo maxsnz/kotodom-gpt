@@ -1,5 +1,5 @@
 import { useOne } from "@refinedev/core";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Show, EmailField, TextField, DateField } from "@refinedev/mantine";
 import { Checkbox, Title } from "@mantine/core";
 import { Fragment } from "react/jsx-runtime";
@@ -9,6 +9,7 @@ import { filterFieldsForShow } from "../utils/filterFields";
 import { Resource } from "../types/resource";
 import { useResourcePathParams } from "../hooks/useResourcePathParams";
 import ResourceStore from "../utils/resourceStore";
+import { Button } from "@mantine/core";
 
 type Props = {
   resource: Resource;
@@ -26,6 +27,7 @@ const getSelectDisplayValue = (field: Field, value: unknown): string => {
 const BaseShow = ({ resource, resourceStore }: Props) => {
   const { id } = useParams<{ id: string }>();
   const resourcePathParams = useResourcePathParams(resource);
+  const navigate = useNavigate();
 
   const { query } = useOne({
     resource: resource.name,
@@ -35,8 +37,12 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
 
   const record = query.data?.data;
 
-  if (!record) {
+  if (!record && !query.isLoading) {
     return <div>Record not found</div>;
+  }
+
+  if (!record) {
+    return null;
   }
 
   // Filter fields for show view
@@ -49,7 +55,31 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
   });
 
   return (
-    <Show isLoading={query.isLoading}>
+    <Show
+      isLoading={query.isLoading}
+      resource={resource.name}
+      canEdit={resource.meta.canUpdate}
+      canDelete={resource.meta.canDelete}
+      footerButtons={({ defaultButtons }) => (
+        <>
+          {defaultButtons}
+          {resource.routes.show.footerButtons?.map((button) => (
+            <Button
+              key={button.label}
+              onClick={(event) =>
+                button.onClick(event, {
+                  resource,
+                  record,
+                  navigate,
+                })
+              }
+            >
+              {button.label}
+            </Button>
+          ))}
+        </>
+      )}
+    >
       <TextField value={record?.id ?? ""} />
       {visibleColumns.map((column) => (
         <Fragment key={column.key}>

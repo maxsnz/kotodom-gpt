@@ -9,6 +9,7 @@ import { ChatsService, TelegramClientFactory } from "./ChatsService";
 import { ChatRepository } from "./ChatRepository";
 import { MessageRepository } from "./MessageRepository";
 import { BotRepository } from "../bots/BotRepository";
+import { TgUserRepository } from "../tg-users/TgUserRepository";
 import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Bot } from "../bots/Bot";
@@ -21,6 +22,7 @@ describe("ChatsService", () => {
   let mockChatRepo: jest.Mocked<ChatRepository>;
   let mockMessageRepo: jest.Mocked<MessageRepository>;
   let mockBotRepo: jest.Mocked<BotRepository>;
+  let mockTgUserRepo: jest.Mocked<TgUserRepository>;
   let mockTelegramClient: jest.Mocked<TelegramClient>;
   let mockTelegramClientFactory: jest.MockedFunction<TelegramClientFactory>;
 
@@ -107,6 +109,13 @@ describe("ChatsService", () => {
       delete: jest.fn(),
     } as any;
 
+    mockTgUserRepo = {
+      findById: jest.fn(),
+      findAll: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    } as any;
+
     mockTelegramClient = {
       sendMessage: jest.fn(),
     } as any;
@@ -117,6 +126,7 @@ describe("ChatsService", () => {
       mockChatRepo,
       mockMessageRepo,
       mockBotRepo,
+      mockTgUserRepo,
       mockTelegramClientFactory
     );
   });

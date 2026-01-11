@@ -83,6 +83,9 @@ export function createProcessBotUpdate(deps: ProcessBotUpdateDeps) {
         throw new TerminalError(`Bot not found: ${payload.botId}`);
       })();
 
+    // Check for existing message in old format (with botId) for backward compatibility
+    // New messages will have botId: null, so they won't be found here
+    // but will be checked in createUserMessage by chatId, tgUserId, and telegramUpdateId
     const existingMessage = await deps.messageRepository.findByTelegramUpdate(
       botIdNum,
       payload.telegramUpdateId
@@ -129,7 +132,7 @@ export function createProcessBotUpdate(deps: ProcessBotUpdateDeps) {
     const userMessageInput: CreateUserMessageInput = {
       chatId: chat.id,
       tgUserId: tgUser.id,
-      botId: botIdNum,
+      botId: null, // User messages should have botId: null
       text: payload.text ?? "",
       telegramUpdateId: BigInt(payload.telegramUpdateId),
     };

@@ -7,7 +7,7 @@ export const useResourcePathParams = (
   const params = useParams();
   const result = new Map();
   Object.keys(params || {})
-    .filter((key) => resource.api.list?.includes(`:${key}`))
+    .filter((key) => resource.api.list?.path.includes(`:${key}`))
     .forEach((key) => {
       result.set(key, params?.[key]);
     });

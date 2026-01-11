@@ -7,7 +7,7 @@ type Decimal = runtime.Decimal;
 export type CreateUserMessageInput = {
   chatId: string;
   tgUserId: bigint;
-  botId: number;
+  botId: number | null; // null for user messages, number for bot messages
   text: string;
   telegramUpdateId: bigint;
 };
@@ -40,7 +40,9 @@ export abstract class MessageRepository {
   ): Promise<Message | null>;
   abstract findByChatId(chatId: string): Promise<Message[]>;
   abstract findById(id: number): Promise<Message | null>;
+  abstract findAll(): Promise<Message[]>;
   abstract save(message: Message): Promise<void>;
+  abstract delete(id: number): Promise<void>;
   abstract createUserMessage(input: CreateUserMessageInput): Promise<Message>;
   abstract createBotMessage(input: CreateBotMessageInput): Promise<Message>;
   abstract createAdminMessage(input: CreateAdminMessageInput): Promise<Message>;

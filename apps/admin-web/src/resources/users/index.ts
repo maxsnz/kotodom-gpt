@@ -24,20 +24,29 @@ const resource = {
 
   meta: {
     canDelete: true,
-  },
-
-  schemas: {
-    list: createListResponseSchema(UserResponseSchema),
-    item: createItemResponseSchema(UserResponseSchema),
-    create: z.object({ user: UserResponseSchema }),
-    update: z.object({ user: UserResponseSchema }),
+    canCreate: true,
+    canUpdate: true,
+    canRead: true,
   },
 
   api: {
-    list: "/users",
-    item: "/users/:id",
-    create: "/users",
-    update: "/users/:id",
+    list: {
+      path: "/users",
+      schema: createListResponseSchema(UserResponseSchema),
+    },
+    item: {
+      path: "/users/:id",
+      schema: createItemResponseSchema(UserResponseSchema),
+    },
+    create: { path: "/users", schema: z.object({ user: UserResponseSchema }) },
+    update: {
+      path: "/users/:id",
+      schema: z.object({ user: UserResponseSchema }),
+    },
+    delete: {
+      path: "/users/:id",
+      schema: z.object({ user: UserResponseSchema }),
+    },
   },
 } satisfies ResourceConfig;
 

@@ -40,11 +40,10 @@ export const createGetList =
 
       const rawData = await response.json();
 
-      const resourceSchemas = resource.schemas;
-      const schema =
-        resourceSchemas && "list" in resourceSchemas
-          ? resourceSchemas.list
-          : undefined;
+      const schema = resource.api.list?.schema;
+      if (!schema) {
+        throw new Error(`No list schema found for resource: ${resource.name}`);
+      }
       if (schema) {
         const validatedData = validateResponseWithType<{
           data: BaseRecord[];

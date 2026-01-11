@@ -10,9 +10,12 @@ import { ChatRepositoryPrisma } from "../../infra/db/repositories/ChatRepository
 import { MessageRepositoryPrisma } from "../../infra/db/repositories/MessageRepositoryPrisma";
 import { TelegramClient } from "../../infra/telegram/telegramClient";
 import { ChatsAdminController } from "./chats-admin.controller";
+import { MessagesAdminController } from "./messages-admin.controller";
 import { PgBossClient } from "../../infra/jobs/pgBoss";
 import { BotsModule } from "../bots/bots.module";
 import { BotRepository } from "../../domain/bots/BotRepository";
+import { TgUsersModule } from "../tg-users/tg-users.module";
+import { TgUserRepository } from "../../domain/tg-users/TgUserRepository";
 
 export const TELEGRAM_CLIENT_FACTORY = "TELEGRAM_CLIENT_FACTORY";
 
@@ -20,8 +23,8 @@ const defaultTelegramClientFactory: TelegramClientFactory = (token: string) =>
   new TelegramClient({ token });
 
 @Module({
-  imports: [forwardRef(() => BotsModule)],
-  controllers: [ChatsAdminController],
+  imports: [forwardRef(() => BotsModule), TgUsersModule],
+  controllers: [ChatsAdminController, MessagesAdminController],
   providers: [
     {
       provide: ChatRepository,
@@ -41,13 +44,21 @@ const defaultTelegramClientFactory: TelegramClientFactory = (token: string) =>
         chatRepo: ChatRepository,
         messageRepo: MessageRepository,
         botRepo: BotRepository,
+        tgUserRepo: TgUserRepository,
         telegramClientFactory: TelegramClientFactory
       ) =>
-        new ChatsService(chatRepo, messageRepo, botRepo, telegramClientFactory),
+        new ChatsService(
+          chatRepo,
+          messageRepo,
+          botRepo,
+          tgUserRepo,
+          telegramClientFactory
+        ),
       inject: [
         ChatRepository,
         MessageRepository,
         BotRepository,
+        TgUserRepository,
         TELEGRAM_CLIENT_FACTORY,
       ],
     },

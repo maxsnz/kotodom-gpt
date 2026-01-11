@@ -68,7 +68,7 @@ const fields = [
     type: FieldType.DATE,
     props: { required: false },
     isVisible: {
-      list: false,
+      list: true,
       show: true,
       edit: false,
     },

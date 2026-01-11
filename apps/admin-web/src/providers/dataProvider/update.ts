@@ -1,6 +1,7 @@
 import type { BaseRecord, UpdateParams } from "@refinedev/core";
-import { validateResponse } from "@/utils/validateResponse";
 import { transformNestJSErrors } from "./transformNestJSErrors";
+import { Resource } from "@kotoadmin/types/resource";
+import { validateResponseWithType } from "./validateResponseWithType";
 
 export const createUpdate =
   (apiUrl: string) =>
@@ -8,7 +9,7 @@ export const createUpdate =
     params: UpdateParams<TVariables>
   ): Promise<{ data: TData }> => {
     try {
-      const resource = params.meta?.resource;
+      const resource = params.meta?.resource as Resource;
       if (!resource) {
         throw new Error("Resource not found");
       }
@@ -44,19 +45,17 @@ export const createUpdate =
 
       const rawData = await response.json();
 
-      const resourceSchemas = resource.schemas;
-      const schema =
-        resourceSchemas && "update" in resourceSchemas
-          ? resourceSchemas.update
-          : undefined;
-      if (schema) {
-        const validatedData = validateResponse(schema, rawData);
-        return {
-          data: validatedData,
-        };
+      const schema = resource.api.update?.schema;
+      if (!schema) {
+        throw new Error(
+          `No update schema found for resource: ${resource.name}`
+        );
       }
-
-      return { data: rawData };
+      const validatedData = validateResponseWithType<{ data: TData }>(
+        schema,
+        rawData
+      );
+      return validatedData;
     } catch (error: unknown) {
       console.error(error);
       const transformedError = transformNestJSErrors(error);

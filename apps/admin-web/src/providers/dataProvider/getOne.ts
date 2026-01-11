@@ -1,6 +1,7 @@
 import type { GetOneParams, GetOneResponse, BaseRecord } from "@refinedev/core";
 import { validateResponseWithType } from "./validateResponseWithType";
 import { transformNestJSErrors } from "./transformNestJSErrors";
+import { Resource } from "@kotoadmin/types/resource";
 
 export const createGetOne =
   (apiUrl: string) =>
@@ -10,7 +11,7 @@ export const createGetOne =
     try {
       const { meta } = params;
 
-      const resource = meta?.resource;
+      const resource = meta?.resource as Resource;
       if (!resource) {
         throw new Error("Resource not found");
       }
@@ -39,13 +40,11 @@ export const createGetOne =
 
       const rawData = await response.json();
 
-      const resourceSchemas = resource.schemas;
-      const schema =
-        resourceSchemas && "item" in resourceSchemas
-          ? resourceSchemas.item
-          : undefined;
+      const schema = resource.api.item?.schema;
       if (!schema) {
-        throw new Error(`No schema found for resource: ${params.resource}`);
+        throw new Error(
+          `No item schema found for resource: ${params.resource}`
+        );
       }
 
       const validatedData = validateResponseWithType<{ data: TData }>(
