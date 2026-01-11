@@ -94,7 +94,7 @@ export class Resource {
 
   // Routes paths
   getEditPath(record: BaseRecord, pathParams?: Map<string, string>): string {
-    let path = `${this.basePath}${this.config.routes.edit.path}`;
+    let path = `${this.basePath}/${this.config.routes.edit.path}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
@@ -104,7 +104,7 @@ export class Resource {
   }
 
   getShowPath(record: BaseRecord, pathParams?: Map<string, string>): string {
-    let path = `${this.basePath}${this.config.routes.show.path}`;
+    let path = `${this.basePath}/${this.config.routes.show.path}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
@@ -114,7 +114,7 @@ export class Resource {
   }
 
   getListPath(pathParams?: Map<string, string>): string {
-    let path = `${this.basePath}${this.config.routes.list.path}`;
+    let path = `${this.basePath}/${this.config.routes.list.path}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
@@ -124,7 +124,7 @@ export class Resource {
   }
 
   getCreatePath(pathParams?: Map<string, string>): string {
-    let path = `${this.basePath}${this.config.routes.create.path}`;
+    let path = `${this.basePath}/${this.config.routes.create.path}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);

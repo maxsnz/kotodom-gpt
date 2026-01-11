@@ -9,7 +9,7 @@
     "dev:front": "vite --config ./apps/admin-web/vite.config.ts",
     "dev:back": "nest start --watch --tsc",
     "dev": "concurrently -n FRONT,BACK -c green,blue \"npm:dev:front\" \"npm:dev:back\"",
-    "build:front": "tsc -b && vite build",
+    "build:front": "vite build --config ./apps/admin-web/vite.config.ts",
     "build:back": "nest build",
     "build": "npm run build:front && npm run build:back",
     "test": "jest --config ./apps/backend/jest.config.ts",
@@ -20,6 +20,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@fastify/cookie": "^11.0.2",
+    "@fastify/static": "^9.0.0",
     "@koa/router": "^12.0.1",
     "@logtail/pino": "^0.5.7",
     "@mantine/core": "^8.3.11",

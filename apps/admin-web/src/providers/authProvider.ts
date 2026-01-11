@@ -1,6 +1,7 @@
 import type { AuthProvider } from "@refinedev/core";
 import { AuthService } from "../services/authService";
 import type { LoginResponse } from "@shared/contracts/auth";
+import { config } from "../../config";
 
 interface LoginParams {
   email: string;
@@ -21,7 +22,7 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
         currentUser = user;
         return {
           success: true,
-          redirectTo: "/cp",
+          redirectTo: config.basePath,
         };
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "Login failed";
@@ -41,14 +42,14 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
         currentUser = null;
         return {
           success: true,
-          redirectTo: "/login",
+          redirectTo: `${config.basePath}/login`,
         };
       } catch (error: any) {
         // Even if logout fails, clear local state and redirect
         currentUser = null;
         return {
           success: true,
-          redirectTo: "/login",
+          redirectTo: `${config.basePath}/login`,
         };
       }
     },
@@ -65,7 +66,7 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
         currentUser = null;
         return {
           authenticated: false,
-          redirectTo: "/login",
+          redirectTo: `${config.basePath}/login`,
         };
       }
     },
@@ -87,7 +88,7 @@ export const createAuthProvider = (apiUrl: string): AuthProvider => {
       if (error?.statusCode === 401 || error?.status === 401) {
         currentUser = null;
         return {
-          redirectTo: "/login",
+          redirectTo: `${config.basePath}/login`,
           logout: true,
         };
       }

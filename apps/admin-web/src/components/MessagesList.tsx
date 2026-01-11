@@ -16,10 +16,12 @@ import {
 } from "@mantine/core";
 import { IconSend, IconArrowLeft } from "@tabler/icons-react";
 import { useNotification } from "@refinedev/core";
-import { ChatMessagesListResponseSchema, SendMessageResponseSchema } from "@shared/contracts/messages";
+import {
+  ChatMessagesListResponseSchema,
+  SendMessageResponseSchema,
+} from "@shared/contracts/messages";
 import type { ChatMessagesListResponse } from "@shared/contracts/messages";
-
-const API_URL = "/api";
+import { config } from "../../config";
 
 // Helper function to get initials from name
 const getInitials = (name: string | null | undefined): string => {
@@ -83,7 +85,7 @@ const MessagesList = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/chats/${chatId}/messages`);
+      const response = await fetch(`${config.apiUrl}/chats/${chatId}/messages`);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch messages: ${response.statusText}`);
@@ -93,9 +95,7 @@ const MessagesList = () => {
       const validatedData = ChatMessagesListResponseSchema.parse(rawData);
       setData(validatedData);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load messages"
-      );
+      setError(err instanceof Error ? err.message : "Failed to load messages");
       console.error("Error fetching messages:", err);
     } finally {
       setIsLoading(false);
@@ -130,13 +130,16 @@ const MessagesList = () => {
     setIsSending(true);
 
     try {
-      const response = await fetch(`${API_URL}/chats/${chatId}/messages`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: textToSend }),
-      });
+      const response = await fetch(
+        `${config.apiUrl}/chats/${chatId}/messages`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text: textToSend }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -188,7 +191,7 @@ const MessagesList = () => {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to send message";
-      
+
       // Show error notification
       open?.({
         type: "error",
@@ -239,7 +242,7 @@ const MessagesList = () => {
         <Group>
           <ActionIcon
             variant="subtle"
-            onClick={() => navigate("/cp/chats")}
+            onClick={() => navigate(`${config.basePath}/chats`)}
             aria-label="Go back"
           >
             <IconArrowLeft size={20} />

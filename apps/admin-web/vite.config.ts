@@ -24,8 +24,8 @@ export default defineConfig({
   },
 
   build: {
-    outDir: resolve(__dirname, "..", "dist", "frontend"),
-    emptyOutDir: true,
+    outDir: resolve(__dirname, "../../dist/apps/admin-web"),
+    emptyOutDir: false,
   },
 
   server: {

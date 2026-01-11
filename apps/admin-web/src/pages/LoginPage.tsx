@@ -15,6 +15,7 @@ import {
 import { useForm } from "@mantine/form";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import { config } from "../../config";
 
 export const LoginPage = () => {
   const { mutate: login } = useLogin();
@@ -31,7 +32,8 @@ export const LoginPage = () => {
     validate: {
       email: (value) => {
         if (!value) return "Email is required";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Invalid email format";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          return "Invalid email format";
         return null;
       },
       password: (value) => {
@@ -44,7 +46,7 @@ export const LoginPage = () => {
   // Redirect to admin panel if already authenticated
   useEffect(() => {
     if (isAuthenticated?.authenticated) {
-      navigate("/cp");
+      navigate(config.basePath);
     }
   }, [isAuthenticated, navigate]);
 
@@ -59,7 +61,8 @@ export const LoginPage = () => {
       },
       onError: (error: any) => {
         setIsLoading(false);
-        const errorMessage = error?.message || error?.error?.message || "Login failed";
+        const errorMessage =
+          error?.message || error?.error?.message || "Login failed";
         setError(errorMessage);
         form.setErrors({
           email: true,
@@ -111,12 +114,7 @@ export const LoginPage = () => {
                 disabled={isLoading}
               />
 
-              <Button
-                type="submit"
-                fullWidth
-                loading={isLoading}
-                size="md"
-              >
+              <Button type="submit" fullWidth loading={isLoading} size="md">
                 Sign In
               </Button>
             </Stack>

@@ -6,6 +6,7 @@ import messageProcessing from "./messageProcessing";
 import messages from "./messages";
 import { ResourceConfig } from "@kotoadmin/types/resource";
 import ResourceStore from "@kotoadmin/utils/resourceStore";
+import { config } from "../../config";
 
 export const resources = [
   users,
@@ -16,4 +17,4 @@ export const resources = [
   tgUsers,
 ] satisfies ResourceConfig[];
 
-export const resourceStore = new ResourceStore(resources, "/cp/");
+export const resourceStore = new ResourceStore(resources, config.basePath);

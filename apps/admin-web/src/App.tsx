@@ -14,6 +14,7 @@ import { dataProvider } from "@/providers/dataProvider";
 import { resourceStore } from "@/resources";
 import { createAuthProvider } from "@/providers/authProvider";
 import DashboardPage from "@/pages/DashboardPage";
+import { config } from "../config";
 
 const myTheme = createTheme({
   primaryColor: "teal",
@@ -21,37 +22,37 @@ const myTheme = createTheme({
 });
 
 const App = () => {
-  const apiUrl = `/api`;
-
   return (
     <MantineProvider theme={myTheme} defaultColorScheme="light">
       <ModalsProvider>
         <BrowserRouter>
           <Refine
-            dataProvider={dataProvider(apiUrl)}
+            dataProvider={dataProvider(config.apiUrl)}
             routerProvider={routerProvider}
             notificationProvider={useNotificationProvider}
-            authProvider={createAuthProvider(apiUrl)}
+            authProvider={createAuthProvider(config.apiUrl)}
             options={{
               syncWithLocation: true,
               warnWhenUnsavedChanges: true,
             }}
           >
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/cp/*"
-                element={
-                  <ProtectedRoute>
-                    <Layout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route path="" element={<DashboardPage />} />
-                {resourceStore.getRoutes()}
+              <Route path={config.basePath}>
+                <Route path="login" element={<LoginPage />} />
+                <Route
+                  path="*"
+                  element={
+                    <ProtectedRoute>
+                      <Layout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="dashboard" element={<DashboardPage />} />
+                  {resourceStore.getRoutes()}
+                </Route>
+                <Route path="" element={<RootRedirect />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
-              <Route path="/" element={<RootRedirect />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Refine>
         </BrowserRouter>
@@ -65,10 +66,10 @@ const RootRedirect = () => {
   const { data: isAuthenticated } = useIsAuthenticated();
 
   if (isAuthenticated?.authenticated) {
-    return <Navigate to="/cp" replace />;
+    return <Navigate to={`${config.basePath}/dashboard`} replace />;
   }
 
-  return <Navigate to="/login" replace />;
+  return <Navigate to={`${config.basePath}/login`} replace />;
 };
 
 export default App;
