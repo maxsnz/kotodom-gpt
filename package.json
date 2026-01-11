@@ -5,6 +5,7 @@
   "author": "maxsnz",
   "license": "MIT",
   "scripts": {
+    "start": "npm run build:front && npm run build:back && node dist/apps/backend/src/main.js",
     "dev:front": "vite --config ./apps/admin-web/vite.config.ts",
     "dev:back": "nest start --watch --tsc",
     "dev": "concurrently -n FRONT,BACK -c green,blue \"npm:dev:front\" \"npm:dev:back\"",
