@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useIsAuthenticated } from "@refinedev/core";
 import { Loader, Center } from "@mantine/core";
+import { config } from "../../config";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -21,7 +22,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // Redirect to login if not authenticated
   if (!isAuthenticated?.authenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={`${config.basePath}/login`} replace />;
   }
 
   // Render protected content if authenticated

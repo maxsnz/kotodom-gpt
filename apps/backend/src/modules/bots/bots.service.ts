@@ -64,12 +64,68 @@ export class BotsService {
     const bot = await this.getOrThrow(id);
 
     const newTelegramMode = input.telegramMode ?? bot.telegramMode;
+    const newEnabled = input.enabled ?? bot.enabled;
+    const modeChanged =
+      input.telegramMode !== undefined &&
+      input.telegramMode !== bot.telegramMode;
+    const enabledChanged =
+      input.enabled !== undefined && input.enabled !== bot.enabled;
 
-    // Check if telegramMode is being changed
-    const modeChangeEffects =
-      input.telegramMode && input.telegramMode !== bot.telegramMode
-        ? bot.onModeChange(bot.telegramMode, input.telegramMode)
-        : [];
+    // Collect all effects
+    const effects: ReturnType<Bot["enable"]> = [];
+
+    // Handle mode change effects (based on old bot state)
+    // Note: onModeChange checks bot.enabled, so if enabled is also changing,
+    // we need to handle that separately
+    if (modeChanged && !enabledChanged) {
+      // Only mode changed, use onModeChange
+      const modeChangeEffects = bot.onModeChange(
+        bot.telegramMode,
+        newTelegramMode
+      );
+      effects.push(...modeChangeEffects);
+    } else if (modeChanged && enabledChanged) {
+      // Both changed - handle mode transition first, then enabled change
+      // For mode change: always remove webhook if switching to polling
+      if (bot.telegramMode === "webhook" && newTelegramMode === "polling") {
+        effects.push({ type: "telegram.removeWebhook", botToken: bot.token });
+      }
+      // For enabled change: use new mode to determine effects
+      if (newEnabled) {
+        // Bot is being enabled - generate effects based on new mode
+        if (newTelegramMode === "webhook") {
+          effects.push({
+            type: "telegram.ensureWebhook",
+            botId: bot.id,
+            botToken: bot.token,
+          });
+        } else if (newTelegramMode === "polling") {
+          effects.push({
+            type: "telegram.refreshPolling",
+            botId: bot.id,
+          });
+        }
+      } else {
+        // Bot is being disabled - generate effects based on old mode
+        if (bot.telegramMode === "webhook") {
+          effects.push({ type: "telegram.removeWebhook", botToken: bot.token });
+        } else if (bot.telegramMode === "polling") {
+          effects.push({
+            type: "telegram.refreshPolling",
+            botId: bot.id,
+          });
+        }
+      }
+    } else if (enabledChanged && !modeChanged) {
+      // Only enabled changed, use enable/disable methods
+      if (newEnabled) {
+        const enableEffects = bot.enable();
+        effects.push(...enableEffects);
+      } else {
+        const disableEffects = bot.disable();
+        effects.push(...disableEffects);
+      }
+    }
 
     // Create a new Bot with updated fields
     const updatedBot = new Bot({
@@ -80,7 +136,7 @@ export class BotsService {
       model: input.model ?? bot.model,
       assistantId: input.assistantId ?? bot.assistantId,
       token: input.token ?? bot.token,
-      enabled: input.enabled ?? bot.enabled,
+      enabled: newEnabled,
       telegramMode: newTelegramMode,
       error: bot.error,
       ownerUserId: bot.ownerUserId, // Preserve owner
@@ -88,9 +144,9 @@ export class BotsService {
 
     await this.botRepo.save(updatedBot);
 
-    // Run effects for mode change if any
-    if (modeChangeEffects.length > 0) {
-      await this.effectRunner.runAll(modeChangeEffects);
+    // Run all effects
+    if (effects.length > 0) {
+      await this.effectRunner.runAll(effects);
     }
 
     return updatedBot;

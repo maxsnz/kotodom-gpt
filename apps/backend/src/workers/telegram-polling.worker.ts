@@ -105,6 +105,41 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  /**
+   * Refresh polling state for a specific bot.
+   * Checks current bot state and starts/stops polling as needed.
+   * This method is called immediately when bot state changes (via effects).
+   */
+  async refreshBotPolling(botId: string): Promise<void> {
+    const bot = await this.botRepo.findById(botId);
+    if (!bot) {
+      // Bot not found - stop polling if it's running
+      if (this.pollingStates.has(botId)) {
+        this.logger.info(
+          `Stopping polling for bot ${botId} (bot not found)`
+        );
+        await this.stopPollingForBot(botId);
+      }
+      return;
+    }
+
+    const shouldBePolling = bot.enabled && bot.telegramMode === "polling";
+    const isPolling = this.pollingStates.has(botId);
+
+    if (shouldBePolling && !isPolling) {
+      // Bot should be polling but isn't - start polling
+      this.logger.info(`Starting polling for bot ${botId} (immediate refresh)`);
+      await this.startPollingForBot(botId, bot.token);
+    } else if (!shouldBePolling && isPolling) {
+      // Bot shouldn't be polling but is - stop polling
+      this.logger.info(
+        `Stopping polling for bot ${botId} (immediate refresh)`
+      );
+      await this.stopPollingForBot(botId);
+    }
+    // If state matches (both polling or both not polling), no action needed
+  }
+
   private async startPollingForBot(botId: string, token: string) {
     // Don't start if already polling
     if (this.pollingStates.has(botId)) {

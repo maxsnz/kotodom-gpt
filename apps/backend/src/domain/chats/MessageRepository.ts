@@ -27,10 +27,11 @@ export type CreateAdminMessageInput = {
 };
 
 export abstract class MessageRepository {
-  abstract findByTelegramUpdate(
-    botId: number,
+  // Find message by telegramUpdateId only (works for both old messages with botId and new messages with botId: null)
+  abstract findByTelegramUpdateId(
     telegramUpdateId: number
   ): Promise<Message | null>;
+  
   abstract findUserMessageByTelegramUpdate(
     botId: number,
     telegramUpdateId: number

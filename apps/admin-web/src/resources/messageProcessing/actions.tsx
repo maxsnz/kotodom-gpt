@@ -12,6 +12,7 @@ export const messageProcessingActions = [
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({}),
         }
       );
 
@@ -33,7 +34,7 @@ export const messageProcessingActions = [
       });
     },
     available: (record: any) => {
-      return record.status === "FAILED"; // || record.status === "TERMINAL";
+      return record.status !== "COMPLETED"; // || record.status === "TERMINAL";
     },
     icon: <IconRefresh size={16} />,
   },

@@ -9,13 +9,11 @@ import type { Message as PrismaMessage } from "../prisma/generated/client";
 import { prisma } from "../prisma/client";
 
 export class MessageRepositoryPrisma extends MessageRepository {
-  async findByTelegramUpdate(
-    botId: number,
+  async findByTelegramUpdateId(
     telegramUpdateId: number
   ): Promise<Message | null> {
     const row = await prisma.message.findFirst({
       where: {
-        botId,
         telegramUpdateId: BigInt(telegramUpdateId),
       },
     });
@@ -90,29 +88,11 @@ export class MessageRepositoryPrisma extends MessageRepository {
 
   async createUserMessage(input: CreateUserMessageInput): Promise<Message> {
     // Idempotent creation: try to find existing message first
-    // For user messages (botId is null), search by chatId, tgUserId, and telegramUpdateId
-    // For bot messages (botId is not null), use the existing findByTelegramUpdate method
+    // First try to find by telegramUpdateId (works for both old and new format)
     if (input.telegramUpdateId !== null) {
-      let existing: Message | null = null;
-
-      if (input.botId !== null) {
-        // Bot message - use existing method
-        existing = await this.findByTelegramUpdate(
-          input.botId,
-          Number(input.telegramUpdateId)
-        );
-      } else {
-        // User message - search by chatId, tgUserId, and telegramUpdateId
-        const row = await prisma.message.findFirst({
-          where: {
-            chatId: input.chatId,
-            tgUserId: input.tgUserId,
-            telegramUpdateId: input.telegramUpdateId,
-            botId: null, // Ensure it's a user message
-          },
-        });
-        existing = row ? this.toDomain(row) : null;
-      }
+      const existing = await this.findByTelegramUpdateId(
+        Number(input.telegramUpdateId)
+      );
 
       if (existing) {
         return existing;

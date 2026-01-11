@@ -89,7 +89,7 @@ describe("incoming-message.worker", () => {
       save: jest.fn(),
     };
     const messageRepository = {
-      findByTelegramUpdate: jest.fn().mockResolvedValue(null),
+      findByTelegramUpdateId: jest.fn().mockResolvedValue(null),
       findUserMessageByTelegramUpdate: jest.fn(),
       findBotResponseForUserMessage: jest.fn().mockResolvedValue(null),
       findById: jest.fn().mockResolvedValue(userMessage),
@@ -194,7 +194,7 @@ describe("incoming-message.worker", () => {
       save: jest.fn(),
     };
     const messageRepository = {
-      findByTelegramUpdate: jest.fn(),
+      findByTelegramUpdateId: jest.fn(),
       findUserMessageByTelegramUpdate: jest.fn(),
       findBotResponseForUserMessage: jest.fn(),
       save: jest.fn(),

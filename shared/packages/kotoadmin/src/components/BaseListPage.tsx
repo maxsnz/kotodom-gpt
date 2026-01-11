@@ -216,9 +216,7 @@ const BaseListPage = <T extends { id: string | number }>({
                 open?.({
                   type: "error",
                   message:
-                    error instanceof Error
-                      ? error.message
-                      : "Action failed",
+                    error instanceof Error ? error.message : "Action failed",
                 });
               }
             }}

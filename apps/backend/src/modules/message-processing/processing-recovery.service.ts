@@ -101,11 +101,11 @@ export class ProcessingRecoveryService {
       );
     }
 
-    if (processing.status === MessageProcessingStatus.TERMINAL) {
-      throw new Error(
-        `Cannot retry terminal message processing: ${userMessageId}`
-      );
-    }
+    // if (processing.status === MessageProcessingStatus.TERMINAL) {
+    //   throw new Error(
+    //     `Cannot retry terminal message processing: ${userMessageId}`
+    //   );
+    // }
 
     // Publish minimal payload job
     const payload: MessageProcessingTriggerPayload = {

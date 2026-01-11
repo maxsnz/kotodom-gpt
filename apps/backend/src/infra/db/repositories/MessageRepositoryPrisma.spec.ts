@@ -33,7 +33,7 @@ describe("MessageRepositoryPrisma", () => {
     jest.clearAllMocks();
   });
 
-  it("findByTelegramUpdate should return message", async () => {
+  it("findByTelegramUpdateId should return message", async () => {
     const row = {
       id: 1,
       chatId: "123",
@@ -46,16 +46,16 @@ describe("MessageRepositoryPrisma", () => {
     };
     prismaMessageMock.findFirst.mockResolvedValue(row as any);
 
-    const result = await repository.findByTelegramUpdate(2, 5);
+    const result = await repository.findByTelegramUpdateId(5);
 
     expect(result).toBeInstanceOf(Message);
     expect(prismaMessageMock.findFirst).toHaveBeenCalledWith({
-      where: { botId: 2, telegramUpdateId: BigInt(5) },
+      where: { telegramUpdateId: BigInt(5) },
     });
   });
 
   it("createUserMessage should persist with defaults", async () => {
-    // Mock findByTelegramUpdate to return null (no existing message)
+    // Mock findByTelegramUpdateId to return null (no existing message)
     prismaMessageMock.findFirst.mockResolvedValue(null);
 
     const created = {

@@ -76,6 +76,11 @@ export class Bot {
         botId: this.id,
         botToken: this.token,
       });
+    } else if (this.props.telegramMode === "polling") {
+      effects.push({
+        type: "telegram.refreshPolling",
+        botId: this.id,
+      });
     }
 
     return effects;
@@ -85,11 +90,18 @@ export class Bot {
     if (!this.props.enabled) return [];
     this.props.enabled = false;
 
+    const effects: Effect[] = [];
+
     if (this.props.telegramMode === "webhook") {
-      return [{ type: "telegram.removeWebhook", botToken: this.token }];
+      effects.push({ type: "telegram.removeWebhook", botToken: this.token });
+    } else if (this.props.telegramMode === "polling") {
+      effects.push({
+        type: "telegram.refreshPolling",
+        botId: this.id,
+      });
     }
 
-    return [];
+    return effects;
   }
 
   onModeChange(
@@ -101,6 +113,13 @@ export class Bot {
     // When switching from webhook to polling, remove webhook
     if (oldMode === "webhook" && newMode === "polling") {
       effects.push({ type: "telegram.removeWebhook", botToken: this.token });
+      // If bot is enabled, start polling immediately
+      if (this.props.enabled) {
+        effects.push({
+          type: "telegram.refreshPolling",
+          botId: this.id,
+        });
+      }
     }
 
     // When switching from polling to webhook and bot is enabled, set webhook

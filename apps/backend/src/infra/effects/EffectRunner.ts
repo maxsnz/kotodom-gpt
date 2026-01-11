@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
 
 import type { Effect } from "../../domain/effects/Effect";
 import { TelegramClient } from "../telegram/telegramClient";
@@ -12,6 +12,7 @@ import {
   type LoggerFactory,
   createConsoleLoggerFactory,
 } from "../logger";
+import { TelegramPollingWorker } from "../../workers/telegram-polling.worker";
 
 // Setting keys for admin notifications
 export const SETTING_ADMIN_NOTIFY_BOT_TOKEN = "admin_notify_bot_token";
@@ -30,6 +31,8 @@ export class EffectRunner {
     private readonly telegramClientFactory: TelegramClientFactory,
     private readonly boss: PgBossClient,
     private readonly settingsRepository: SettingsRepository,
+    @Inject(forwardRef(() => TelegramPollingWorker))
+    private readonly pollingWorker: TelegramPollingWorker,
     @Inject(LOGGER_FACTORY) loggerFactory?: LoggerFactory
   ) {
     const factory = loggerFactory ?? createConsoleLoggerFactory();
@@ -55,6 +58,11 @@ export class EffectRunner {
       case "telegram.removeWebhook": {
         const client = this.telegramClientFactory.createClient(effect.botToken);
         await client.removeWebhook();
+        return;
+      }
+
+      case "telegram.refreshPolling": {
+        await this.pollingWorker.refreshBotPolling(effect.botId);
         return;
       }
 

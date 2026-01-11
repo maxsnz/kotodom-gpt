@@ -18,6 +18,7 @@ import {
 import { PgBossClient } from "../jobs/pgBoss";
 import { SettingsRepository } from "../../domain/settings/SettingsRepository";
 import { Effect } from "../../domain/effects/Effect";
+import { TelegramPollingWorker } from "@/workers/telegram-polling.worker";
 
 describe("EffectRunner", () => {
   let runner: EffectRunner;
@@ -28,6 +29,7 @@ describe("EffectRunner", () => {
   let mockSetWebhook: jest.MockedFunction<any>;
   let mockRemoveWebhook: jest.MockedFunction<any>;
   let mockSendMessage: jest.MockedFunction<any>;
+  let mockTelegramPollingWorker: jest.Mocked<TelegramPollingWorker>;
 
   beforeEach(() => {
     mockSetWebhook = jest.fn();
@@ -48,6 +50,12 @@ describe("EffectRunner", () => {
       createClient: jest.fn().mockReturnValue(mockTelegramClient),
     } as jest.Mocked<TelegramClientFactory>;
 
+    mockTelegramPollingWorker = {
+      refreshBotPolling: jest.fn(),
+      onModuleInit: jest.fn(),
+      onModuleDestroy: jest.fn(),
+    } as unknown as jest.Mocked<TelegramPollingWorker>;
+
     mockPgBossClient = {
       publish: jest.fn(),
       register: jest.fn(),
@@ -63,7 +71,8 @@ describe("EffectRunner", () => {
     runner = new EffectRunner(
       mockTelegramClientFactory,
       mockPgBossClient,
-      mockSettingsRepository
+      mockSettingsRepository,
+      mockTelegramPollingWorker
     );
   });
 

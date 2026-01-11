@@ -83,11 +83,8 @@ export function createProcessBotUpdate(deps: ProcessBotUpdateDeps) {
         throw new TerminalError(`Bot not found: ${payload.botId}`);
       })();
 
-    // Check for existing message in old format (with botId) for backward compatibility
-    // New messages will have botId: null, so they won't be found here
-    // but will be checked in createUserMessage by chatId, tgUserId, and telegramUpdateId
-    const existingMessage = await deps.messageRepository.findByTelegramUpdate(
-      botIdNum,
+    // Check for existing message by telegramUpdateId (works for both old messages with botId and new messages with botId: null)
+    const existingMessage = await deps.messageRepository.findByTelegramUpdateId(
       payload.telegramUpdateId
     );
 
@@ -203,6 +200,9 @@ export function createProcessBotUpdate(deps: ProcessBotUpdateDeps) {
       return;
     }
 
+    // Declare userMessageId before try block so it's accessible in catch
+    let userMessageId: number | null = null;
+
     try {
       // Step 1: Ensure incoming message is saved (idempotent)
       const incomingCtx = await ensureIncomingMessageSaved(
@@ -210,6 +210,9 @@ export function createProcessBotUpdate(deps: ProcessBotUpdateDeps) {
         payload,
         botIdNum
       );
+
+      // Save userMessageId from incomingCtx so it's available in catch block
+      userMessageId = incomingCtx.userMessage.id;
 
       // Update telegram IDs if available
       if (payload.messageId || payload.telegramUpdateId) {
@@ -234,19 +237,20 @@ export function createProcessBotUpdate(deps: ProcessBotUpdateDeps) {
       const errorMessage =
         error instanceof Error ? error.message : JSON.stringify(error);
 
-      // Try to get user message ID for error tracking
-      let userMessageId: number | null = null;
-      try {
-        const existingMessage =
-          await deps.messageRepository.findByTelegramUpdate(
-            botIdNum,
-            payload.telegramUpdateId
-          );
-        if (existingMessage) {
-          userMessageId = existingMessage.id;
+      // If userMessageId wasn't set (error occurred before ensureIncomingMessageSaved),
+      // try to find it by telegramUpdateId
+      if (!userMessageId) {
+        try {
+          const existingMessage =
+            await deps.messageRepository.findByTelegramUpdateId(
+              payload.telegramUpdateId
+            );
+          if (existingMessage) {
+            userMessageId = existingMessage.id;
+          }
+        } catch {
+          // Ignore errors when trying to find message for error tracking
         }
-      } catch {
-        // Ignore errors when trying to find message for error tracking
       }
 
       if (errorType === ErrorType.TERMINAL || errorType === ErrorType.FATAL) {

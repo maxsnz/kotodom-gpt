@@ -88,7 +88,7 @@ describe("ChatsService", () => {
     } as any;
 
     mockMessageRepo = {
-      findByTelegramUpdate: jest.fn(),
+      findByTelegramUpdateId: jest.fn(),
       findUserMessageByTelegramUpdate: jest.fn(),
       findBotResponseForUserMessage: jest.fn(),
       findByChatId: jest.fn(),
