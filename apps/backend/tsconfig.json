@@ -31,8 +31,7 @@
     "esModuleInterop": true,
     "types": ["jest", "node"],
 
-    "outDir": "../../dist"
+    "outDir": "../../dist-backend"
   },
-  "include": ["src"],
-  "exclude": ["dist"]
+  "include": ["src"]
 }

@@ -13,6 +13,7 @@ dist-ssr
 dist-server
 dist-backend
 dist-admin-web
+dist-shared-contracts
 *.local
 
 # Editor directories and files
