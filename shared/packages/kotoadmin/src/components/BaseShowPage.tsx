@@ -1,15 +1,16 @@
-import { useOne } from "@refinedev/core";
+import { useCallback, Fragment } from "react";
+import { useOne, useInvalidate, useNotification, useDelete } from "@refinedev/core";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Show, EmailField, TextField, DateField } from "@refinedev/mantine";
-import { Checkbox, Title } from "@mantine/core";
-import { Fragment } from "react/jsx-runtime";
+import { Checkbox, Title, Text, Button } from "@mantine/core";
 import { FieldType } from "../types/fieldTypes";
 import type { Field } from "../types/fields";
 import { filterFieldsForShow } from "../utils/filterFields";
 import { Resource } from "../types/resource";
 import { useResourcePathParams } from "../hooks/useResourcePathParams";
 import ResourceStore from "../utils/resourceStore";
-import { Button } from "@mantine/core";
+import { IconEdit, IconTrash } from "@tabler/icons-react";
+import { modals } from "@mantine/modals";
 
 type Props = {
   resource: Resource;
@@ -28,6 +29,9 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
   const { id } = useParams<{ id: string }>();
   const resourcePathParams = useResourcePathParams(resource);
   const navigate = useNavigate();
+  const invalidate = useInvalidate();
+  const { open } = useNotification();
+  const { mutate: deleteRecord } = useDelete();
 
   const { query } = useOne({
     resource: resource.name,
@@ -36,6 +40,40 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
   });
 
   const record = query.data?.data;
+
+  const openDeleteConfirmModal = useCallback(() => {
+    if (!record) return;
+    modals.openConfirmModal({
+      title: "Are you sure you want to delete this record?",
+      children: (
+        <Text>
+          Are you sure you want to delete{" "}
+          {(record as any).name || (record as any).email || record.id}? This
+          action cannot be undone.
+        </Text>
+      ),
+      labels: { confirm: "Delete", cancel: "Cancel" },
+      confirmProps: { color: "red" },
+      onConfirm: () => {
+        if (!record?.id) return;
+        deleteRecord(
+          {
+            resource: resource.name,
+            id: record.id,
+          },
+          {
+            onSuccess: () => {
+              navigate(resource.getListPath(resourcePathParams));
+              open?.({
+                type: "success",
+                message: "Record deleted successfully",
+              });
+            },
+          }
+        );
+      },
+    });
+  }, [record, resource, resourcePathParams, deleteRecord, navigate, open]);
 
   if (!record && !query.isLoading) {
     return <div>Record not found</div>;
@@ -60,6 +98,60 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
       resource={resource.name}
       canEdit={resource.meta.canUpdate}
       canDelete={resource.meta.canDelete}
+      headerButtons={() => (
+        <>
+          {resource.meta.canUpdate && resource.routes.edit && (
+            <Button
+              component={Link}
+              to={resource.getEditPath(record, resourcePathParams)}
+              leftSection={<IconEdit size={16} />}
+            >
+              Edit
+            </Button>
+          )}
+          {resource.meta.canDelete && (
+            <Button
+              color="red"
+              variant="outline"
+              leftSection={<IconTrash size={16} />}
+              onClick={openDeleteConfirmModal}
+            >
+              Delete
+            </Button>
+          )}
+          {resource.actions
+            ?.filter((action) => action.available(record))
+            .map((action) => (
+              <Button
+                color="gray"
+                variant="outline"
+                key={action.name}
+                onClick={async () => {
+                  try {
+                    await action.action(record, {
+                      invalidate,
+                      resource,
+                      openNotification: open || (() => {}),
+                    });
+                  } catch (error) {
+                    open?.({
+                      type: "error",
+                      message:
+                        error instanceof Error
+                          ? error.message
+                          : "Action failed",
+                    });
+                  }
+                }}
+              >
+                {action.icon && (
+                  <span style={{ marginRight: 4 }}>{action.icon}</span>
+                )}
+                {action.name}
+              </Button>
+            ))}
+        </>
+      )}
       footerButtons={({ defaultButtons }) => (
         <>
           {defaultButtons}

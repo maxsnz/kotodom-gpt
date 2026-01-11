@@ -87,34 +87,38 @@ export class Resource {
   }
 
   // Routes paths
-  getEditPath(
-    record: { id: string | number },
-    pathParams?: Map<string, string>
-  ): string {
+  getEditPath(record: BaseRecord, pathParams?: Map<string, string>): string {
     let path = `${this.basePath}${this.config.routes.edit.path}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
 
-    return path.replace(":id", record.id.toString());
+    return path.replace(":id", record.id?.toString() || "");
   }
 
-  getShowPath(
-    record: { id: string | number },
-    pathParams?: Map<string, string>
-  ): string {
+  getShowPath(record: BaseRecord, pathParams?: Map<string, string>): string {
     let path = `${this.basePath}${this.config.routes.show.path}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
 
-    return path.replace(":id", record.id.toString());
+    return path.replace(":id", record.id?.toString() || "");
   }
 
   getListPath(pathParams?: Map<string, string>): string {
     let path = `${this.basePath}${this.config.routes.list.path}`;
+
+    for (const [param, value] of pathParams?.entries() ?? []) {
+      path = path.replace(`:${param}`, value);
+    }
+
+    return path;
+  }
+
+  getCreatePath(pathParams?: Map<string, string>): string {
+    let path = `${this.basePath}${this.config.routes.create.path}`;
 
     for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);

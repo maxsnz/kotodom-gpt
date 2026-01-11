@@ -27,6 +27,7 @@ const resource = {
 
   meta: {
     canRead: false,
+    hideInNavigation: true,
   },
 
   api: {

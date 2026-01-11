@@ -16,7 +16,6 @@ const resource = {
 
   routes: {
     list: { path: `${key}` },
-    create: { path: `${key}/create` },
     edit: { path: `${key}/edit/:id` },
     show: {
       path: `${key}/:id`,
@@ -37,6 +36,7 @@ const resource = {
   meta: {
     canDelete: true,
     canRead: true,
+    canCreate: false,
   },
 
   api: {

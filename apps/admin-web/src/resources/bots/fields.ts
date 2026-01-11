@@ -45,7 +45,14 @@ const fields = [
   {
     key: "model",
     label: "Model",
-    type: FieldType.TEXT,
+    type: FieldType.SELECT,
+    options: [
+      { label: "gpt-4o-mini", value: "gpt-4o-mini" },
+      { label: "gpt-4.1-mini", value: "gpt-4.1-mini" },
+
+      { label: "gpt-5-nano", value: "gpt-5-nano" },
+      { label: "gpt-5-mini", value: "gpt-5-mini" },
+    ],
     props: { required: true },
   },
   {

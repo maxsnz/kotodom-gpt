@@ -22,7 +22,12 @@ const fields = [
   {
     key: "role",
     label: "Role",
-    type: FieldType.TEXT,
+    type: FieldType.SELECT,
+    options: [
+      { label: "Admin", value: "ADMIN" },
+      { label: "Manager", value: "MANAGER" },
+      { label: "User", value: "USER" },
+    ],
     props: { required: true },
   },
   {

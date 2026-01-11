@@ -129,20 +129,16 @@ const BaseListPage = <T extends { id: string | number }>({
             {resource.actions
               .filter((action) => action.available(row.original))
               .map((action) => (
-                <Tooltip label={action.name}>
+                <Tooltip label={action.name} key={action.name}>
                   <ActionIcon
                     variant="subtle"
                     color="gray"
                     onClick={async () => {
                       try {
-                        await action.action(row.original);
-                        await invalidate({
-                          resource: resource.name,
-                          invalidates: ["list"],
-                        });
-                        open?.({
-                          type: "success",
-                          message: "Action completed successfully",
+                        await action.action(row.original, {
+                          invalidate,
+                          resource,
+                          openNotification: open || (() => {}),
                         });
                       } catch (error) {
                         open?.({
@@ -165,7 +161,7 @@ const BaseListPage = <T extends { id: string | number }>({
         enableColumnFilter: false,
       },
     ],
-    [resource, openDeleteConfirmModal]
+    [resource, openDeleteConfirmModal, invalidate, open]
   );
 
   const table = useMantineReactTable({
@@ -189,7 +185,7 @@ const BaseListPage = <T extends { id: string | number }>({
         {resource.routes.create && (
           <Button
             component={Link}
-            to={`/cp/${resource}/create`}
+            to={resource.getCreatePath(resourcePathParams)}
             leftSection={<IconPlus size={16} />}
           >
             Create New Record
