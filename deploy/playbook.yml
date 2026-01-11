@@ -31,6 +31,7 @@
       BACKEND_PORT: "{{ BACKEND_PORT | default('3000') }}"
       LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN | default('') }}"
       LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE | default('') }}"
+      REDIS_URL: "{{ REDIS_URL | default('') }}"
 
     # ---------- Vector Logging ----------
     vector_source_name: "kotodom_gpt"
