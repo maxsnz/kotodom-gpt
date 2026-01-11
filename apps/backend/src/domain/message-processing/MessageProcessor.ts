@@ -82,26 +82,28 @@ export class MessageProcessor {
       throw new TerminalError(`User message not found: ${userMessageId}`);
     }
 
-    if (!userMessage.botId) {
-      throw new TerminalError(`User message has no botId: ${userMessageId}`);
-    }
-
     if (!userMessage.chatId) {
       throw new TerminalError(`User message has no chatId: ${userMessageId}`);
-    }
-
-    // Load bot
-    const bot = await this.deps.botRepository.findById(
-      String(userMessage.botId)
-    );
-    if (!bot) {
-      throw new TerminalError(`Bot not found: ${userMessage.botId}`);
     }
 
     // Load chat
     const chat = await this.deps.chatRepository.findById(userMessage.chatId);
     if (!chat) {
       throw new TerminalError(`Chat not found: ${userMessage.chatId}`);
+    }
+
+    // Get botId from message or fallback to chat
+    const botId = userMessage.botId ?? chat.botId;
+    if (!botId) {
+      throw new TerminalError(
+        `Neither user message nor chat has botId: ${userMessageId}, chatId: ${userMessage.chatId}`
+      );
+    }
+
+    // Load bot
+    const bot = await this.deps.botRepository.findById(String(botId));
+    if (!bot) {
+      throw new TerminalError(`Bot not found: ${botId}`);
     }
 
     const incomingCtx: IncomingContext = {
@@ -124,7 +126,7 @@ export class MessageProcessor {
       this.deps.logger.info(
         "Message processing already completed or terminal",
         {
-          botId: userMessage.botId,
+          botId: botId,
           userMessageId,
           status: processing.status,
         }
@@ -140,12 +142,12 @@ export class MessageProcessor {
       const generationResult =
         await this.deps.responseGenerator.generateResponse(
           incomingCtx,
-          userMessage.botId
+          botId
         );
 
       const saveResult = await this.saveResponse(
         generationResult,
-        userMessage.botId,
+        botId,
         userMessageId
       );
 
@@ -163,7 +165,7 @@ export class MessageProcessor {
       // Step 5: Send response (we know it's not sent yet since we just generated it)
       await this.deps.responseSender.sendResponse(
         saveResult,
-        userMessage.botId,
+        botId,
         this.deps.logger,
         userMessageId
       );
@@ -184,7 +186,7 @@ export class MessageProcessor {
 
           await this.deps.responseSender.sendResponse(
             saveResult,
-            userMessage.botId,
+            botId,
             this.deps.logger,
             userMessageId
           );
