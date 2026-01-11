@@ -181,7 +181,7 @@ export class MessageProcessingRepositoryPrisma extends MessageProcessingReposito
 
   async findAll(
     filters?: {
-      status?: MessageProcessingStatus;
+      status?: MessageProcessingStatus | MessageProcessingStatus[];
       userMessageId?: number;
     },
     pagination?: {
@@ -192,7 +192,13 @@ export class MessageProcessingRepositoryPrisma extends MessageProcessingReposito
     const where: Record<string, unknown> = {};
 
     if (filters?.status) {
-      where.status = filters.status;
+      if (Array.isArray(filters.status)) {
+        // Multiple statuses: use IN operator
+        where.status = { in: filters.status };
+      } else {
+        // Single status
+        where.status = filters.status;
+      }
     }
 
     if (filters?.userMessageId) {

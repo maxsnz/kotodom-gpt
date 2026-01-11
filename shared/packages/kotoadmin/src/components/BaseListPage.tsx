@@ -14,6 +14,7 @@ import {
   useDelete,
   useNotification,
   useInvalidate,
+  type CrudFilter,
 } from "@refinedev/core";
 import { ActionIcon, Tooltip, Flex, Text, Button } from "@mantine/core";
 import { modals } from "@mantine/modals";
@@ -37,6 +38,13 @@ const BaseListPage = <T extends { id: string | number }>({
 
   const { result, query } = useList<T>({
     resource: resource.name,
+    filters: resource.meta.initialFilters?.map(
+      (filter): CrudFilter => ({
+        field: filter.field,
+        operator: "eq",
+        value: filter.value,
+      })
+    ),
     meta: { resourcePathParams, resource },
   });
 
@@ -191,6 +199,33 @@ const BaseListPage = <T extends { id: string | number }>({
             Create New Record
           </Button>
         )}
+        {resource.listActions.map((listAction) => (
+          <Button
+            key={listAction.name}
+            color={listAction.color || "gray"}
+            variant={listAction.variant || "outline"}
+            leftSection={listAction.icon}
+            onClick={async () => {
+              try {
+                await listAction.action({
+                  invalidate,
+                  resource,
+                  openNotification: open || (() => {}),
+                });
+              } catch (error) {
+                open?.({
+                  type: "error",
+                  message:
+                    error instanceof Error
+                      ? error.message
+                      : "Action failed",
+                });
+              }
+            }}
+          >
+            {listAction.name}
+          </Button>
+        ))}
       </>
     ),
   });

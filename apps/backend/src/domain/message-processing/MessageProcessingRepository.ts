@@ -41,7 +41,7 @@ export abstract class MessageProcessingRepository {
 
   abstract findAll(
     filters?: {
-      status?: MessageProcessingStatus;
+      status?: MessageProcessingStatus | MessageProcessingStatus[];
       userMessageId?: number;
     },
     pagination?: {

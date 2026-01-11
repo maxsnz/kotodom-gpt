@@ -5,6 +5,8 @@ import {
   createListResponseSchema,
   createItemResponseSchema,
 } from "@/utils/responseSchemas";
+import { messageProcessingActions } from "./actions";
+import { messageProcessingListActions } from "./listActions";
 
 const key = "message-processing";
 
@@ -12,7 +14,8 @@ const resource = {
   name: key,
   label: "Messages Processing",
   fields,
-  actions: [],
+  actions: messageProcessingActions,
+  listActions: messageProcessingListActions,
 
   routes: {
     list: { path: `${key}` },
@@ -21,6 +24,9 @@ const resource = {
 
   meta: {
     canRead: true,
+    initialFilters: [
+      // { field: "status", value: "FAILED,TERMINAL" },
+    ],
   },
 
   api: {

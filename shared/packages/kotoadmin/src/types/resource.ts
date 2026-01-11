@@ -1,5 +1,5 @@
 import { Field } from "./fields";
-import { Action } from "./action";
+import { Action, ListAction } from "./action";
 import { z } from "zod";
 import getRouter from "../utils/getRouter";
 import ResourceStore from "../utils/resourceStore";
@@ -35,6 +35,7 @@ export interface ResourceConfig {
   label: string;
   fields: Field[];
   actions: Action[];
+  listActions?: ListAction[];
   routes: {
     [key: string]: ResourceRouteConfig;
   };
@@ -44,6 +45,7 @@ export interface ResourceConfig {
     canUpdate?: boolean;
     canRead?: boolean;
     hideInNavigation?: boolean;
+    initialFilters?: Array<{ field: string; value: string | number | boolean }>;
   };
 
   api: { [key: string]: ResourceApiEndpointConfig };
@@ -72,6 +74,10 @@ export class Resource {
 
   get actions(): Action[] {
     return this.config.actions;
+  }
+
+  get listActions(): ListAction[] {
+    return this.config.listActions || [];
   }
 
   get routes() {

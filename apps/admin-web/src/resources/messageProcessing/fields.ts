@@ -46,7 +46,14 @@ const fields = [
   {
     key: "status",
     label: "Status",
-    type: FieldType.TEXT,
+    type: FieldType.SELECT,
+    options: [
+      { label: "Received", value: "RECEIVED" },
+      { label: "Processing", value: "PROCESSING" },
+      { label: "Completed", value: "COMPLETED" },
+      { label: "Failed", value: "FAILED" },
+      { label: "Terminal", value: "TERMINAL" },
+    ],
     props: { required: false },
   },
   {

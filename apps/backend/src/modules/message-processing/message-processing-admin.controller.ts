@@ -164,25 +164,36 @@ export class MessageProcessingAdminController {
    * Maps shared contract DTO filters to domain types
    * Properly converts enum values without type assertion
    * Since Zod already validated the status value, we can safely cast it
+   * Supports single status or array of statuses (for filtering multiple statuses)
    */
   private mapFiltersToDomain(filters: {
-    status?: string;
+    status?: string | string[];
     userMessageId?: number;
   }): {
-    status?: MessageProcessingStatus;
+    status?: MessageProcessingStatus | MessageProcessingStatus[];
     userMessageId?: number;
   } {
     const domainFilters: {
-      status?: MessageProcessingStatus;
+      status?: MessageProcessingStatus | MessageProcessingStatus[];
       userMessageId?: number;
     } = {};
 
     if (filters.status) {
-      // Zod validation ensures this is a valid MessageProcessingStatus value
-      // We verify it's one of the enum values for type safety
       const validStatuses = Object.values(MessageProcessingStatus) as string[];
-      if (validStatuses.includes(filters.status)) {
-        domainFilters.status = filters.status as MessageProcessingStatus;
+      
+      if (Array.isArray(filters.status)) {
+        // Multiple statuses: filter to valid ones
+        const validStatusArray = filters.status
+          .filter((s) => validStatuses.includes(s))
+          .map((s) => s as MessageProcessingStatus);
+        if (validStatusArray.length > 0) {
+          domainFilters.status = validStatusArray;
+        }
+      } else {
+        // Single status
+        if (validStatuses.includes(filters.status)) {
+          domainFilters.status = filters.status as MessageProcessingStatus;
+        }
       }
     }
 

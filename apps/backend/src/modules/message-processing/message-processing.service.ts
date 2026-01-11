@@ -18,7 +18,7 @@ export class MessageProcessingService {
    */
   async findAll(
     filters?: {
-      status?: MessageProcessingStatus;
+      status?: MessageProcessingStatus | MessageProcessingStatus[];
       userMessageId?: number;
     },
     pagination?: {
