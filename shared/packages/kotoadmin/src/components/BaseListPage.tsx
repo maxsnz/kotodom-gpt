@@ -1,7 +1,7 @@
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css"; //if using mantine date picker features
 import "mantine-react-table/styles.css"; //make sure MRT styles were imported in your app root (once)
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import {
   MantineReactTable,
   useMantineReactTable,
@@ -31,21 +31,13 @@ const BaseListPage = <T extends { id: string | number }>({
   resource,
 }: Props) => {
   const resourcePathParams = useResourcePathParams(resource);
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
   const { open } = useNotification();
   const invalidate = useInvalidate();
 
   const { result, query } = useList<T>({
     resource: resource.name,
-    pagination: {
-      currentPage: pagination.pageIndex + 1,
-      pageSize: pagination.pageSize,
-    },
-    meta: { resourcePathParams },
+    meta: { resourcePathParams, resource },
   });
 
   const { mutate: deleteRecord } = useDelete();
@@ -178,20 +170,14 @@ const BaseListPage = <T extends { id: string | number }>({
 
   const table = useMantineReactTable({
     columns: tableColumns,
-    manualPagination: true,
-    manualFiltering: true,
+    manualPagination: false,
+    manualFiltering: false,
     data,
     state: {
       isLoading,
-      pagination: {
-        pageIndex: pagination.pageIndex,
-        pageSize: pagination.pageSize,
-      },
     },
     initialState: { density: "xs" },
     enableDensityToggle: false,
-    rowCount: result?.total,
-    onPaginationChange: setPagination,
     mantineTableProps: {
       striped: "odd",
       withColumnBorders: true,
@@ -199,13 +185,17 @@ const BaseListPage = <T extends { id: string | number }>({
       withTableBorder: true,
     },
     renderTopToolbarCustomActions: () => (
-      <Button
-        component={Link}
-        to={`/cp/${resource}/create`}
-        leftSection={<IconPlus size={16} />}
-      >
-        Create New Record
-      </Button>
+      <>
+        {resource.routes.create && (
+          <Button
+            component={Link}
+            to={`/cp/${resource}/create`}
+            leftSection={<IconPlus size={16} />}
+          >
+            Create New Record
+          </Button>
+        )}
+      </>
     ),
   });
 

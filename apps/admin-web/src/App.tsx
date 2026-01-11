@@ -28,7 +28,7 @@ const App = () => {
       <ModalsProvider>
         <BrowserRouter>
           <Refine
-            dataProvider={dataProvider(apiUrl, resourceStore)}
+            dataProvider={dataProvider(apiUrl)}
             routerProvider={routerProvider}
             notificationProvider={useNotificationProvider}
             authProvider={createAuthProvider(apiUrl)}

@@ -30,7 +30,7 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
   const { query } = useOne({
     resource: resource.name,
     id,
-    meta: { resourcePathParams },
+    meta: { resourcePathParams, resource },
   });
 
   const record = query.data?.data;

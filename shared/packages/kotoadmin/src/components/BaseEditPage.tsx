@@ -12,7 +12,7 @@ const BaseEditPage = ({ resource }: { resource: Resource }) => {
   const { query } = useOne({
     resource: resource.name,
     id,
-    meta: { resourcePathParams },
+    meta: { resourcePathParams, resource },
   });
 
   if (query.isLoading) {

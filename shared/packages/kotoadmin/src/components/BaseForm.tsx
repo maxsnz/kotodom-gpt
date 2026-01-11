@@ -34,7 +34,7 @@ const BaseForm = ({
   } = useForm({
     initialValues,
     refineCoreProps: {
-      meta: { resourcePathParams },
+      meta: { resourcePathParams, resource },
       resource: resource.name,
       action: mode,
       redirect: false,

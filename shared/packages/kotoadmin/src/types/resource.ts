@@ -99,43 +99,46 @@ export class Resource {
 
   getEditPath(
     record: { id: string | number },
-    pathParams: Map<string, string> = new Map()
+    pathParams?: Map<string, string>
   ): string {
     let path = `${this.basePath}${this.config.routes.edit.path}`;
-    for (const [param, value] of pathParams.entries()) {
+
+    for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
-    path = path.replace(`:${this.param}`, record.id.toString());
 
-    return path;
+    return path.replace(`:${this.param}`, record.id.toString());
   }
 
   getShowPath(
     record: { id: string | number },
-    pathParams: Map<string, string> = new Map()
+    pathParams?: Map<string, string>
   ): string {
     let path = `${this.basePath}${this.config.routes.show.path}`;
-    for (const [param, value] of pathParams.entries()) {
+
+    for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
-    path = path.replace(`:${this.param}`, record.id.toString());
-    return path;
+
+    return path.replace(`:${this.param}`, record.id.toString());
   }
 
-  getListPath(pathParams: Map<string, string> = new Map()): string {
+  getListPath(pathParams?: Map<string, string>): string {
     let path = `${this.basePath}${this.config.routes.list.path}`;
-    for (const [param, value] of pathParams.entries()) {
+
+    for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
+
     return path;
   }
 
   // API paths
 
-  getApiListPath(pathParams: Map<string, string> = new Map()): string {
+  getApiListPath(pathParams?: Map<string, string>): string {
     let path = this.config.api.list || `/${this.config.name}`;
 
-    for (const [param, value] of pathParams.entries()) {
+    for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
 
@@ -144,11 +147,11 @@ export class Resource {
 
   getApiItemPath(
     id: string | number,
-    pathParams: Map<string, string> = new Map()
+    pathParams?: Map<string, string>
   ): string {
     let path = this.config.api.item || `/${this.config.name}`;
 
-    for (const [param, value] of pathParams.entries()) {
+    for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
 
@@ -157,11 +160,11 @@ export class Resource {
 
   getApiUpdatePath(
     id: string | number,
-    pathParams: Map<string, string> = new Map()
+    pathParams?: Map<string, string>
   ): string {
     let path = this.config.api.update || `/${this.config.name}/${id}`;
 
-    for (const [param, value] of pathParams.entries()) {
+    for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
 
@@ -170,21 +173,21 @@ export class Resource {
 
   getApiDeletePath(
     id: string | number,
-    pathParams: Map<string, string> = new Map()
+    pathParams?: Map<string, string>
   ): string {
     let path = this.config.api.delete || `/${this.config.name}/${id}`;
 
-    for (const [param, value] of pathParams.entries()) {
+    for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
 
     return `${path.replace(":id", id.toString())}`;
   }
 
-  getApiCreatePath(pathParams: Map<string, string> = new Map()): string {
+  getApiCreatePath(pathParams?: Map<string, string>): string {
     let path = this.config.api.create || `/${this.config.name}`;
 
-    for (const [param, value] of pathParams.entries()) {
+    for (const [param, value] of pathParams?.entries() ?? []) {
       path = path.replace(`:${param}`, value);
     }
 
