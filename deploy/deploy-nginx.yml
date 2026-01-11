@@ -1,0 +1,48 @@
+- name: Deploy nginx configuration
+  hosts: server
+  become: true
+
+  vars_files:
+    - ../../infra/group_vars/all/vault.yml
+    - group_vars/all/vault.yml
+    - group_vars/all.yml
+
+  vars:
+    app_name: "kotodom-gpt"
+    nginx_config_path: "/etc/nginx/sites-available/{{ app_name }}.conf"
+    nginx_config_local_path: "nginx/{{ app_name }}.conf"
+
+  tasks:
+    - name: Deploy nginx configuration file
+      copy:
+        src: "{{ nginx_config_local_path }}"
+        dest: "{{ nginx_config_path }}"
+        backup: yes
+        mode: '0644'
+      register: nginx_config_copied
+
+    - name: Create symlink to sites-enabled if not exists
+      file:
+        src: "{{ nginx_config_path }}"
+        dest: "/etc/nginx/sites-enabled/{{ app_name }}.conf"
+        state: link
+      register: nginx_symlink_created
+
+    - name: Test nginx configuration
+      command: nginx -t
+      register: nginx_test_result
+      changed_when: false
+      failed_when: nginx_test_result.rc != 0
+
+    - name: Reload nginx
+      systemd:
+        name: nginx
+        state: reloaded
+        enabled: yes
+      when: (nginx_config_copied.changed or nginx_symlink_created.changed) and nginx_test_result.rc == 0
+      register: nginx_reload_result
+
+    - name: Display nginx reload status
+      debug:
+        msg: "Nginx configuration deployed and reloaded successfully"
+      when: nginx_reload_result is defined and nginx_reload_result.changed

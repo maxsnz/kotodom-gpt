@@ -74,11 +74,8 @@ export async function registerWorkers(
         kind: payload.kind,
       };
 
-      // log.info("Job start: BOT_HANDLE_UPDATE", meta);
-
       try {
         await processBotUpdate(payload);
-        // log.info("Job done: BOT_HANDLE_UPDATE", meta);
       } catch (err) {
         const errorPayload =
           err instanceof Error
@@ -161,11 +158,8 @@ export async function registerWorkers(
         userMessageId: payload.userMessageId,
       };
 
-      log.info("Job start: MESSAGE_PROCESSING_TRIGGER", meta);
-
       try {
         await processMessageTrigger(payload);
-        log.info("Job done: MESSAGE_PROCESSING_TRIGGER", meta);
       } catch (err) {
         const errorPayload =
           err instanceof Error

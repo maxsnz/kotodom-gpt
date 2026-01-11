@@ -90,7 +90,7 @@ export class WorkerRegistrationService {
       await boss.createQueue(JOBS.BOT_HANDLE_UPDATE);
       log.info(`Created queue: ${JOBS.BOT_HANDLE_UPDATE}`);
     } catch (error) {
-      log.info(
+      log.error(
         `Queue ${JOBS.BOT_HANDLE_UPDATE} already exists or creation failed`,
         {
           error: error instanceof Error ? error.message : error,
@@ -102,7 +102,7 @@ export class WorkerRegistrationService {
       await boss.createQueue(JOBS.MESSAGE_PROCESSING_TRIGGER);
       log.info(`Created queue: ${JOBS.MESSAGE_PROCESSING_TRIGGER}`);
     } catch (error) {
-      log.info(
+      log.error(
         `Queue ${JOBS.MESSAGE_PROCESSING_TRIGGER} already exists or creation failed`,
         {
           error: error instanceof Error ? error.message : error,
@@ -123,11 +123,8 @@ export class WorkerRegistrationService {
           kind: payload.kind,
         };
 
-        // log.info("Job start: BOT_HANDLE_UPDATE", meta);
-
         try {
           await processBotUpdate(payload);
-          // log.info("Job done: BOT_HANDLE_UPDATE", meta);
         } catch (err) {
           const errorPayload =
             err instanceof Error
@@ -210,11 +207,8 @@ export class WorkerRegistrationService {
           userMessageId: payload.userMessageId,
         };
 
-        log.info("Job start: MESSAGE_PROCESSING_TRIGGER", meta);
-
         try {
           await processMessageTrigger(payload);
-          log.info("Job done: MESSAGE_PROCESSING_TRIGGER", meta);
         } catch (err) {
           const errorPayload =
             err instanceof Error

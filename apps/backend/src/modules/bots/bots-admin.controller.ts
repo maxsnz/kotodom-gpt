@@ -101,7 +101,7 @@ export class BotsAdminController {
     // Set owner to current user
     const ownerUserId = request.user?.id;
     const bot = await this.botsService.create(input, ownerUserId);
-    this.logger.info("Bot created", {
+    this.logger.info(`Bot ${bot.name} created`, {
       botId: bot.id,
       name: bot.name,
       ownerUserId,
@@ -120,7 +120,10 @@ export class BotsAdminController {
   ): Promise<{ bot: BotResponse }> {
     try {
       const bot = await this.botsService.update(id, input);
-      this.logger.info("Bot updated", { botId: bot.id });
+      this.logger.info(`Bot ${bot.name} updated`, {
+        botId: bot.id,
+        botName: bot.name,
+      });
       return { bot: this.toBotResponse(bot) };
     } catch (error) {
       if (error instanceof Error && error.message.includes("not found")) {
@@ -156,7 +159,10 @@ export class BotsAdminController {
   async enableBot(@Param("id") id: string): Promise<{ bot: BotResponse }> {
     try {
       const bot = await this.botsService.enableBot(id);
-      this.logger.info("Bot enabled", { botId: bot.id });
+      this.logger.info(`Bot ${bot.name} enabled`, {
+        botId: bot.id,
+        botName: bot.name,
+      });
       return { bot: this.toBotResponse(bot) };
     } catch (error) {
       if (error instanceof Error && error.message.includes("not found")) {
@@ -174,7 +180,10 @@ export class BotsAdminController {
   async disableBot(@Param("id") id: string): Promise<{ bot: BotResponse }> {
     try {
       const bot = await this.botsService.disableBot(id);
-      this.logger.info("Bot disabled", { botId: bot.id });
+      this.logger.info(`Bot ${bot.name} disabled`, {
+        botId: bot.id,
+        botName: bot.name,
+      });
       return { bot: this.toBotResponse(bot) };
     } catch (error) {
       if (error instanceof Error && error.message.includes("not found")) {

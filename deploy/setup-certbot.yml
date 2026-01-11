@@ -1,0 +1,42 @@
+- name: Setup certbot
+  hosts: server
+  become: true
+
+  vars_files:
+    - ../../infra/group_vars/all/vault.yml
+    - group_vars/all/vault.yml
+    - group_vars/all.yml
+
+  vars:
+    app_name: "kotodom-gpt"
+
+  tasks:
+    - name: Install certbot and nginx plugin
+      apt:
+        name:
+          - certbot
+          - python3-certbot-nginx
+        state: present
+        update_cache: yes
+
+    - name: Ensure webroot for ACME exists
+      file:
+        path: /var/www/letsencrypt
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: "0755"
+
+    - name: Obtain/renew certificate (idempotent)
+      command: >
+        certbot certonly
+        --webroot -w /var/www/letsencrypt
+        -d kotodom.mooo.com
+        --agree-tos
+        --email gmaxsnz@gmail.com
+        --non-interactive
+      register: certbot_out
+      changed_when: >
+        ('Congratulations!' in certbot_out.stdout) or
+        ('successfully received certificate' in certbot_out.stdout) or
+        ('Certificate not yet due for renewal' not in certbot_out.stdout)

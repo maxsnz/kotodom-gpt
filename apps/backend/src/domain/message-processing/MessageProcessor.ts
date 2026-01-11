@@ -119,18 +119,12 @@ export class MessageProcessor {
       );
 
     // Step 2: Check if already completed or terminal - skip processing
-    if (
-      processing.status === MessageProcessingStatus.COMPLETED ||
-      processing.status === MessageProcessingStatus.TERMINAL
-    ) {
-      this.deps.logger.info(
-        "Message processing already completed or terminal",
-        {
-          botId: botId,
-          userMessageId,
-          status: processing.status,
-        }
-      );
+    if (processing.status === MessageProcessingStatus.COMPLETED) {
+      this.deps.logger.info("Message processing already completed", {
+        botId: botId,
+        userMessageId,
+        status: processing.status,
+      });
       return;
     }
 
@@ -140,10 +134,7 @@ export class MessageProcessor {
     // Step 4: Generate response if not already generated
     if (!processing.responseMessageId) {
       const generationResult =
-        await this.deps.responseGenerator.generateResponse(
-          incomingCtx,
-          botId
-        );
+        await this.deps.responseGenerator.generateResponse(incomingCtx, botId);
 
       const saveResult = await this.saveResponse(
         generationResult,

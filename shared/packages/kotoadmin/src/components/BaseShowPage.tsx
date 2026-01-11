@@ -1,5 +1,10 @@
 import { useCallback, Fragment } from "react";
-import { useOne, useInvalidate, useNotification, useDelete } from "@refinedev/core";
+import {
+  useOne,
+  useInvalidate,
+  useNotification,
+  useDelete,
+} from "@refinedev/core";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Show, EmailField, TextField, DateField } from "@refinedev/mantine";
 import { Checkbox, Title, Text, Button } from "@mantine/core";

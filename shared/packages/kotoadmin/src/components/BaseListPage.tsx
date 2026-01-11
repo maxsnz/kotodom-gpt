@@ -18,7 +18,13 @@ import {
 } from "@refinedev/core";
 import { ActionIcon, Tooltip, Flex, Text, Button } from "@mantine/core";
 import { modals } from "@mantine/modals";
-import { IconEdit, IconTrash, IconEye, IconPlus } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconTrash,
+  IconEye,
+  IconPlus,
+  IconRefresh,
+} from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { filterFieldsForList } from "../utils/filterFields";
 import { Resource } from "../types/resource";
@@ -190,6 +196,20 @@ const BaseListPage = <T extends { id: string | number }>({
     },
     renderTopToolbarCustomActions: () => (
       <>
+        <Button
+          variant="outline"
+          color="gray"
+          leftSection={<IconRefresh size={16} />}
+          onClick={async () => {
+            await invalidate({
+              resource: resource.name,
+              invalidates: ["list"],
+            });
+          }}
+          loading={isLoading}
+        >
+          Refresh
+        </Button>
         {resource.routes.create && (
           <Button
             component={Link}

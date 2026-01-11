@@ -37,9 +37,17 @@
     vector_source_name: "kotodom_gpt"
     vector_log_path: "/var/lib/docker/containers/*/*-json.log"
 
+    # ---------- Nginx ----------
+    nginx_config_path: "/etc/nginx/sites-available/{{ app_name }}.conf"
+    nginx_config_local_path: "nginx/{{ app_name }}.conf"
+
   roles:
     - { role: env_file, tags: ["env"] }
     - { role: postgres_db, tags: ["db"] }
     - { role: docker_app_setup, tags: ["setup"] }
     - { role: docker_app, tags: ["app"] }
     - { role: vector_source, tags: ["logs"] }
+
+  tasks:
+    - import_tasks: tasks/nginx.yml
+    - import_tasks: tasks/setup-certbot.yml

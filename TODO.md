@@ -1,6 +1,4 @@
-- https
-- TgUsers has chats
-- fix logs
-
+- settings
 - switch from assistants API to composer API
 - metrics and monitoring
+- link to chats from TgUsers page
