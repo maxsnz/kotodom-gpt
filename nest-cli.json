@@ -5,6 +5,7 @@
   "entryFile": "./apps/backend/src/main",
   "compilerOptions": {
     "deleteOutDir": true,
+    "outDir": "./dist-backend",
     "tsConfigPath": "./apps/backend/tsconfig.json"
   }
 }

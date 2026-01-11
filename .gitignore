@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 dist-server
+dist-backend
+dist-admin-web
 *.local
 
 # Editor directories and files

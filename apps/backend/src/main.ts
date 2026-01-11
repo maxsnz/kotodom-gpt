@@ -6,7 +6,7 @@ import {
 import fastifyCookie from "@fastify/cookie";
 import fastifyStatic from "@fastify/static";
 import { resolve } from "path";
-
+import { existsSync, readFileSync } from "fs";
 import { AppModule } from "./app.module";
 import { PgBossClient } from "./infra/jobs/pgBoss";
 import { env } from "./config/env";
@@ -52,49 +52,40 @@ async function bootstrap() {
     secret: env.COOKIE_SECRET,
   });
 
-  // Register static file serving for admin panel
-  // Serve static assets from dist/apps/admin-web for /cp/* routes
-  const fastifyInstance = app.getHttpAdapter().getInstance();
-  // __dirname in compiled JS will be dist/apps/backend/src, so we go up to dist/apps/admin-web
-  const adminWebPath = resolve(__dirname, "../../../admin-web");
-
-  // Register static file plugin in a separate scope with SPA routing support
-  // This scope isolates /cp/* routes and handles SPA fallback without conflicting with NestJS
-  await fastifyInstance.register(
-    async (fastify) => {
-      // Add hook to handle SPA routing for non-file paths
-      // This hook runs before static plugin, intercepting non-file paths early
-      fastify.addHook("onRequest", async (request, reply) => {
-        const url = request.url.split("?")[0]; // Remove query string
-        
-        // Only handle /cp/* routes in this scope
-        if (url.startsWith("/cp/")) {
-          // Check if it looks like a file request (has extension)
-          const hasFileExtension = /\.[^/]+$/.test(url);
-          if (!hasFileExtension) {
-            // For non-file paths, return index.html for SPA routing
-            return reply.sendFile("index.html", adminWebPath);
-          }
-        }
-        // For file paths, continue to static file serving
-      });
-
-      // Register static file plugin for /cp/* routes
-      // This will serve files like /cp/assets/index.js from dist/apps/admin-web/assets/index.js
-      await fastify.register(fastifyStatic, {
-        root: adminWebPath,
-        prefix: "/cp/",
-        decorateReply: false,
-      });
-    },
-    { prefix: "" }
-  );
-
   const loggerFactory = app.get<LoggerFactory>(LOGGER_FACTORY);
   const nestLogger = app.get(NestLoggerService);
   app.useLogger(nestLogger);
-  app.flushLogs();
+  // app.flushLogs();
   const bootstrapLogger = loggerFactory("Bootstrap");
+
+  // Register static file serving for admin panel
+  // Serve static assets from dist-admin-web for /cp/* routes
+  const fastifyInstance = app.getHttpAdapter().getInstance();
+  // __dirname in compiled JS will be dist-backend/apps/backend/src, so we go up to dist-admin-web
+  const adminWebPath = resolve(__dirname, "../../../../dist-admin-web");
+
+  const indexHtmlPath = resolve(adminWebPath, "index.html");
+  if (!existsSync(indexHtmlPath)) {
+    bootstrapLogger.error(`index.html does not exist at: ${indexHtmlPath}`);
+    throw new Error(`index.html does not exist at: ${indexHtmlPath}`);
+  }
+
+  const indexHtmlContent = readFileSync(indexHtmlPath, "utf-8");
+
+  await fastifyInstance.register(fastifyStatic, {
+    root: adminWebPath,
+    prefix: "/",
+    // decorateReply: false,
+  });
+
+  fastifyInstance.addHook("onRequest", async (request, reply) => {
+    const url = request.url.split("?")[0];
+
+    if (url.startsWith("/cp")) {
+      reply.type("text/html");
+      return reply.send(indexHtmlContent);
+    }
+  });
 
   // Register session loading hook
   const authService = app.get(AuthService);
