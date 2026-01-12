@@ -3,10 +3,13 @@ import { SkipThrottle } from "@nestjs/throttler";
 
 import { prisma } from "../../infra/db/prisma/client";
 import { PgBossClient } from "../../infra/jobs/pgBoss";
+import packageJson from "../../../../../package.json";
 
 type HealthResponse = {
   status: "ok" | "error";
   error?: string;
+  name?: string;
+  version?: string;
 };
 
 type DbHealthResponse = HealthResponse & {
@@ -27,7 +30,11 @@ export class HealthController {
    */
   @Get()
   async check(): Promise<HealthResponse> {
-    return { status: "ok" };
+    return {
+      status: "ok",
+      name: packageJson.name,
+      version: packageJson.version,
+    };
   }
 
   /**
