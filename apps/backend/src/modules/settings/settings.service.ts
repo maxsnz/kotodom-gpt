@@ -41,4 +41,11 @@ export class SettingsService {
   async setSetting(key: string, value: string): Promise<void> {
     return this.settingsRepository.setSetting(key, value);
   }
+
+  /**
+   * Delete a single setting by key
+   */
+  async deleteSetting(key: string): Promise<void> {
+    return this.settingsRepository.deleteSetting(key);
+  }
 }

@@ -57,3 +57,11 @@ create fresh database using `psql`
 `BACKEND_PORT` - server port
 
 `DATABASE_URL` - database credentials like `"postgresql://username:@localhost:5432/database-name?schema=public"`
+
+## Settings:
+
+Settings can be managed through the admin panel at `/cp/settings`. The following settings are used in the application:
+
+- `PROXY_URL` - Proxy server URL for OpenAI API requests (optional)
+- `admin_notify_bot_token` - Telegram bot token for admin notifications (optional)
+- `admin_notify_chat_id` - Telegram chat ID for admin notifications (optional)

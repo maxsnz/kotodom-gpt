@@ -24,5 +24,11 @@ export class SettingsRepositoryPrisma extends SettingsRepository {
       value: setting.value ?? "",
     }));
   }
+
+  async deleteSetting(key: string): Promise<void> {
+    await prisma.setting.delete({
+      where: { id: key },
+    });
+  }
 }
 

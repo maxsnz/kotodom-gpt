@@ -3,9 +3,13 @@ import {
   Get,
   Post,
   Put,
+  Delete,
   Body,
+  Param,
   UseGuards,
+  NotFoundException,
 } from "@nestjs/common";
+import * as runtime from "@prisma/client/runtime/client";
 
 import { SettingsService } from "./settings.service";
 import { SessionAuthGuard } from "../auth/guards/session-auth.guard";
@@ -37,6 +41,15 @@ export class SettingsController {
   }
 
   /**
+   * GET /api/settings/:id - Get a single setting by id
+   */
+  @Get(":id")
+  async getSetting(@Param("id") id: string): Promise<{ data: { id: string; value: string } }> {
+    const value = await this.settingsService.getSetting(id);
+    return { data: { id, value } };
+  }
+
+  /**
    * POST /api/settings - Create new settings
    * Accepts an object with key-value pairs (one or more settings)
    */
@@ -62,5 +75,24 @@ export class SettingsController {
     await this.settingsService.setSettings(input);
     const settings = await this.settingsService.getAllSettings();
     return { data: settings };
+  }
+
+  /**
+   * DELETE /api/settings/:id - Delete a setting by id
+   */
+  @Delete(":id")
+  async deleteSetting(@Param("id") id: string): Promise<{ success: boolean }> {
+    try {
+      await this.settingsService.deleteSetting(id);
+      return { success: true };
+    } catch (error: unknown) {
+      if (
+        error instanceof runtime.PrismaClientKnownRequestError &&
+        error.code === "P2025"
+      ) {
+        throw new NotFoundException(`Setting with id ${id} not found`);
+      }
+      throw error;
+    }
   }
 }

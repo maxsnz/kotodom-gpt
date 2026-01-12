@@ -7,6 +7,7 @@ export abstract class SettingsRepository {
   abstract getSetting(key: string): Promise<string>;
   abstract setSetting(key: string, value: string): Promise<void>;
   abstract getAllSettings(): Promise<SettingItem[]>;
+  abstract deleteSetting(key: string): Promise<void>;
 }
 
 
