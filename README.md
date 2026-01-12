@@ -48,6 +48,16 @@ create fresh database using `psql`
 
 `npx prisma migrate reset`
 
+## Make commands:
+
+`make deploy` - deploy application
+
+`make deploy-fast` - fast deployment
+
+`make logs` - view application logs
+
+`make deploy-nginx` - setup nginx configuration
+
 ## Env vars:
 
 `OPENAI_API_KEY` - openai api key

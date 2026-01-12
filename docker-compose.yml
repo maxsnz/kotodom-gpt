@@ -30,3 +30,5 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    volumes:
+      - /var/www/kotodom-gpt/dist-admin-web:/usr/src/app/dist-admin-web
