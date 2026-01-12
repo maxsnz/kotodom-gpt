@@ -29,36 +29,19 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // --- shared mono packages
           if (id.includes("/shared/contracts/")) return "contracts";
           if (id.includes("/shared/packages/kotoadmin/")) return "kotoadmin";
 
-          // --- vendor splitting
           if (id.includes("node_modules")) {
-            // react core
-            if (id.includes("/react/") || id.includes("/react-dom/"))
-              return "react";
-
-            // router
-            if (id.includes("react-router")) return "router";
-
-            // mantine
-            if (id.includes("@mantine/")) return "mantine";
-            if (id.includes("@emotion/react")) return "emotion";
-
-            // refine
-            if (id.includes("@refinedev/")) return "refine";
-
-            // tables
-            if (id.includes("mantine-react-table")) return "tables";
-
-            // utilities-ish
             if (
-              id.includes("dayjs") ||
-              id.includes("zod") ||
-              id.includes("clsx")
-            )
-              return "utils";
+              id.includes("node_modules/react/") ||
+              id.includes("node_modules/react-dom/") ||
+              id.includes("node_modules/scheduler/") ||
+              id.includes("react/jsx-runtime") ||
+              id.includes("react/jsx-dev-runtime")
+            ) {
+              return "react";
+            }
 
             return "vendor";
           }

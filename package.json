@@ -1,6 +1,6 @@
 {
   "name": "kotodom-gpt",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "exports": "./src/index.ts",
   "author": "maxsnz",
   "license": "MIT",
@@ -94,6 +94,8 @@
       "@mantine/core": "^8.0.0",
       "@mantine/hooks": "^8.0.0",
       "@mantine/dates": "^8.0.0"
-    }
+    },
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   }
 }
