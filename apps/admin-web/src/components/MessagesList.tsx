@@ -21,7 +21,7 @@ import {
   SendMessageResponseSchema,
 } from "@shared/contracts/messages";
 import type { ChatMessagesListResponse } from "@shared/contracts/messages";
-import { config } from "../../config";
+import { config } from "@/config";
 
 // Helper function to get initials from name
 const getInitials = (name: string | null | undefined): string => {

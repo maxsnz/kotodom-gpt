@@ -1,7 +1,7 @@
 import type { AuthProvider } from "@refinedev/core";
 import { AuthService } from "../services/authService";
 import type { LoginResponse } from "@shared/contracts/auth";
-import { config } from "../../config";
+import { config } from "@/config";
 
 interface LoginParams {
   email: string;

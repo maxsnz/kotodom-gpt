@@ -15,7 +15,7 @@ import {
 import { useForm } from "@mantine/form";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import { config } from "../../config";
+import { config } from "@/config";
 
 export const LoginPage = () => {
   const { mutate: login } = useLogin();

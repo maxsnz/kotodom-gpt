@@ -14,7 +14,7 @@ import { dataProvider } from "@/providers/dataProvider";
 import { resourceStore } from "@/resources";
 import { createAuthProvider } from "@/providers/authProvider";
 import DashboardPage from "@/pages/DashboardPage";
-import { config } from "../config";
+import { config } from "./config";
 
 const myTheme = createTheme({
   primaryColor: "teal",

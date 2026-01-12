@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useIsAuthenticated } from "@refinedev/core";
 import { Loader, Center } from "@mantine/core";
-import { config } from "../../config";
+import { config } from "@/config";
 
 interface ProtectedRouteProps {
   children: ReactNode;

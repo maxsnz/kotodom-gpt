@@ -6,7 +6,7 @@ import messageProcessing from "./messageProcessing";
 import messages from "./messages";
 import { ResourceConfig } from "@kotoadmin/types/resource";
 import ResourceStore from "@kotoadmin/utils/resourceStore";
-import { config } from "../../config";
+import { config } from "@/config";
 
 export const resources = [
   users,
