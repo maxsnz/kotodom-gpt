@@ -44,18 +44,18 @@ describe("SettingsRepositoryPrisma", () => {
       });
     });
 
-    it("should return null when setting not found", async () => {
+    it("should return empty string when setting not found", async () => {
       prismaSettingMock.findUnique.mockResolvedValue(null);
 
       const result = await repository.getSetting("NON_EXISTENT_KEY");
 
-      expect(result).toBeNull();
+      expect(result).toBe("");
       expect(prismaSettingMock.findUnique).toHaveBeenCalledWith({
         where: { id: "NON_EXISTENT_KEY" },
       });
     });
 
-    it("should return null when setting value is null", async () => {
+    it("should return empty string when setting value is null", async () => {
       const prismaSetting = {
         id: "EMPTY_SETTING",
         value: null,
@@ -65,7 +65,7 @@ describe("SettingsRepositoryPrisma", () => {
 
       const result = await repository.getSetting("EMPTY_SETTING");
 
-      expect(result).toBeNull();
+      expect(result).toBe("");
     });
 
     it("should return empty string when setting value is empty string", async () => {

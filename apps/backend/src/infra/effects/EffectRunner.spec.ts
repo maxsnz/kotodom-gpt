@@ -66,6 +66,7 @@ describe("EffectRunner", () => {
     mockSettingsRepository = {
       getSetting: jest.fn(),
       setSetting: jest.fn(),
+      getAllSettings: jest.fn(),
     } as any;
 
     runner = new EffectRunner(
@@ -263,7 +264,7 @@ describe("EffectRunner", () => {
 
   describe("notification.adminAlert", () => {
     it("should skip notification when settings are not configured", async () => {
-      mockSettingsRepository.getSetting.mockResolvedValue(null);
+      mockSettingsRepository.getSetting.mockResolvedValue("");
 
       const effect: Effect = {
         type: "notification.adminAlert",
@@ -280,7 +281,7 @@ describe("EffectRunner", () => {
       mockSettingsRepository.getSetting.mockImplementation(async (key) => {
         if (key === "admin_notify_bot_token") return "test-bot-token";
         if (key === "admin_notify_chat_id") return "123456";
-        return null;
+        return "";
       });
 
       const effect: Effect = {

@@ -9,6 +9,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { HealthModule } from "./modules/health/health.module";
 import { JobsModule } from "./modules/jobs/jobs.module";
 import { TgUsersModule } from "./modules/tg-users/tg-users.module";
+import { SettingsModule } from "./modules/settings/settings.module";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TgUsersModule } from "./modules/tg-users/tg-users.module";
     HealthModule,
     JobsModule,
     TgUsersModule,
+    SettingsModule,
   ],
 })
 export class AppModule {}

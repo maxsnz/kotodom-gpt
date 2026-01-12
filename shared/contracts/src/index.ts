@@ -4,6 +4,7 @@ export * from "./bots";
 export * from "./chats";
 export * from "./messages";
 export * from "./messageProcessing";
+export * from "./settings";
 export * from "./shared";
 export * from "./tg-users";
 export * from "./users";

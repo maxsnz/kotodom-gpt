@@ -6,6 +6,7 @@ const mockGetSetting = jest.fn();
 const mockSettingsRepository: SettingsRepository = {
   getSetting: mockGetSetting,
   setSetting: jest.fn(),
+  getAllSettings: jest.fn(),
 } as any;
 
 // Create mock OpenAI instance
