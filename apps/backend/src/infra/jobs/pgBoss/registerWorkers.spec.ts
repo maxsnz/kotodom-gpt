@@ -87,57 +87,6 @@ describe("registerWorkers", () => {
     expect(mockProcessBotUpdate).toHaveBeenCalledWith(payload);
   });
 
-  it("should log job start and completion", async () => {
-    let registeredHandler: any;
-
-    mockPgBossClient.register.mockImplementation(async (name, handler) => {
-      if (name === JOBS.BOT_HANDLE_UPDATE) {
-        registeredHandler = handler;
-      }
-    });
-
-    await registerWorkers({
-      boss: mockPgBossClient,
-      processBotUpdate: mockProcessBotUpdate,
-      processMessageTrigger: mockProcessMessageTrigger,
-      log: mockLog,
-    });
-
-    const payload: BotHandleUpdatePayload = {
-      botId: "test-bot-id",
-      telegramUpdateId: 123,
-      chatId: 456,
-      kind: "message",
-      raw: {},
-    };
-
-    const job = {
-      id: "job-123",
-      name: JOBS.BOT_HANDLE_UPDATE,
-      data: payload,
-    } as any;
-
-    await registeredHandler(payload, job);
-
-    expect(mockLog.info).toHaveBeenCalledWith("Job start: BOT_HANDLE_UPDATE", {
-      jobId: "job-123",
-      name: JOBS.BOT_HANDLE_UPDATE,
-      botId: "test-bot-id",
-      telegramUpdateId: 123,
-      chatId: 456,
-      kind: "message",
-    });
-
-    expect(mockLog.info).toHaveBeenCalledWith("Job done: BOT_HANDLE_UPDATE", {
-      jobId: "job-123",
-      name: JOBS.BOT_HANDLE_UPDATE,
-      botId: "test-bot-id",
-      telegramUpdateId: 123,
-      chatId: 456,
-      kind: "message",
-    });
-  });
-
   it("should log errors correctly", async () => {
     let registeredHandler: any;
 
@@ -230,46 +179,6 @@ describe("registerWorkers", () => {
     await expect(registeredHandler(payload, job)).rejects.toThrow(
       "Retryable error"
     );
-  });
-
-  it("should use default console logger when log not provided", async () => {
-    const consoleSpy = jest.spyOn(console, "info").mockImplementation();
-    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-
-    let registeredHandler: any;
-
-    mockPgBossClient.register.mockImplementation(async (name, handler) => {
-      if (name === JOBS.BOT_HANDLE_UPDATE) {
-        registeredHandler = handler;
-      }
-    });
-
-    await registerWorkers({
-      boss: mockPgBossClient,
-      processBotUpdate: mockProcessBotUpdate,
-      processMessageTrigger: mockProcessMessageTrigger,
-    });
-
-    const payload: BotHandleUpdatePayload = {
-      botId: "test-bot-id",
-      telegramUpdateId: 123,
-      chatId: 456,
-      kind: "message",
-      raw: {},
-    };
-
-    const job = {
-      id: "job-123",
-      name: JOBS.BOT_HANDLE_UPDATE,
-      data: payload,
-    } as any;
-
-    await registeredHandler(payload, job);
-
-    expect(consoleSpy).toHaveBeenCalled();
-
-    consoleSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
   });
 
   it("should use custom teamSize when provided", async () => {

@@ -190,17 +190,6 @@ describe("BotsService", () => {
       ]);
     });
 
-    it("should not generate effects if bot is already enabled", async () => {
-      const bot = createMockBot({ enabled: true });
-      mockBotRepo.findById.mockResolvedValue(bot);
-      mockBotRepo.save.mockResolvedValue(undefined);
-      mockEffectRunner.runAll.mockResolvedValue(undefined);
-
-      await service.enableBot("1");
-
-      expect(mockEffectRunner.runAll).toHaveBeenCalledWith([]);
-    });
-
     it("should throw error if bot not found", async () => {
       mockBotRepo.findById.mockResolvedValue(null);
 

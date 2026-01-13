@@ -46,6 +46,10 @@ describe("ChatRepository", () => {
       ): Promise<TgUser> {
         throw new Error("Not implemented");
       }
+
+      async delete(id: string): Promise<void> {
+        // Implementation
+      }
     }
 
     const repository = new ConcreteChatRepository();
@@ -124,6 +128,10 @@ describe("ChatRepository", () => {
         }
       ): Promise<TgUser> {
         throw new Error("Not implemented");
+      }
+
+      async delete(id: string): Promise<void> {
+        // Implementation
       }
     }
 

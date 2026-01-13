@@ -49,6 +49,7 @@ describe("BotRepositoryPrisma", () => {
         id: 1,
         enabled: true,
         telegramMode: "webhook" as const,
+        token: "test-token",
         startMessage: "Start",
         errorMessage: "",
         name: "Test Bot",
