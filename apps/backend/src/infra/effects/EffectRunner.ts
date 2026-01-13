@@ -56,8 +56,17 @@ export class EffectRunner {
       }
 
       case "telegram.removeWebhook": {
-        const client = this.telegramClientFactory.createClient(effect.botToken);
-        await client.removeWebhook();
+        try {
+          const client = this.telegramClientFactory.createClient(effect.botToken);
+          await client.removeWebhook();
+        } catch (error) {
+          // Don't fail the effect if webhook removal fails - just log
+          // This can happen if webhook was already removed or token is invalid
+          this.logger.error("Failed to remove webhook", {
+            error: error instanceof Error ? error.message : error,
+            botToken: effect.botToken,
+          });
+        }
         return;
       }
 
@@ -67,7 +76,16 @@ export class EffectRunner {
       }
 
       case "telegram.stopPolling": {
-        await this.pollingWorker.stopPolling(effect.botId);
+        try {
+          await this.pollingWorker.stopPolling(effect.botId);
+        } catch (error) {
+          // Don't fail the effect if polling stop fails - just log
+          // This can happen if polling was already stopped or bot doesn't exist
+          this.logger.error("Failed to stop polling", {
+            error: error instanceof Error ? error.message : error,
+            botId: effect.botId,
+          });
+        }
         return;
       }
 

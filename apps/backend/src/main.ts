@@ -58,6 +58,8 @@ async function bootstrap() {
   // app.flushLogs();
   const bootstrapLogger = loggerFactory("Bootstrap");
 
+  // Global exception filter is registered via APP_FILTER in AppModule
+
   // Register static file serving for admin panel
   // Serve static assets from dist-admin-web for /cp/* routes
   const fastifyInstance = app.getHttpAdapter().getInstance();

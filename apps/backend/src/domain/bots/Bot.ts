@@ -110,17 +110,20 @@ export class Bot {
   }
 
   /**
-   * Stop bot completely, regardless of current mode or enabled status.
-   * Removes webhook and stops polling to ensure clean shutdown.
+   * Stop bot based on current telegramMode.
+   * Only stops what's actually being used (webhook or polling).
    */
   stop(): Effect[] {
     const effects: Effect[] = [];
 
-    // Always remove webhook (regardless of current mode)
-    effects.push({ type: "telegram.removeWebhook", botToken: this.token });
-
-    // Always stop polling (regardless of current mode)
-    effects.push({ type: "telegram.stopPolling", botId: this.id });
+    if (this.props.telegramMode === "webhook") {
+      effects.push({ type: "telegram.removeWebhook", botToken: this.token });
+    } else if (this.props.telegramMode === "polling") {
+      effects.push({
+        type: "telegram.stopPolling",
+        botId: this.id,
+      });
+    }
 
     return effects;
   }

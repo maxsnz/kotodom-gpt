@@ -1,7 +1,9 @@
 import { Module } from "@nestjs/common";
+import { APP_FILTER } from "@nestjs/core";
 import { ThrottlerModule } from "@nestjs/throttler";
 
 import { LoggerModule } from "./infra/logger";
+import { GlobalExceptionFilter } from "./common/filters";
 import { BotsModule } from "./modules/bots/bots.module";
 import { ChatsModule } from "./modules/chats/chats.module";
 import { MessageProcessingModule } from "./modules/message-processing/message-processing.module";
@@ -31,6 +33,12 @@ import { SettingsModule } from "./modules/settings/settings.module";
     JobsModule,
     TgUsersModule,
     SettingsModule,
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
   ],
 })
 export class AppModule {}
