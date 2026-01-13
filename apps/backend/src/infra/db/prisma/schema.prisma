@@ -83,12 +83,12 @@ model Bot {
   startMessage String
   errorMessage String @default("")
   name  String
-  token String
-  model String @default("gpt-4o-mini")
+  token String @default("")
+  model String @default("gpt-5-nano")
   createdAt DateTime @default(now())
   enabled Boolean @default(false)
   messages Message[]
-  assistantId String
+  prompt String @default("")
   error String?
   chats Chat[]
   telegramMode TelegramModeEnum @default(webhook)
@@ -103,7 +103,6 @@ model Chat {
   telegramChatId BigInt
   botId          Int?
   bot            Bot?     @relation(fields: [botId], references: [id])
-  threadId       String?
   messages       Message[]
   createdAt      DateTime @default(now())
   tgUser         TgUser   @relation(fields: [tgUserId], references: [id])

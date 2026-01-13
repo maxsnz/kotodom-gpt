@@ -5,10 +5,10 @@ export type CreateBotData = {
   startMessage: string;
   errorMessage: string;
   model: string;
-  assistantId: string;
   token: string;
   telegramMode: "webhook" | "polling";
   ownerUserId?: string | null;
+  prompt: string;
 };
 
 export abstract class BotRepository {

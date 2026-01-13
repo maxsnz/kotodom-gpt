@@ -30,12 +30,13 @@ describe("BotsService", () => {
       startMessage: "Hello",
       errorMessage: "Error",
       model: "gpt-4o-mini",
-      assistantId: "asst_123",
       token: "bot-token",
       enabled: false,
       telegramMode: "webhook",
       error: null,
       ownerUserId: null,
+      prompt: "",
+      createdAt: new Date(),
       ...overrides,
     });
   };
@@ -109,9 +110,9 @@ describe("BotsService", () => {
         startMessage: "Hello",
         errorMessage: "Error",
         model: "gpt-4",
-        assistantId: "asst_456",
         token: "new-token",
         telegramMode: "webhook" as const,
+        prompt: "Hello",
       };
       const createdBot = createMockBot({
         id: "2",
@@ -136,9 +137,9 @@ describe("BotsService", () => {
         startMessage: "Hello",
         errorMessage: "Error",
         model: "gpt-4",
-        assistantId: "asst_456",
         token: "new-token",
         telegramMode: "webhook" as const,
+        prompt: "Hello",
       };
       const createdBot = createMockBot({
         id: "2",
@@ -174,7 +175,7 @@ describe("BotsService", () => {
       ]);
     });
 
-    it("should enable bot without webhook effect for polling mode", async () => {
+    it("should enable bot and execute startPolling effect for polling mode", async () => {
       const bot = createMockBot({ enabled: false, telegramMode: "polling" });
       mockBotRepo.findById.mockResolvedValue(bot);
       mockBotRepo.save.mockResolvedValue(undefined);
@@ -184,7 +185,9 @@ describe("BotsService", () => {
 
       expect(result.enabled).toBe(true);
       expect(mockBotRepo.save).toHaveBeenCalledWith(bot);
-      expect(mockEffectRunner.runAll).toHaveBeenCalledWith([]);
+      expect(mockEffectRunner.runAll).toHaveBeenCalledWith([
+        { type: "telegram.startPolling", botId: "1", botToken: "bot-token" },
+      ]);
     });
 
     it("should not generate effects if bot is already enabled", async () => {
@@ -208,8 +211,8 @@ describe("BotsService", () => {
   });
 
   describe("disableBot", () => {
-    it("should disable bot and execute effects", async () => {
-      const bot = createMockBot({ enabled: true });
+    it("should disable bot and execute removeWebhook effect for webhook mode", async () => {
+      const bot = createMockBot({ enabled: true, telegramMode: "webhook" });
       mockBotRepo.findById.mockResolvedValue(bot);
       mockBotRepo.save.mockResolvedValue(undefined);
       mockEffectRunner.runAll.mockResolvedValue(undefined);
@@ -218,7 +221,24 @@ describe("BotsService", () => {
 
       expect(result.enabled).toBe(false);
       expect(mockBotRepo.save).toHaveBeenCalledWith(bot);
-      expect(mockEffectRunner.runAll).toHaveBeenCalled();
+      expect(mockEffectRunner.runAll).toHaveBeenCalledWith([
+        { type: "telegram.removeWebhook", botToken: "bot-token" },
+      ]);
+    });
+
+    it("should disable bot and execute stopPolling effect for polling mode", async () => {
+      const bot = createMockBot({ enabled: true, telegramMode: "polling" });
+      mockBotRepo.findById.mockResolvedValue(bot);
+      mockBotRepo.save.mockResolvedValue(undefined);
+      mockEffectRunner.runAll.mockResolvedValue(undefined);
+
+      const result = await service.disableBot("1");
+
+      expect(result.enabled).toBe(false);
+      expect(mockBotRepo.save).toHaveBeenCalledWith(bot);
+      expect(mockEffectRunner.runAll).toHaveBeenCalledWith([
+        { type: "telegram.stopPolling", botId: "1" },
+      ]);
     });
 
     it("should not change state if bot is already disabled", async () => {

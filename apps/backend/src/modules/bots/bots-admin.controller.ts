@@ -40,11 +40,13 @@ type BotResponse = {
   startMessage: string;
   errorMessage: string;
   model: string;
-  assistantId: string;
   enabled: boolean;
   telegramMode: "webhook" | "polling";
   error: string | null;
   ownerUserId: string | null;
+  token: string;
+  createdAt: Date;
+  prompt: string;
 };
 
 @Controller("api/bots")
@@ -193,18 +195,41 @@ export class BotsAdminController {
     }
   }
 
+  /**
+   * POST /api/bots/:id/restart - Restart bot (ownership checked)
+   */
+  @Post(":id/restart")
+  @UseGuards(BotOwnershipGuard)
+  async restartBot(@Param("id") id: string): Promise<{ bot: BotResponse }> {
+    try {
+      const bot = await this.botsService.restartBot(id);
+      this.logger.info(`Bot ${bot.name} restarted`, {
+        botId: bot.id,
+        botName: bot.name,
+      });
+      return { bot: this.toBotResponse(bot) };
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
+  }
+
   private toBotResponse(bot: Bot): BotResponse {
     return {
       id: bot.id,
+      createdAt: bot.createdAt,
       name: bot.name,
       startMessage: bot.startMessage,
       errorMessage: bot.errorMessage,
       model: bot.model,
-      assistantId: bot.assistantId,
       enabled: bot.enabled,
       telegramMode: bot.telegramMode,
       error: bot.error,
       ownerUserId: bot.ownerUserId,
+      prompt: bot.prompt,
+      token: bot.token,
     };
   }
 }

@@ -34,7 +34,7 @@ Kotodom GPT - это Telegram бот платформа, построенная 
 
 Детальный процесс AI генерации:
 
-- Обработка команд (/start, /help, /refresh)
+- Обработка команд (/start, /help)
 - Работа с OpenAI Assistant API
 - Управление thread'ами разговоров
 - Обработка ошибок генерации
@@ -126,4 +126,3 @@ RECEIVED → PROCESSING → COMPLETED | FAILED → retry | TERMINAL
 - Circuit breaker паттерн для внешних API
 - Graceful degradation при ошибках
 - Админ уведомления при критических сбоях
-

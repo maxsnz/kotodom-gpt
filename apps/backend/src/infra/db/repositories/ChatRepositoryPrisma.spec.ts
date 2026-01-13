@@ -43,7 +43,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
-        threadId: "thread-123",
         name: "Test Chat",
         createdAt: new Date("2024-01-01"),
       };
@@ -57,7 +56,6 @@ describe("ChatRepositoryPrisma", () => {
       expect(result?.telegramChatId).toBe(BigInt(12345678));
       expect(result?.botId).toBe(1);
       expect(result?.tgUserId).toBe(BigInt(123456789));
-      expect(result?.threadId).toBe("thread-123");
       expect(result?.name).toBe("Test Chat");
       expect(prismaChatMock.findUnique).toHaveBeenCalledWith({
         where: { id: "chat-1" },
@@ -78,7 +76,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(987654321),
         botId: null,
         tgUserId: BigInt(987654321),
-        threadId: null,
         name: null,
         createdAt: new Date("2024-01-02"),
       };
@@ -90,7 +87,6 @@ describe("ChatRepositoryPrisma", () => {
       expect(result).toBeInstanceOf(Chat);
       expect(result?.id).toBe("chat-2");
       expect(result?.botId).toBeNull();
-      expect(result?.threadId).toBeNull();
       expect(result?.name).toBeNull();
     });
   });
@@ -104,7 +100,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId: BigInt(12345678),
           botId: 1,
           tgUserId,
-          threadId: "thread-1",
           name: "Chat 1",
           createdAt: new Date("2024-01-01"),
         },
@@ -113,7 +108,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId: BigInt(12345678),
           botId: 2,
           tgUserId,
-          threadId: null,
           name: "Chat 2",
           createdAt: new Date("2024-01-02"),
         },
@@ -150,7 +144,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId: BigInt(111),
           botId,
           tgUserId: BigInt(111),
-          threadId: "thread-1",
           name: "Chat 1",
           createdAt: new Date("2024-01-01"),
         },
@@ -159,7 +152,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId: BigInt(222),
           botId,
           tgUserId: BigInt(222),
-          threadId: null,
           name: "Chat 2",
           createdAt: new Date("2024-01-02"),
         },
@@ -194,7 +186,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
-        threadId: "thread-123",
         name: "New Chat",
         createdAt: new Date("2024-01-01"),
       });
@@ -204,7 +195,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
-        threadId: "thread-123",
         name: "New Chat",
         createdAt: new Date("2024-01-01"),
       } as any);
@@ -218,7 +208,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId: BigInt(12345678),
           botId: 1,
           tgUserId: BigInt(123456789),
-          threadId: "thread-123",
           name: "New Chat",
         }),
         update: expect.objectContaining({
@@ -226,7 +215,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId: BigInt(12345678),
           botId: 1,
           tgUserId: BigInt(123456789),
-          threadId: "thread-123",
           name: "New Chat",
         }),
       });
@@ -238,7 +226,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
-        threadId: "updated-thread",
         name: "Updated Chat",
         createdAt: new Date("2024-01-01"),
       });
@@ -248,7 +235,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(12345678),
         botId: 1,
         tgUserId: BigInt(123456789),
-        threadId: "updated-thread",
         name: "Updated Chat",
         createdAt: new Date("2024-01-01"),
       } as any);
@@ -259,7 +245,6 @@ describe("ChatRepositoryPrisma", () => {
         where: { id: "existing-chat" },
         create: expect.any(Object),
         update: expect.objectContaining({
-          threadId: "updated-thread",
           name: "Updated Chat",
         }),
       });
@@ -271,7 +256,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(123456789),
         botId: null,
         tgUserId: BigInt(123456789),
-        threadId: null,
         name: null,
         createdAt: new Date("2024-01-01"),
       });
@@ -281,7 +265,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(123456789),
         botId: null,
         tgUserId: BigInt(123456789),
-        threadId: null,
         name: null,
         createdAt: new Date("2024-01-01"),
       } as any);
@@ -292,12 +275,10 @@ describe("ChatRepositoryPrisma", () => {
         where: { id: "null-chat" },
         create: expect.objectContaining({
           botId: null,
-          threadId: null,
           name: null,
         }),
         update: expect.objectContaining({
           botId: null,
-          threadId: null,
           name: null,
         }),
       });
@@ -316,7 +297,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId,
         botId,
         tgUserId,
-        threadId: "thread-123",
         name: "Existing Chat",
         createdAt: new Date("2024-01-01"),
       };
@@ -340,7 +320,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId,
           tgUserId,
           botId,
-          threadId: null,
           name: null,
         },
         update: {},
@@ -358,7 +337,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId,
         botId,
         tgUserId,
-        threadId: null,
         name: null,
         createdAt: new Date("2024-01-01"),
       };
@@ -377,7 +355,6 @@ describe("ChatRepositoryPrisma", () => {
       expect(result.telegramChatId).toBe(telegramChatId);
       expect(result.botId).toBe(botId);
       expect(result.tgUserId).toBe(tgUserId);
-      expect(result.threadId).toBeNull();
       expect(result.name).toBeNull();
       expect(prismaChatMock.upsert).toHaveBeenCalledWith({
         where: { id: chatId },
@@ -386,7 +363,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId,
           tgUserId,
           botId,
-          threadId: null,
           name: null,
         },
         update: {},
@@ -608,7 +584,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(999999999),
         botId: 42,
         tgUserId: BigInt(999999999),
-        threadId: "mapped-thread",
         name: "Mapped Chat",
         createdAt: new Date("2024-01-15"),
       };
@@ -622,7 +597,6 @@ describe("ChatRepositoryPrisma", () => {
       expect(result?.telegramChatId).toBe(BigInt(999999999));
       expect(result?.botId).toBe(42);
       expect(result?.tgUserId).toBe(BigInt(999999999));
-      expect(result?.threadId).toBe("mapped-thread");
       expect(result?.name).toBe("Mapped Chat");
     });
 
@@ -632,7 +606,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(888888888),
         botId: 99,
         tgUserId: BigInt(888888888),
-        threadId: "domain-thread",
         name: "Domain Chat",
         createdAt: new Date("2024-01-20"),
       });
@@ -642,7 +615,6 @@ describe("ChatRepositoryPrisma", () => {
         telegramChatId: BigInt(888888888),
         botId: 99,
         tgUserId: BigInt(888888888),
-        threadId: "domain-thread",
         name: "Domain Chat",
         createdAt: new Date("2024-01-20"),
       } as any);
@@ -656,7 +628,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId: BigInt(888888888),
           botId: 99,
           tgUserId: BigInt(888888888),
-          threadId: "domain-thread",
           name: "Domain Chat",
         }),
         update: expect.objectContaining({
@@ -664,7 +635,6 @@ describe("ChatRepositoryPrisma", () => {
           telegramChatId: BigInt(888888888),
           botId: 99,
           tgUserId: BigInt(888888888),
-          threadId: "domain-thread",
           name: "Domain Chat",
         }),
       });

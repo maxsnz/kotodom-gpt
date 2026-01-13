@@ -1,5 +1,5 @@
 import { Create, Edit, useForm } from "@refinedev/mantine";
-import { TextInput, Checkbox, Select } from "@mantine/core";
+import { TextInput, Checkbox, Select, Textarea } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useGeneralErrors } from "../hooks/useGeneralErrors";
 import { GeneralErrors } from "./GeneralErrors";
@@ -95,6 +95,14 @@ const BaseForm = ({
             <Select
               {...getCommonFieldProps(field)}
               data={field.options}
+              {...inputProps}
+              key={field.key}
+            />
+          );
+        } else if (field.type === FieldType.TEXTAREA) {
+          return (
+            <Textarea
+              {...getCommonFieldProps(field)}
               {...inputProps}
               key={field.key}
             />

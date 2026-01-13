@@ -5,7 +5,6 @@ import { ChatRepository } from "../../chats/ChatRepository";
 const DEFAULT_HELP_TEXT = [
   "/start - Start the bot",
   "/help - Show this message",
-  "/refresh - Forget current thread",
 ].join("\n");
 
 /**
@@ -45,28 +44,3 @@ export class HelpCommandHandler implements CommandHandler {
     };
   }
 }
-
-/**
- * Handler for /refresh command
- */
-export class RefreshCommandHandler implements CommandHandler {
-  constructor(private readonly chatRepository: ChatRepository) {}
-
-  canHandle(command: string): boolean {
-    return command === "/refresh";
-  }
-
-  async handle(ctx: IncomingContext): Promise<GenerationResult> {
-    ctx.chat.setThreadId(null);
-    await this.chatRepository.save(ctx.chat);
-
-    return {
-      bot: ctx.bot,
-      chat: ctx.chat,
-      userMessage: ctx.userMessage,
-      responseText: "success",
-      pricing: null,
-    };
-  }
-}
-

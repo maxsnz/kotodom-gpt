@@ -1022,7 +1022,7 @@ export const BotScalarFieldEnum = {
   model: 'model',
   createdAt: 'createdAt',
   enabled: 'enabled',
-  assistantId: 'assistantId',
+  prompt: 'prompt',
   error: 'error',
   telegramMode: 'telegramMode',
   ownerUserId: 'ownerUserId'
@@ -1035,7 +1035,6 @@ export const ChatScalarFieldEnum = {
   id: 'id',
   telegramChatId: 'telegramChatId',
   botId: 'botId',
-  threadId: 'threadId',
   createdAt: 'createdAt',
   tgUserId: 'tgUserId',
   name: 'name'

@@ -45,11 +45,11 @@
     - { role: env_file, tags: ["env"] }
     - { role: postgres_db, tags: ["db"] }
     - { role: docker_app_setup, tags: ["setup"] }
-    - { role: vector_source, tags: ["logs"] }
-
-  tasks:
-    - name: Deploy docker app (fast or normal)
-      include_role:
-        name: docker_app
-        tasks_from: "{{ 'fast' if (docker_app_deploy_mode | default('normal')) == 'fast' else 'main' }}"
+    - role: docker_app
+      tasks_from: fast
       tags: ["app"]
+      when: (docker_app_deploy_mode | default('normal')) == 'fast'
+    - role: docker_app
+      tags: ["app"]
+      when: (docker_app_deploy_mode | default('normal')) != 'fast'
+    - { role: vector_source, tags: ["logs"] }

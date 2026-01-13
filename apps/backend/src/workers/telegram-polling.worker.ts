@@ -29,9 +29,7 @@ interface BotPollingState {
 export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
   private readonly logger: AppLogger;
   private readonly pollingStates = new Map<string, BotPollingState>();
-  private refreshIntervalId: NodeJS.Timeout | null = null;
   private readonly POLLING_INTERVAL_MS = 2000; // 2 seconds
-  private readonly REFRESH_BOTS_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
   constructor(
     private readonly botRepo: BotRepository,
@@ -46,23 +44,11 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     this.logger.info("Starting Telegram polling worker...");
-    await this.startPolling();
-
-    // Periodically refresh bot list to handle new/enabled bots
-    this.refreshIntervalId = setInterval(() => {
-      this.refreshPollingBots().catch((error) => {
-        this.logger.error("Error refreshing polling bots", { error });
-      });
-    }, this.REFRESH_BOTS_INTERVAL_MS);
+    await this.initializePolling();
   }
 
   async onModuleDestroy() {
     this.logger.info("Stopping Telegram polling worker...");
-
-    if (this.refreshIntervalId) {
-      clearInterval(this.refreshIntervalId);
-      this.refreshIntervalId = null;
-    }
 
     // Stop all polling loops
     const stopPromises = Array.from(this.pollingStates.values()).map((state) =>
@@ -73,7 +59,7 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
     this.logger.info("Telegram polling worker stopped");
   }
 
-  private async startPolling() {
+  private async initializePolling() {
     const bots = await this.botRepo.findPollingBots();
     this.logger.info(`Found ${bots.length} polling bot(s)`);
 
@@ -82,62 +68,20 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private async refreshPollingBots() {
-    const currentBots = await this.botRepo.findPollingBots();
-    const currentBotIds = new Set(currentBots.map((b) => b.id));
-
-    // Stop polling for bots that are no longer enabled or in polling mode
-    for (const [botId, state] of this.pollingStates.entries()) {
-      if (!currentBotIds.has(botId)) {
-        this.logger.info(
-          `Stopping polling for bot ${botId} (no longer polling/enabled)`
-        );
-        await this.stopPollingForBot(botId);
-      }
-    }
-
-    // Start polling for new bots
-    for (const bot of currentBots) {
-      if (!this.pollingStates.has(bot.id)) {
-        this.logger.info(`Starting polling for bot ${bot.id}`);
-        await this.startPollingForBot(bot.id, bot.token);
-      }
-    }
+  /**
+   * Public wrapper to start polling for a specific bot.
+   * Called from EffectRunner when telegram.startPolling effect is executed.
+   */
+  async startPolling(botId: string, token: string): Promise<void> {
+    await this.startPollingForBot(botId, token);
   }
 
   /**
-   * Refresh polling state for a specific bot.
-   * Checks current bot state and starts/stops polling as needed.
-   * This method is called immediately when bot state changes (via effects).
+   * Public wrapper to stop polling for a specific bot.
+   * Called from EffectRunner when telegram.stopPolling effect is executed.
    */
-  async refreshBotPolling(botId: string): Promise<void> {
-    const bot = await this.botRepo.findById(botId);
-    if (!bot) {
-      // Bot not found - stop polling if it's running
-      if (this.pollingStates.has(botId)) {
-        this.logger.info(
-          `Stopping polling for bot ${botId} (bot not found)`
-        );
-        await this.stopPollingForBot(botId);
-      }
-      return;
-    }
-
-    const shouldBePolling = bot.enabled && bot.telegramMode === "polling";
-    const isPolling = this.pollingStates.has(botId);
-
-    if (shouldBePolling && !isPolling) {
-      // Bot should be polling but isn't - start polling
-      this.logger.info(`Starting polling for bot ${botId} (immediate refresh)`);
-      await this.startPollingForBot(botId, bot.token);
-    } else if (!shouldBePolling && isPolling) {
-      // Bot shouldn't be polling but is - stop polling
-      this.logger.info(
-        `Stopping polling for bot ${botId} (immediate refresh)`
-      );
-      await this.stopPollingForBot(botId);
-    }
-    // If state matches (both polling or both not polling), no action needed
+  async stopPolling(botId: string): Promise<void> {
+    await this.stopPollingForBot(botId);
   }
 
   private async startPollingForBot(botId: string, token: string) {
@@ -181,8 +125,33 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
+    // Stop accepting new polling requests
     state.isRunning = false;
+
+    // Clear the interval to prevent new scheduled polls
     clearInterval(state.intervalId);
+
+    // Wait for the active polling request to complete (if any)
+    // This ensures we don't conflict with Telegram API when restarting
+    if (state.isPolling) {
+      const maxWaitTime = 5000; // 5 seconds max wait
+      const checkInterval = 50; // Check every 50ms
+      const startTime = Date.now();
+
+      while (state.isPolling && Date.now() - startTime < maxWaitTime) {
+        await new Promise((resolve) => setTimeout(resolve, checkInterval));
+      }
+
+      if (state.isPolling) {
+        // Timeout reached but polling is still active
+        // This shouldn't happen normally, but log a warning
+        this.logger.warn(
+          `Timeout waiting for polling to complete for bot ${botId}, proceeding anyway`
+        );
+      }
+    }
+
+    // Remove from map only after all operations are complete
     this.pollingStates.delete(botId);
     this.logger.info(`Stopped polling for bot ${botId}`);
   }

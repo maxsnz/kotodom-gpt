@@ -34,7 +34,6 @@ describe("ChatsService", () => {
       telegramChatId: BigInt(12345678),
       botId: 1,
       tgUserId: BigInt(123456789),
-      threadId: null,
       name: "Test Chat",
       createdAt: new Date("2024-01-01"),
       ...overrides,
@@ -50,12 +49,13 @@ describe("ChatsService", () => {
       startMessage: "Hello",
       errorMessage: "Error",
       model: "gpt-4o-mini",
-      assistantId: "asst_123",
       token: "bot-token-123",
       enabled: true,
       telegramMode: "webhook",
       error: null,
       ownerUserId: null,
+      prompt: "Hello",
+      createdAt: new Date(),
       ...overrides,
     });
   };

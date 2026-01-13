@@ -52,12 +52,13 @@ describe("TelegramUpdateHandler", () => {
       startMessage: "Hello",
       errorMessage: "Error",
       model: "gpt-4o-mini",
-      assistantId: "asst_123",
       token: "test-token",
       enabled: true,
       telegramMode: "webhook",
       error: null,
       ownerUserId: null,
+      prompt: "Hello",
+      createdAt: new Date(),
     });
 
     it("should parse and publish message update", async () => {
@@ -218,12 +219,13 @@ describe("TelegramUpdateHandler", () => {
         startMessage: "Hello",
         errorMessage: "Error",
         model: "gpt-4o-mini",
-        assistantId: "asst_123",
         token: "test-token",
         enabled: false,
         telegramMode: "webhook",
         error: null,
         ownerUserId: null,
+        prompt: "Hello",
+        createdAt: new Date(),
       });
 
       const update = {

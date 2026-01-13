@@ -48,6 +48,10 @@ interface LinkField extends BaseField {
   url: string;
 }
 
+interface TextareaField extends BaseField {
+  type: typeof FieldTypeConst.TEXTAREA;
+}
+
 interface RecordLinkField extends BaseField {
   type: typeof FieldTypeConst.RECORD_LINK;
   resource: string;
@@ -60,7 +64,8 @@ export type Field =
   | TextField
   | SelectField
   | LinkField
-  | RecordLinkField;
+  | RecordLinkField
+  | TextareaField;
 
 export type FormValues = Record<
   string,

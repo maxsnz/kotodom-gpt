@@ -43,6 +43,17 @@ const fields = [
     },
   },
   {
+    key: "prompt",
+    label: "Prompt",
+    type: FieldType.TEXTAREA,
+    props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: true,
+    },
+  },
+  {
     key: "model",
     label: "Model",
     type: FieldType.SELECT,
@@ -54,17 +65,6 @@ const fields = [
       { label: "gpt-5-mini", value: "gpt-5-mini" },
     ],
     props: { required: true },
-  },
-  {
-    key: "assistantId",
-    label: "Assistant ID",
-    type: FieldType.TEXT,
-    props: { required: true },
-    isVisible: {
-      list: false,
-      show: true,
-      edit: true,
-    },
   },
   {
     key: "enabled",
@@ -86,6 +86,17 @@ const fields = [
       { label: "Polling", value: "polling" },
     ],
     props: { required: true },
+  },
+  {
+    key: "token",
+    label: "Token",
+    type: FieldType.TEXT,
+    props: { required: true },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: true,
+    },
   },
   {
     key: "error",
@@ -115,18 +126,7 @@ const fields = [
     type: FieldType.DATE,
     props: { required: false },
     isVisible: {
-      list: false,
-      show: true,
-      edit: false,
-    },
-  },
-  {
-    key: "updatedAt",
-    label: "Updated At",
-    type: FieldType.DATE,
-    props: { required: false },
-    isVisible: {
-      list: false,
+      list: true,
       show: true,
       edit: false,
     },

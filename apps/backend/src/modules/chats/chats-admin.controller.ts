@@ -35,7 +35,6 @@ type ChatResponse = {
   telegramChatId: string;
   botId: number | null;
   tgUserId: string;
-  threadId: string | null;
   name: string | null;
   createdAt: string;
 };
@@ -316,7 +315,6 @@ export class ChatsAdminController {
       telegramChatId: chat.telegramChatId.toString(),
       botId: chat.botId,
       tgUserId: chat.tgUserId.toString(),
-      threadId: chat.threadId,
       name: chat.name,
       createdAt: chat.createdAt.toISOString(),
     };

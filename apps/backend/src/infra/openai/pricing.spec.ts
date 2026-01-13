@@ -9,8 +9,8 @@ describe("pricing", () => {
   describe("calculateOpenAICost", () => {
     it("should calculate cost for gpt-4o-mini correctly", () => {
       const usage: TokenUsage = {
-        prompt_tokens: 1000,
-        completion_tokens: 500,
+        input_tokens: 1000,
+        output_tokens: 500,
         total_tokens: 1500,
       };
 
@@ -29,8 +29,8 @@ describe("pricing", () => {
 
     it("should calculate cost for gpt-4o correctly", () => {
       const usage: TokenUsage = {
-        prompt_tokens: 2000,
-        completion_tokens: 1000,
+        input_tokens: 2000,
+        output_tokens: 1000,
         total_tokens: 3000,
       };
 
@@ -49,8 +49,8 @@ describe("pricing", () => {
 
     it("should calculate cost for gpt-3.5-turbo correctly", () => {
       const usage: TokenUsage = {
-        prompt_tokens: 500,
-        completion_tokens: 300,
+        input_tokens: 500,
+        output_tokens: 300,
         total_tokens: 800,
       };
 
@@ -67,23 +67,29 @@ describe("pricing", () => {
 
     it("should round to 5 decimal places", () => {
       const usage: TokenUsage = {
-        prompt_tokens: 333,
-        completion_tokens: 777,
+        input_tokens: 333,
+        output_tokens: 777,
         total_tokens: 1110,
       };
 
       const result = calculateOpenAICost("gpt-4o-mini", usage);
 
       // Check that all costs are rounded to 5 decimal places
-      expect(result.inputCost.toString().split(".")[1]?.length || 0).toBeLessThanOrEqual(5);
-      expect(result.outputCost.toString().split(".")[1]?.length || 0).toBeLessThanOrEqual(5);
-      expect(result.totalCost.toString().split(".")[1]?.length || 0).toBeLessThanOrEqual(5);
+      expect(
+        result.inputCost.toString().split(".")[1]?.length || 0
+      ).toBeLessThanOrEqual(5);
+      expect(
+        result.outputCost.toString().split(".")[1]?.length || 0
+      ).toBeLessThanOrEqual(5);
+      expect(
+        result.totalCost.toString().split(".")[1]?.length || 0
+      ).toBeLessThanOrEqual(5);
     });
 
     it("should handle zero tokens", () => {
       const usage: TokenUsage = {
-        prompt_tokens: 0,
-        completion_tokens: 0,
+        input_tokens: 0,
+        output_tokens: 0,
         total_tokens: 0,
       };
 
@@ -98,8 +104,8 @@ describe("pricing", () => {
 
     it("should handle large token counts", () => {
       const usage: TokenUsage = {
-        prompt_tokens: 1000000,
-        completion_tokens: 500000,
+        input_tokens: 1000000,
+        output_tokens: 500000,
         total_tokens: 1500000,
       };
 
@@ -117,8 +123,8 @@ describe("pricing", () => {
 
     it("should use default pricing for unknown model", () => {
       const usage: TokenUsage = {
-        prompt_tokens: 1000,
-        completion_tokens: 500,
+        input_tokens: 1000,
+        output_tokens: 500,
         total_tokens: 1500,
       };
 
@@ -150,8 +156,8 @@ describe("pricing", () => {
       ];
 
       const usage: TokenUsage = {
-        prompt_tokens: 1000,
-        completion_tokens: 500,
+        input_tokens: 1000,
+        output_tokens: 500,
         total_tokens: 1500,
       };
 
@@ -163,15 +169,15 @@ describe("pricing", () => {
         expect(result.totalCost).toBeGreaterThanOrEqual(0);
         // Account for rounding precision (5 decimal places)
         expect(
-          Math.abs(result.totalCost - (result.inputCost + result.outputCost)),
+          Math.abs(result.totalCost - (result.inputCost + result.outputCost))
         ).toBeLessThan(0.00001);
       }
     });
 
     it("should handle fractional token counts correctly", () => {
       const usage: TokenUsage = {
-        prompt_tokens: 123,
-        completion_tokens: 456,
+        input_tokens: 123,
+        output_tokens: 456,
         total_tokens: 579,
       };
 
@@ -183,7 +189,7 @@ describe("pricing", () => {
       expect(result.outputCost).toBeGreaterThan(0);
       // Account for rounding precision (5 decimal places) - allow small floating point errors
       expect(
-        Math.abs(result.totalCost - (result.inputCost + result.outputCost)),
+        Math.abs(result.totalCost - (result.inputCost + result.outputCost))
       ).toBeLessThan(0.00002);
     });
   });
@@ -213,4 +219,3 @@ describe("pricing", () => {
     });
   });
 });
-

@@ -10,12 +10,13 @@ describe("BotPolicy", () => {
       startMessage: "Hello",
       errorMessage: "Error",
       model: "gpt-4",
-      assistantId: "asst_123",
       token: "token123",
       enabled: true,
       telegramMode: "webhook",
       error: null,
       ownerUserId,
+      prompt: "Hello",
+      createdAt: new Date(),
     });
   };
 

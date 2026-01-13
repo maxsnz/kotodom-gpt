@@ -119,7 +119,6 @@ flowchart TD
     B -->|Да| C[Обработать команду]
     C --> D[/start] --> E[Отправить startMessage]
     C --> F[/help] --> G[Отправить HELP_TEXT]
-    C --> H[/refresh] --> I[Сбросить threadId]
 
     B -->|Нет| J[Отправить в OpenAI]
 

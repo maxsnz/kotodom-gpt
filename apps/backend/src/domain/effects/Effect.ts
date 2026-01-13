@@ -1,7 +1,8 @@
 export type Effect =
   | { type: "telegram.ensureWebhook"; botId: string; botToken: string }
   | { type: "telegram.removeWebhook"; botToken: string }
-  | { type: "telegram.refreshPolling"; botId: string }
+  | { type: "telegram.startPolling"; botId: string; botToken: string }
+  | { type: "telegram.stopPolling"; botId: string }
   | {
       type: "jobs.publish";
       name: string;

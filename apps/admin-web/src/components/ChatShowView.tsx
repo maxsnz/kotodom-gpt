@@ -28,7 +28,6 @@ const ChatShowView = () => {
       <TextField value={record.telegramChatId} />
       <TextField value={record.botId} />
       <TextField value={record.tgUserId} />
-      <TextField value={record.threadId} />
       <DateField value={record.createdAt} />
       <DateField value={record.updatedAt} />
     </Show>

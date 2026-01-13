@@ -29,3 +29,19 @@ export const disableBot = async (botId: string) => {
 
   return response.json();
 };
+
+export const restartBot = async (botId: string) => {
+  const response = await fetch(`/api/bots/${botId}/restart`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to restart bot");
+  }
+
+  return response.json();
+};

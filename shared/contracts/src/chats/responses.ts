@@ -5,7 +5,6 @@ export const ChatResponseSchema = z.object({
   telegramChatId: z.string(),
   botId: z.number().nullable(),
   tgUserId: z.string(),
-  threadId: z.string().nullable(),
   name: z.string().nullable(),
   createdAt: z.string().datetime(),
 });

@@ -26,13 +26,14 @@ describe("BotRepositoryPrisma", () => {
     name: "Test Bot",
     startMessage: "Start",
     errorMessage: "Error",
+    prompt: "Hello",
     model: "gpt-4o-mini",
-    assistantId: "assistant-id",
     token: "token-1",
     enabled: true,
     telegramMode: "webhook" as const,
     error: null as string | null,
     ownerUserId: null as string | null,
+    createdAt: new Date(),
   };
 
   beforeEach(() => {
@@ -48,13 +49,11 @@ describe("BotRepositoryPrisma", () => {
         id: 1,
         enabled: true,
         telegramMode: "webhook" as const,
-        token: "test-token",
         startMessage: "Start",
         errorMessage: "",
         name: "Test Bot",
         model: "gpt-4o-mini",
         createdAt: new Date(),
-        assistantId: "assistant-id",
         error: null,
       };
 
@@ -102,26 +101,22 @@ describe("BotRepositoryPrisma", () => {
           id: 1,
           enabled: true,
           telegramMode: "polling" as const,
-          token: "token-1",
           startMessage: "Start",
           errorMessage: "",
           name: "Bot 1",
           model: "gpt-4o-mini",
           createdAt: new Date(),
-          assistantId: "assistant-id",
           error: null,
         },
         {
           id: 2,
           enabled: true,
           telegramMode: "polling" as const,
-          token: "token-2",
           startMessage: "Start",
           errorMessage: "",
           name: "Bot 2",
           model: "gpt-4o-mini",
           createdAt: new Date(),
-          assistantId: "assistant-id",
           error: null,
         },
       ];
@@ -164,7 +159,6 @@ describe("BotRepositoryPrisma", () => {
           name: "Bot 1",
           model: "gpt-4o-mini",
           createdAt: new Date(),
-          assistantId: "assistant-id",
           error: null,
         },
         {
@@ -177,7 +171,6 @@ describe("BotRepositoryPrisma", () => {
           name: "Bot 2",
           model: "gpt-4o-mini",
           createdAt: new Date(),
-          assistantId: "assistant-id",
           error: null,
         },
       ];
@@ -224,7 +217,6 @@ describe("BotRepositoryPrisma", () => {
         name: "Test Bot",
         model: "gpt-4o-mini",
         createdAt: new Date(),
-        assistantId: "assistant-id",
         error: null,
       } as any);
 
@@ -304,7 +296,6 @@ describe("BotRepositoryPrisma", () => {
         name: "Mapped Bot",
         model: "gpt-4o-mini",
         createdAt: new Date(),
-        assistantId: "assistant-id",
         error: null,
       };
 
@@ -326,6 +317,7 @@ describe("BotRepositoryPrisma", () => {
         enabled: false,
         telegramMode: "webhook",
         token: "domain-token",
+        createdAt: new Date(),
       });
 
       prismaBotMock.upsert.mockResolvedValue({

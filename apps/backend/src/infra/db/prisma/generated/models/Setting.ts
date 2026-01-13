@@ -131,7 +131,7 @@ export type SettingGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type SettingGroupByOutputType = {
   id: string
-  value: string | null
+  value: string
   _count: SettingCountAggregateOutputType | null
   _min: SettingMinAggregateOutputType | null
   _max: SettingMaxAggregateOutputType | null
@@ -157,12 +157,12 @@ export type SettingWhereInput = {
   OR?: Prisma.SettingWhereInput[]
   NOT?: Prisma.SettingWhereInput | Prisma.SettingWhereInput[]
   id?: Prisma.StringFilter<"Setting"> | string
-  value?: Prisma.StringNullableFilter<"Setting"> | string | null
+  value?: Prisma.StringFilter<"Setting"> | string
 }
 
 export type SettingOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  value?: Prisma.SortOrderInput | Prisma.SortOrder
+  value?: Prisma.SortOrder
 }
 
 export type SettingWhereUniqueInput = Prisma.AtLeast<{
@@ -170,12 +170,12 @@ export type SettingWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.SettingWhereInput | Prisma.SettingWhereInput[]
   OR?: Prisma.SettingWhereInput[]
   NOT?: Prisma.SettingWhereInput | Prisma.SettingWhereInput[]
-  value?: Prisma.StringNullableFilter<"Setting"> | string | null
+  value?: Prisma.StringFilter<"Setting"> | string
 }, "id">
 
 export type SettingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  value?: Prisma.SortOrderInput | Prisma.SortOrder
+  value?: Prisma.SortOrder
   _count?: Prisma.SettingCountOrderByAggregateInput
   _max?: Prisma.SettingMaxOrderByAggregateInput
   _min?: Prisma.SettingMinOrderByAggregateInput
@@ -186,42 +186,42 @@ export type SettingScalarWhereWithAggregatesInput = {
   OR?: Prisma.SettingScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SettingScalarWhereWithAggregatesInput | Prisma.SettingScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Setting"> | string
-  value?: Prisma.StringNullableWithAggregatesFilter<"Setting"> | string | null
+  value?: Prisma.StringWithAggregatesFilter<"Setting"> | string
 }
 
 export type SettingCreateInput = {
   id: string
-  value?: string | null
+  value?: string
 }
 
 export type SettingUncheckedCreateInput = {
   id: string
-  value?: string | null
+  value?: string
 }
 
 export type SettingUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SettingUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SettingCreateManyInput = {
   id: string
-  value?: string | null
+  value?: string
 }
 
 export type SettingUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SettingUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  value?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  value?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SettingCountOrderByAggregateInput = {
@@ -268,7 +268,7 @@ export type $SettingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    value: string | null
+    value: string
   }, ExtArgs["result"]["setting"]>
   composites: {}
 }

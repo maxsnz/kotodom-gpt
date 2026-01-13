@@ -61,8 +61,8 @@ export const OPENAI_PRICING = {
 } as const;
 
 export interface TokenUsage {
-  prompt_tokens: number;
-  completion_tokens: number;
+  input_tokens: number;
+  output_tokens: number;
   total_tokens: number;
 }
 
@@ -80,56 +80,25 @@ export interface PricingInfo {
  */
 export function calculateOpenAICost(
   model: string,
-  usage: TokenUsage,
+  usage: TokenUsage
 ): PricingInfo {
   // Get pricing for the model, fallback to default if not found
   const pricing =
     OPENAI_PRICING[model as keyof typeof OPENAI_PRICING] ||
     OPENAI_PRICING.default;
 
-  const inputCost = (usage.prompt_tokens / 1000) * pricing.input;
-  const outputCost = (usage.completion_tokens / 1000) * pricing.output;
+  const inputCost = (usage.input_tokens / 1000) * pricing.input;
+  const outputCost = (usage.output_tokens / 1000) * pricing.output;
   const totalCost = inputCost + outputCost;
 
   return {
     model,
-    inputTokens: usage.prompt_tokens,
-    outputTokens: usage.completion_tokens,
+    inputTokens: usage.input_tokens,
+    outputTokens: usage.output_tokens,
     inputCost: Math.round(inputCost * 100000) / 100000, // Round to 5 decimal places
     outputCost: Math.round(outputCost * 100000) / 100000,
     totalCost: Math.round(totalCost * 100000) / 100000,
   };
-}
-
-/**
- * Extract model name from assistant or run information
- * This is a fallback since OpenAI doesn't always provide model info in usage
- */
-export async function extractModelFromAssistant(
-  assistantId: string,
-  gptInstance: {
-    beta: {
-      assistants: {
-        retrieve: (id: string) => Promise<{ model?: string }>;
-      };
-    };
-  },
-): Promise<string> {
-  try {
-    // Try to fetch the assistant details to get the actual model
-    const assistant = await gptInstance.beta.assistants.retrieve(assistantId);
-    if (assistant.model) {
-      return assistant.model;
-    }
-  } catch (error) {
-    console.warn(
-      "Could not fetch assistant model, using default:",
-      error,
-    );
-  }
-
-  // Fallback to default model
-  return "gpt-5-nano"; // Default to most cost-effective model
 }
 
 /**
@@ -146,4 +115,3 @@ export async function extractModelFromAssistant(
  * - GPT-4o: Around $0.005/$0.015 per 1K tokens
  * - Prices can change frequently, especially for newer models
  */
-

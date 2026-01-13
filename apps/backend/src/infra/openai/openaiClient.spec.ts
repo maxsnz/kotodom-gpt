@@ -9,30 +9,12 @@ const mockSettingsRepository: SettingsRepository = {
   getAllSettings: jest.fn(),
 } as any;
 
-// Create mock OpenAI instance
-const mockThreadsCreate = jest.fn();
-const mockMessagesCreate = jest.fn();
-const mockMessagesList = jest.fn();
-const mockRunsCreate = jest.fn();
-const mockRunsRetrieve = jest.fn();
-const mockAssistantsRetrieve = jest.fn();
+// Create mock OpenAI instance for Responses API
+const mockResponsesCreate = jest.fn();
 
 const mockOpenAIInstance = {
-  beta: {
-    threads: {
-      create: mockThreadsCreate,
-      messages: {
-        create: mockMessagesCreate,
-        list: mockMessagesList,
-      },
-      runs: {
-        create: mockRunsCreate,
-        retrieve: mockRunsRetrieve,
-      },
-    },
-    assistants: {
-      retrieve: mockAssistantsRetrieve,
-    },
+  responses: {
+    create: mockResponsesCreate,
   },
 };
 
@@ -76,256 +58,50 @@ describe("OpenAIClient", () => {
     client = new OpenAIClient(mockSettingsRepository);
   });
 
-  describe("createThread", () => {
-    it("should create a new thread and return thread ID", async () => {
-      const mockThread = { id: "thread_123" };
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-
-      const threadId = await client.createThread();
-
-      expect(threadId).toBe("thread_123");
-      expect(mockThreadsCreate).toHaveBeenCalledTimes(1);
-    });
-
-    it("should throw error when thread creation fails", async () => {
-      const error = new Error("API error");
-      mockThreadsCreate.mockRejectedValue(error);
-
-      await expect(client.createThread()).rejects.toThrow(
-        "Failed to create OpenAI thread",
-      );
-    });
-  });
-
   describe("getAnswer", () => {
     const defaultParams = {
-      assistantId: "assistant_123",
+      prompt: "You are a helpful assistant.",
       messageText: "Hello, how are you?",
+      model: "gpt-4o-mini",
     };
 
-    it("should create new thread when threadId is not provided", async () => {
-      const mockThread = { id: "thread_new" };
-      const mockMessage = { id: "msg_123" };
-      const mockRun = {
-        id: "run_123",
-        status: "completed",
+    it("should get answer from Responses API", async () => {
+      const mockResponse = {
+        output_text: "I'm doing well, thank you!",
         usage: {
-          prompt_tokens: 100,
-          completion_tokens: 50,
+          input_tokens: 100,
+          output_tokens: 50,
           total_tokens: 150,
         },
       };
-      const mockMessages = {
-        data: [
-          {
-            id: "msg_assistant",
-            role: "assistant",
-            content: [
-              {
-                type: "text",
-                text: { value: "I'm doing well, thank you!" },
-              },
-            ],
-          },
-        ],
-      };
 
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      // First call during polling (checkRunStatus), second call after completion to get usage
-      mockRunsRetrieve
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-          usage: mockRun.usage,
-        } as any);
-      mockMessagesList.mockResolvedValue(mockMessages as any);
-      mockAssistantsRetrieve.mockResolvedValue({
-        model: "gpt-4o-mini",
-      } as any);
+      mockResponsesCreate.mockResolvedValue(mockResponse as any);
 
       const result = await client.getAnswer(defaultParams);
 
-      expect(result.threadId).toBe("thread_new");
       expect(result.answer).toBe("I'm doing well, thank you!");
       expect(result.pricing).toBeDefined();
       expect(result.pricing?.model).toBe("gpt-4o-mini");
-      expect(mockThreadsCreate).toHaveBeenCalledTimes(1);
-    });
-
-    it("should use existing thread when threadId is provided", async () => {
-      const mockMessage = { id: "msg_123" };
-      const mockRun = {
-        id: "run_123",
-        status: "completed",
-        usage: {
-          prompt_tokens: 100,
-          completion_tokens: 50,
-          total_tokens: 150,
-        },
-      };
-      const mockMessages = {
-        data: [
-          {
-            id: "msg_assistant",
-            role: "assistant",
-            content: [
-              {
-                type: "text",
-                text: { value: "Response text" },
-              },
-            ],
-          },
-        ],
-      };
-
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      // First call during polling (checkRunStatus), second call after completion to get usage
-      mockRunsRetrieve
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-          usage: mockRun.usage,
-        } as any);
-      mockMessagesList.mockResolvedValue(mockMessages as any);
-      mockAssistantsRetrieve.mockResolvedValue({
+      expect(result.pricing?.inputTokens).toBe(100);
+      expect(result.pricing?.outputTokens).toBe(50);
+      expect(mockResponsesCreate).toHaveBeenCalledWith({
         model: "gpt-4o-mini",
-      } as any);
-
-      const result = await client.getAnswer({
-        ...defaultParams,
-        threadId: "existing_thread_123",
+        instructions: "You are a helpful assistant.",
+        input: "Hello, how are you?",
       });
-
-      expect(result.threadId).toBe("existing_thread_123");
-      expect(result.answer).toBe("Response text");
-      expect(mockThreadsCreate).not.toHaveBeenCalled();
-    });
-
-    it("should handle model override", async () => {
-      const mockThread = { id: "thread_123" };
-      const mockMessage = { id: "msg_123" };
-      const mockRun = {
-        id: "run_123",
-        status: "completed",
-        usage: {
-          prompt_tokens: 100,
-          completion_tokens: 50,
-          total_tokens: 150,
-        },
-      };
-      const mockMessages = {
-        data: [
-          {
-            id: "msg_assistant",
-            role: "assistant",
-            content: [
-              {
-                type: "text",
-                text: { value: "Response" },
-              },
-            ],
-          },
-        ],
-      };
-
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      // First call during polling, second call after completion to get usage
-      mockRunsRetrieve
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-          usage: mockRun.usage,
-        } as any);
-      mockMessagesList.mockResolvedValue(mockMessages as any);
-
-      await client.getAnswer({
-        ...defaultParams,
-        model: "gpt-4o",
-      });
-
-      expect(mockRunsCreate).toHaveBeenCalledWith(
-        "thread_123",
-        expect.objectContaining({
-          assistant_id: "assistant_123",
-          model: "gpt-4o",
-        }),
-      );
     });
 
     it("should calculate pricing correctly when usage is available", async () => {
-      const mockThread = { id: "thread_123" };
-      const mockMessage = { id: "msg_123" };
-      const mockRun = {
-        id: "run_123",
-        status: "completed",
+      const mockResponse = {
+        output_text: "Response text",
         usage: {
-          prompt_tokens: 1000,
-          completion_tokens: 500,
+          input_tokens: 1000,
+          output_tokens: 500,
           total_tokens: 1500,
         },
       };
-      const mockMessages = {
-        data: [
-          {
-            id: "msg_assistant",
-            role: "assistant",
-            content: [
-              {
-                type: "text",
-                text: { value: "Response" },
-              },
-            ],
-          },
-        ],
-      };
 
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      // First call during polling, second call after completion to get usage
-      mockRunsRetrieve
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-          usage: mockRun.usage,
-        } as any);
-      mockMessagesList.mockResolvedValue(mockMessages as any);
-      mockAssistantsRetrieve.mockResolvedValue({
-        model: "gpt-4o-mini",
-      } as any);
+      mockResponsesCreate.mockResolvedValue(mockResponse as any);
 
       const result = await client.getAnswer(defaultParams);
 
@@ -336,111 +112,30 @@ describe("OpenAIClient", () => {
     });
 
     it("should return null pricing when usage is not available", async () => {
-      const mockThread = { id: "thread_123" };
-      const mockMessage = { id: "msg_123" };
-      const mockMessages = {
-        data: [
-          {
-            id: "msg_assistant",
-            role: "assistant",
-            content: [
-              {
-                type: "text",
-                text: { value: "Response" },
-              },
-            ],
-          },
-        ],
+      const mockResponse = {
+        output_text: "Response text",
+        usage: null,
       };
 
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      // First call during polling, second call after completion (no usage)
-      mockRunsRetrieve
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-          usage: null,
-        } as any);
-      mockMessagesList.mockResolvedValue(mockMessages as any);
+      mockResponsesCreate.mockResolvedValue(mockResponse as any);
 
       const result = await client.getAnswer(defaultParams);
 
+      expect(result.answer).toBe("Response text");
       expect(result.pricing).toBeNull();
     });
 
-    it("should handle failed runs", async () => {
-      const mockThread = { id: "thread_123" };
-      const mockMessage = { id: "msg_123" };
-
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      mockRunsRetrieve.mockResolvedValue({
-        id: "run_123",
-        status: "failed",
-        last_error: {
-          message: "Run failed",
-          code: "error_code",
-        },
-      } as any);
-
-      await expect(client.getAnswer(defaultParams)).rejects.toThrow(
-        "OpenAI run failed",
-      );
-    });
-
     it("should handle empty response text", async () => {
-      const mockThread = { id: "thread_123" };
-      const mockMessage = { id: "msg_123" };
-      const mockRun = {
-        id: "run_123",
-        status: "completed",
+      const mockResponse = {
+        output_text: null,
         usage: {
-          prompt_tokens: 100,
-          completion_tokens: 50,
+          input_tokens: 100,
+          output_tokens: 50,
           total_tokens: 150,
         },
       };
-      const mockMessages = {
-        data: [
-          {
-            id: "msg_assistant",
-            role: "assistant",
-            content: [],
-          },
-        ],
-      };
 
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      // First call during polling, second call after completion to get usage
-      mockRunsRetrieve
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-          usage: mockRun.usage,
-        } as any);
-      mockMessagesList.mockResolvedValue(mockMessages as any);
+      mockResponsesCreate.mockResolvedValue(mockResponse as any);
 
       const result = await client.getAnswer(defaultParams);
 
@@ -448,81 +143,63 @@ describe("OpenAIClient", () => {
       expect(result.pricing).toBeNull();
     });
 
-    it("should handle API errors during message creation", async () => {
-      const mockThread = { id: "thread_123" };
+    it("should handle API errors", async () => {
       const error = new Error("API rate limit");
-
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockRejectedValue(error);
+      mockResponsesCreate.mockRejectedValue(error);
 
       await expect(client.getAnswer(defaultParams)).rejects.toThrow(
-        "OpenAI API error",
+        "OpenAI API error"
       );
     });
 
-    it("should poll run status until completion", async () => {
-      const mockThread = { id: "thread_123" };
-      const mockMessage = { id: "msg_123" };
-      const mockRun = {
-        id: "run_123",
-        status: "completed",
+    it("should use provided model", async () => {
+      const mockResponse = {
+        output_text: "Response",
         usage: {
-          prompt_tokens: 100,
-          completion_tokens: 50,
+          input_tokens: 100,
+          output_tokens: 50,
           total_tokens: 150,
         },
       };
-      const mockMessages = {
-        data: [
-          {
-            id: "msg_assistant",
-            role: "assistant",
-            content: [
-              {
-                type: "text",
-                text: { value: "Response" },
-              },
-            ],
-          },
-        ],
+
+      mockResponsesCreate.mockResolvedValue(mockResponse as any);
+
+      await client.getAnswer({
+        ...defaultParams,
+        model: "gpt-4o",
+      });
+
+      expect(mockResponsesCreate).toHaveBeenCalledWith({
+        model: "gpt-4o",
+        instructions: defaultParams.prompt,
+        input: defaultParams.messageText,
+      });
+    });
+
+    it("should handle different prompt and message", async () => {
+      const mockResponse = {
+        output_text: "Custom response",
+        usage: {
+          input_tokens: 200,
+          output_tokens: 100,
+          total_tokens: 300,
+        },
       };
 
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      // Simulate polling: queued -> in_progress -> completed
-      // Then one more call after completion to get usage
-      mockRunsRetrieve
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "queued",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "in_progress",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-          usage: mockRun.usage,
-        } as any);
-      mockMessagesList.mockResolvedValue(mockMessages as any);
-      mockAssistantsRetrieve.mockResolvedValue({
-        model: "gpt-4o-mini",
-      } as any);
+      mockResponsesCreate.mockResolvedValue(mockResponse as any);
 
-      const result = await client.getAnswer(defaultParams);
+      const result = await client.getAnswer({
+        prompt: "You are a coding assistant.",
+        messageText: "How do I write a function?",
+        model: "gpt-5-nano",
+      });
 
-      expect(result.answer).toBe("Response");
-      // Should have polled multiple times until completion, then one more to get usage
-      expect(mockRunsRetrieve).toHaveBeenCalledTimes(4);
+      expect(result.answer).toBe("Custom response");
+      expect(mockResponsesCreate).toHaveBeenCalledWith({
+        model: "gpt-5-nano",
+        instructions: "You are a coding assistant.",
+        input: "How do I write a function?",
+      });
     });
   });
 
@@ -536,56 +213,21 @@ describe("OpenAIClient", () => {
       const proxyUrl = "http://proxy.example.com:8080";
       mockGetSetting.mockResolvedValue(proxyUrl);
 
-      const mockThread = { id: "thread_123" };
-      const mockMessage = { id: "msg_123" };
-      const mockRun = {
-        id: "run_123",
-        status: "completed",
+      const mockResponse = {
+        output_text: "Response",
         usage: {
-          prompt_tokens: 100,
-          completion_tokens: 50,
+          input_tokens: 100,
+          output_tokens: 50,
           total_tokens: 150,
         },
       };
-      const mockMessages = {
-        data: [
-          {
-            id: "msg_assistant",
-            role: "assistant",
-            content: [
-              {
-                type: "text",
-                text: { value: "Response" },
-              },
-            ],
-          },
-        ],
-      };
 
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      mockRunsRetrieve
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-          usage: mockRun.usage,
-        } as any);
-      mockMessagesList.mockResolvedValue(mockMessages as any);
-      mockAssistantsRetrieve.mockResolvedValue({
-        model: "gpt-4o-mini",
-      } as any);
+      mockResponsesCreate.mockResolvedValue(mockResponse as any);
 
       const result = await client.getAnswer({
-        assistantId: "assistant_123",
+        prompt: "You are helpful.",
         messageText: "Hello",
+        model: "gpt-4o-mini",
       });
 
       expect(result.answer).toBe("Response");
@@ -597,56 +239,21 @@ describe("OpenAIClient", () => {
     it("should work without proxy URL (null)", async () => {
       mockGetSetting.mockResolvedValue(null);
 
-      const mockThread = { id: "thread_123" };
-      const mockMessage = { id: "msg_123" };
-      const mockRun = {
-        id: "run_123",
-        status: "completed",
+      const mockResponse = {
+        output_text: "Response",
         usage: {
-          prompt_tokens: 100,
-          completion_tokens: 50,
+          input_tokens: 100,
+          output_tokens: 50,
           total_tokens: 150,
         },
       };
-      const mockMessages = {
-        data: [
-          {
-            id: "msg_assistant",
-            role: "assistant",
-            content: [
-              {
-                type: "text",
-                text: { value: "Response" },
-              },
-            ],
-          },
-        ],
-      };
 
-      mockThreadsCreate.mockResolvedValue(mockThread as any);
-      mockMessagesCreate.mockResolvedValue(mockMessage as any);
-      mockRunsCreate.mockResolvedValue({
-        id: "run_123",
-        status: "queued",
-      } as any);
-      mockRunsRetrieve
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-        } as any)
-        .mockResolvedValueOnce({
-          id: "run_123",
-          status: "completed",
-          usage: mockRun.usage,
-        } as any);
-      mockMessagesList.mockResolvedValue(mockMessages as any);
-      mockAssistantsRetrieve.mockResolvedValue({
-        model: "gpt-4o-mini",
-      } as any);
+      mockResponsesCreate.mockResolvedValue(mockResponse as any);
 
       const result = await client.getAnswer({
-        assistantId: "assistant_123",
+        prompt: "You are helpful.",
         messageText: "Hello",
+        model: "gpt-4o-mini",
       });
 
       expect(result.answer).toBe("Response");
@@ -656,4 +263,3 @@ describe("OpenAIClient", () => {
     });
   });
 });
-

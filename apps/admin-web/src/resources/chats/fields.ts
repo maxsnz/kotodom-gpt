@@ -55,17 +55,6 @@ const fields = [
     },
   },
   {
-    key: "threadId",
-    label: "Thread ID",
-    type: FieldType.TEXT,
-    props: { required: false },
-    isVisible: {
-      list: false,
-      show: true,
-      edit: false,
-    },
-  },
-  {
     key: "createdAt",
     label: "Created At",
     type: FieldType.DATE,

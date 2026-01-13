@@ -43,7 +43,7 @@ export type BotMinAggregateOutputType = {
   model: string | null
   createdAt: Date | null
   enabled: boolean | null
-  assistantId: string | null
+  prompt: string | null
   error: string | null
   telegramMode: $Enums.TelegramModeEnum | null
   ownerUserId: string | null
@@ -58,7 +58,7 @@ export type BotMaxAggregateOutputType = {
   model: string | null
   createdAt: Date | null
   enabled: boolean | null
-  assistantId: string | null
+  prompt: string | null
   error: string | null
   telegramMode: $Enums.TelegramModeEnum | null
   ownerUserId: string | null
@@ -73,7 +73,7 @@ export type BotCountAggregateOutputType = {
   model: number
   createdAt: number
   enabled: number
-  assistantId: number
+  prompt: number
   error: number
   telegramMode: number
   ownerUserId: number
@@ -98,7 +98,7 @@ export type BotMinAggregateInputType = {
   model?: true
   createdAt?: true
   enabled?: true
-  assistantId?: true
+  prompt?: true
   error?: true
   telegramMode?: true
   ownerUserId?: true
@@ -113,7 +113,7 @@ export type BotMaxAggregateInputType = {
   model?: true
   createdAt?: true
   enabled?: true
-  assistantId?: true
+  prompt?: true
   error?: true
   telegramMode?: true
   ownerUserId?: true
@@ -128,7 +128,7 @@ export type BotCountAggregateInputType = {
   model?: true
   createdAt?: true
   enabled?: true
-  assistantId?: true
+  prompt?: true
   error?: true
   telegramMode?: true
   ownerUserId?: true
@@ -230,7 +230,7 @@ export type BotGroupByOutputType = {
   model: string
   createdAt: Date
   enabled: boolean
-  assistantId: string
+  prompt: string
   error: string | null
   telegramMode: $Enums.TelegramModeEnum
   ownerUserId: string | null
@@ -268,7 +268,7 @@ export type BotWhereInput = {
   model?: Prisma.StringFilter<"Bot"> | string
   createdAt?: Prisma.DateTimeFilter<"Bot"> | Date | string
   enabled?: Prisma.BoolFilter<"Bot"> | boolean
-  assistantId?: Prisma.StringFilter<"Bot"> | string
+  prompt?: Prisma.StringFilter<"Bot"> | string
   error?: Prisma.StringNullableFilter<"Bot"> | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFilter<"Bot"> | $Enums.TelegramModeEnum
   ownerUserId?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -286,7 +286,7 @@ export type BotOrderByWithRelationInput = {
   model?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
-  assistantId?: Prisma.SortOrder
+  prompt?: Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramMode?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -307,7 +307,7 @@ export type BotWhereUniqueInput = Prisma.AtLeast<{
   model?: Prisma.StringFilter<"Bot"> | string
   createdAt?: Prisma.DateTimeFilter<"Bot"> | Date | string
   enabled?: Prisma.BoolFilter<"Bot"> | boolean
-  assistantId?: Prisma.StringFilter<"Bot"> | string
+  prompt?: Prisma.StringFilter<"Bot"> | string
   error?: Prisma.StringNullableFilter<"Bot"> | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFilter<"Bot"> | $Enums.TelegramModeEnum
   ownerUserId?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -325,7 +325,7 @@ export type BotOrderByWithAggregationInput = {
   model?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
-  assistantId?: Prisma.SortOrder
+  prompt?: Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   telegramMode?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -348,7 +348,7 @@ export type BotScalarWhereWithAggregatesInput = {
   model?: Prisma.StringWithAggregatesFilter<"Bot"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Bot"> | Date | string
   enabled?: Prisma.BoolWithAggregatesFilter<"Bot"> | boolean
-  assistantId?: Prisma.StringWithAggregatesFilter<"Bot"> | string
+  prompt?: Prisma.StringWithAggregatesFilter<"Bot"> | string
   error?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumWithAggregatesFilter<"Bot"> | $Enums.TelegramModeEnum
   ownerUserId?: Prisma.StringNullableWithAggregatesFilter<"Bot"> | string | null
@@ -358,11 +358,11 @@ export type BotCreateInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
   messages?: Prisma.MessageCreateNestedManyWithoutBotInput
@@ -375,11 +375,11 @@ export type BotUncheckedCreateInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
   ownerUserId?: string | null
@@ -395,7 +395,7 @@ export type BotUpdateInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
   messages?: Prisma.MessageUpdateManyWithoutBotNestedInput
@@ -412,7 +412,7 @@ export type BotUncheckedUpdateInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
   ownerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -425,11 +425,11 @@ export type BotCreateManyInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
   ownerUserId?: string | null
@@ -443,7 +443,7 @@ export type BotUpdateManyMutationInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
 }
@@ -457,7 +457,7 @@ export type BotUncheckedUpdateManyInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
   ownerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -487,7 +487,7 @@ export type BotCountOrderByAggregateInput = {
   model?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
-  assistantId?: Prisma.SortOrder
+  prompt?: Prisma.SortOrder
   error?: Prisma.SortOrder
   telegramMode?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
@@ -506,7 +506,7 @@ export type BotMaxOrderByAggregateInput = {
   model?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
-  assistantId?: Prisma.SortOrder
+  prompt?: Prisma.SortOrder
   error?: Prisma.SortOrder
   telegramMode?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
@@ -521,7 +521,7 @@ export type BotMinOrderByAggregateInput = {
   model?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
-  assistantId?: Prisma.SortOrder
+  prompt?: Prisma.SortOrder
   error?: Prisma.SortOrder
   telegramMode?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
@@ -617,11 +617,11 @@ export type BotCreateWithoutMessagesInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
   chats?: Prisma.ChatCreateNestedManyWithoutBotInput
@@ -633,11 +633,11 @@ export type BotUncheckedCreateWithoutMessagesInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
   ownerUserId?: string | null
@@ -668,7 +668,7 @@ export type BotUpdateWithoutMessagesInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
   chats?: Prisma.ChatUpdateManyWithoutBotNestedInput
@@ -684,7 +684,7 @@ export type BotUncheckedUpdateWithoutMessagesInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
   ownerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -695,11 +695,11 @@ export type BotCreateWithoutOwnerInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
   messages?: Prisma.MessageCreateNestedManyWithoutBotInput
@@ -711,11 +711,11 @@ export type BotUncheckedCreateWithoutOwnerInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutBotInput
@@ -760,7 +760,7 @@ export type BotScalarWhereInput = {
   model?: Prisma.StringFilter<"Bot"> | string
   createdAt?: Prisma.DateTimeFilter<"Bot"> | Date | string
   enabled?: Prisma.BoolFilter<"Bot"> | boolean
-  assistantId?: Prisma.StringFilter<"Bot"> | string
+  prompt?: Prisma.StringFilter<"Bot"> | string
   error?: Prisma.StringNullableFilter<"Bot"> | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFilter<"Bot"> | $Enums.TelegramModeEnum
   ownerUserId?: Prisma.StringNullableFilter<"Bot"> | string | null
@@ -770,11 +770,11 @@ export type BotCreateWithoutChatsInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
   messages?: Prisma.MessageCreateNestedManyWithoutBotInput
@@ -786,11 +786,11 @@ export type BotUncheckedCreateWithoutChatsInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
   ownerUserId?: string | null
@@ -821,7 +821,7 @@ export type BotUpdateWithoutChatsInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
   messages?: Prisma.MessageUpdateManyWithoutBotNestedInput
@@ -837,7 +837,7 @@ export type BotUncheckedUpdateWithoutChatsInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
   ownerUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -849,11 +849,11 @@ export type BotCreateManyOwnerInput = {
   startMessage: string
   errorMessage?: string
   name: string
-  token: string
+  token?: string
   model?: string
   createdAt?: Date | string
   enabled?: boolean
-  assistantId: string
+  prompt?: string
   error?: string | null
   telegramMode?: $Enums.TelegramModeEnum
 }
@@ -866,7 +866,7 @@ export type BotUpdateWithoutOwnerInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
   messages?: Prisma.MessageUpdateManyWithoutBotNestedInput
@@ -882,7 +882,7 @@ export type BotUncheckedUpdateWithoutOwnerInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
   messages?: Prisma.MessageUncheckedUpdateManyWithoutBotNestedInput
@@ -898,7 +898,7 @@ export type BotUncheckedUpdateManyWithoutOwnerInput = {
   model?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  assistantId?: Prisma.StringFieldUpdateOperationsInput | string
+  prompt?: Prisma.StringFieldUpdateOperationsInput | string
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   telegramMode?: Prisma.EnumTelegramModeEnumFieldUpdateOperationsInput | $Enums.TelegramModeEnum
 }
@@ -952,7 +952,7 @@ export type BotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   model?: boolean
   createdAt?: boolean
   enabled?: boolean
-  assistantId?: boolean
+  prompt?: boolean
   error?: boolean
   telegramMode?: boolean
   ownerUserId?: boolean
@@ -971,7 +971,7 @@ export type BotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   model?: boolean
   createdAt?: boolean
   enabled?: boolean
-  assistantId?: boolean
+  prompt?: boolean
   error?: boolean
   telegramMode?: boolean
   ownerUserId?: boolean
@@ -987,7 +987,7 @@ export type BotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   model?: boolean
   createdAt?: boolean
   enabled?: boolean
-  assistantId?: boolean
+  prompt?: boolean
   error?: boolean
   telegramMode?: boolean
   ownerUserId?: boolean
@@ -1003,13 +1003,13 @@ export type BotSelectScalar = {
   model?: boolean
   createdAt?: boolean
   enabled?: boolean
-  assistantId?: boolean
+  prompt?: boolean
   error?: boolean
   telegramMode?: boolean
   ownerUserId?: boolean
 }
 
-export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "startMessage" | "errorMessage" | "name" | "token" | "model" | "createdAt" | "enabled" | "assistantId" | "error" | "telegramMode" | "ownerUserId", ExtArgs["result"]["bot"]>
+export type BotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "startMessage" | "errorMessage" | "name" | "token" | "model" | "createdAt" | "enabled" | "prompt" | "error" | "telegramMode" | "ownerUserId", ExtArgs["result"]["bot"]>
 export type BotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   messages?: boolean | Prisma.Bot$messagesArgs<ExtArgs>
   chats?: boolean | Prisma.Bot$chatsArgs<ExtArgs>
@@ -1039,7 +1039,7 @@ export type $BotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     model: string
     createdAt: Date
     enabled: boolean
-    assistantId: string
+    prompt: string
     error: string | null
     telegramMode: $Enums.TelegramModeEnum
     ownerUserId: string | null
@@ -1477,7 +1477,7 @@ export interface BotFieldRefs {
   readonly model: Prisma.FieldRef<"Bot", 'String'>
   readonly createdAt: Prisma.FieldRef<"Bot", 'DateTime'>
   readonly enabled: Prisma.FieldRef<"Bot", 'Boolean'>
-  readonly assistantId: Prisma.FieldRef<"Bot", 'String'>
+  readonly prompt: Prisma.FieldRef<"Bot", 'String'>
   readonly error: Prisma.FieldRef<"Bot", 'String'>
   readonly telegramMode: Prisma.FieldRef<"Bot", 'TelegramModeEnum'>
   readonly ownerUserId: Prisma.FieldRef<"Bot", 'String'>

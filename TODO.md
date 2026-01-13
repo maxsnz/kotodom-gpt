@@ -1,4 +1,4 @@
-- settings
-- switch from assistants API to composer API
 - metrics and monitoring
 - link to chats from TgUsers page
+- check name and username
+- handle bots context

@@ -51,7 +51,8 @@ describe("EffectRunner", () => {
     } as jest.Mocked<TelegramClientFactory>;
 
     mockTelegramPollingWorker = {
-      refreshBotPolling: jest.fn(),
+      startPolling: jest.fn(),
+      stopPolling: jest.fn(),
       onModuleInit: jest.fn(),
       onModuleDestroy: jest.fn(),
     } as unknown as jest.Mocked<TelegramPollingWorker>;
@@ -107,6 +108,34 @@ describe("EffectRunner", () => {
         "test-bot-token"
       );
       expect(mockRemoveWebhook).toHaveBeenCalled();
+    });
+
+    it("should execute telegram.startPolling effect", async () => {
+      const effect: Effect = {
+        type: "telegram.startPolling",
+        botId: "test-bot-id",
+        botToken: "test-bot-token",
+      };
+
+      await runner.run(effect);
+
+      expect(mockTelegramPollingWorker.startPolling).toHaveBeenCalledWith(
+        "test-bot-id",
+        "test-bot-token"
+      );
+    });
+
+    it("should execute telegram.stopPolling effect", async () => {
+      const effect: Effect = {
+        type: "telegram.stopPolling",
+        botId: "test-bot-id",
+      };
+
+      await runner.run(effect);
+
+      expect(mockTelegramPollingWorker.stopPolling).toHaveBeenCalledWith(
+        "test-bot-id"
+      );
     });
 
     it("should execute jobs.publish effect", async () => {

@@ -74,7 +74,6 @@ export class ChatRepositoryPrisma extends ChatRepository {
         telegramChatId,
         tgUserId,
         botId,
-        threadId: null,
         name: null,
       },
       update: {},
@@ -115,7 +114,6 @@ export class ChatRepositoryPrisma extends ChatRepository {
       telegramChatId: row.telegramChatId,
       botId: row.botId,
       tgUserId: row.tgUserId,
-      threadId: row.threadId,
       name: row.name,
       createdAt: row.createdAt,
     });
@@ -127,7 +125,6 @@ export class ChatRepositoryPrisma extends ChatRepository {
       telegramChatId: chat.telegramChatId,
       botId: chat.botId,
       tgUserId: chat.tgUserId,
-      threadId: chat.threadId,
       name: chat.name,
       createdAt: chat.createdAt,
     };

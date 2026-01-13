@@ -1,8 +1,15 @@
 import { OpenAIClient } from "../../infra/openai/openaiClient";
 import { ChatRepository } from "../chats/ChatRepository";
-import { IncomingContext, GenerationResult, ResponseGenerator } from "./MessageProcessor";
+import {
+  IncomingContext,
+  GenerationResult,
+  ResponseGenerator,
+} from "./MessageProcessor";
 import { CommandRegistry } from "./commands/CommandHandler";
-import { StartCommandHandler, HelpCommandHandler, RefreshCommandHandler } from "./commands/CommandHandlers";
+import {
+  StartCommandHandler,
+  HelpCommandHandler,
+} from "./commands/CommandHandlers";
 
 /**
  * Responsible for generating responses to user messages.
@@ -22,10 +29,12 @@ export class DefaultResponseGenerator implements ResponseGenerator {
   private registerCommandHandlers(): void {
     this.commandRegistry.register(new StartCommandHandler());
     this.commandRegistry.register(new HelpCommandHandler());
-    this.commandRegistry.register(new RefreshCommandHandler(this.chatRepository));
   }
 
-  async generateResponse(ctx: IncomingContext, botId: number | null): Promise<GenerationResult> {
+  async generateResponse(
+    ctx: IncomingContext,
+    botId: number | null
+  ): Promise<GenerationResult> {
     const userMessage = ctx.userMessage;
     const chat = ctx.chat;
     const bot = ctx.bot;
@@ -41,13 +50,12 @@ export class DefaultResponseGenerator implements ResponseGenerator {
 
     // AI-powered response
     const openAiResult = await this.openAIClient.getAnswer({
-      assistantId: bot.assistantId,
-      threadId: chat.threadId ?? undefined,
+      prompt: bot.prompt,
       messageText: text,
       model: bot.model,
     });
 
-    chat.setThreadId(openAiResult.threadId);
+    // Responses API is stateless - no need to save threadId
     await this.chatRepository.save(chat);
 
     return {

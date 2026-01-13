@@ -200,6 +200,9 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
               value={getSelectDisplayValue(column, record[column.key])}
             />
           )}
+          {column.type === FieldType.TEXTAREA && (
+            <TextField value={record[column.key]} />
+          )}
           {column.type === FieldType.LINK && (
             <Link to={column.url}>{column.label}</Link>
           )}

@@ -61,8 +61,13 @@ export class EffectRunner {
         return;
       }
 
-      case "telegram.refreshPolling": {
-        await this.pollingWorker.refreshBotPolling(effect.botId);
+      case "telegram.startPolling": {
+        await this.pollingWorker.startPolling(effect.botId, effect.botToken);
+        return;
+      }
+
+      case "telegram.stopPolling": {
+        await this.pollingWorker.stopPolling(effect.botId);
         return;
       }
 

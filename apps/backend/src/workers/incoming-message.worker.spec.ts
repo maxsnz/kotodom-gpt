@@ -17,11 +17,12 @@ describe("incoming-message.worker", () => {
     startMessage: "start message",
     errorMessage: "error message",
     model: "gpt-4o-mini",
-    assistantId: "assistant-id",
     token: "bot-token",
     enabled: true,
     telegramMode: "webhook",
     error: null,
+    prompt: "Hello",
+    createdAt: new Date(),
   });
 
   const chat = new Chat({
@@ -29,7 +30,6 @@ describe("incoming-message.worker", () => {
     telegramChatId: BigInt(123),
     botId: 1,
     tgUserId: BigInt(123),
-    threadId: null,
     name: "Test",
     createdAt: new Date(),
   });

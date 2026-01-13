@@ -3,17 +3,18 @@ import { Effect } from "../effects/Effect";
 export class Bot {
   constructor(
     private props: {
+      createdAt: Date;
       id: string;
       name: string;
       startMessage: string;
       errorMessage: string;
       model: string;
-      assistantId: string;
       token: string;
       enabled: boolean;
       telegramMode: "webhook" | "polling";
       error: string | null;
       ownerUserId: string | null;
+      prompt: string;
     }
   ) {}
 
@@ -36,10 +37,6 @@ export class Bot {
     return this.props.model;
   }
 
-  get assistantId() {
-    return this.props.assistantId;
-  }
-
   get token() {
     return this.props.token;
   }
@@ -60,12 +57,19 @@ export class Bot {
     return this.props.ownerUserId;
   }
 
+  get prompt() {
+    return this.props.prompt;
+  }
+
+  get createdAt() {
+    return this.props.createdAt;
+  }
+
   setError(error: string | null): void {
     this.props.error = error;
   }
 
   enable(): Effect[] {
-    if (this.props.enabled) return [];
     this.props.enabled = true;
 
     const effects: Effect[] = [];
@@ -78,8 +82,9 @@ export class Bot {
       });
     } else if (this.props.telegramMode === "polling") {
       effects.push({
-        type: "telegram.refreshPolling",
+        type: "telegram.startPolling",
         botId: this.id,
+        botToken: this.token,
       });
     }
 
@@ -96,7 +101,7 @@ export class Bot {
       effects.push({ type: "telegram.removeWebhook", botToken: this.token });
     } else if (this.props.telegramMode === "polling") {
       effects.push({
-        type: "telegram.refreshPolling",
+        type: "telegram.stopPolling",
         botId: this.id,
       });
     }
@@ -104,31 +109,43 @@ export class Bot {
     return effects;
   }
 
-  onModeChange(
-    oldMode: "webhook" | "polling",
-    newMode: "webhook" | "polling"
-  ): Effect[] {
+  /**
+   * Stop bot completely, regardless of current mode or enabled status.
+   * Removes webhook and stops polling to ensure clean shutdown.
+   */
+  stop(): Effect[] {
     const effects: Effect[] = [];
 
-    // When switching from webhook to polling, remove webhook
-    if (oldMode === "webhook" && newMode === "polling") {
-      effects.push({ type: "telegram.removeWebhook", botToken: this.token });
-      // If bot is enabled, start polling immediately
-      if (this.props.enabled) {
+    // Always remove webhook (regardless of current mode)
+    effects.push({ type: "telegram.removeWebhook", botToken: this.token });
+
+    // Always stop polling (regardless of current mode)
+    effects.push({ type: "telegram.stopPolling", botId: this.id });
+
+    return effects;
+  }
+
+  restart(): Effect[] {
+    const effects: Effect[] = [];
+
+    // Stop completely first
+    effects.push(...this.stop());
+
+    // If bot is enabled, re-enable based on current telegramMode
+    if (this.props.enabled) {
+      if (this.props.telegramMode === "webhook") {
         effects.push({
-          type: "telegram.refreshPolling",
+          type: "telegram.ensureWebhook",
           botId: this.id,
+          botToken: this.token,
+        });
+      } else if (this.props.telegramMode === "polling") {
+        effects.push({
+          type: "telegram.startPolling",
+          botId: this.id,
+          botToken: this.token,
         });
       }
-    }
-
-    // When switching from polling to webhook and bot is enabled, set webhook
-    if (oldMode === "polling" && newMode === "webhook" && this.props.enabled) {
-      effects.push({
-        type: "telegram.ensureWebhook",
-        botId: this.id,
-        botToken: this.token,
-      });
     }
 
     return effects;

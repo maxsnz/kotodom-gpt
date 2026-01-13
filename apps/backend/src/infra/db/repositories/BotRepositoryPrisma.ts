@@ -56,12 +56,11 @@ export class BotRepositoryPrisma extends BotRepository {
         startMessage: data.startMessage,
         errorMessage: data.errorMessage,
         model: data.model,
-        assistantId: data.assistantId,
-        token: data.token,
         enabled: false,
         telegramMode: data.telegramMode,
         error: null,
         ownerUserId: data.ownerUserId ?? null,
+        prompt: data.prompt,
       },
     });
     return this.toDomain(row);
@@ -96,12 +95,13 @@ export class BotRepositoryPrisma extends BotRepository {
       startMessage: row.startMessage,
       errorMessage: row.errorMessage,
       model: row.model,
-      assistantId: row.assistantId,
       token: row.token,
       enabled: row.enabled,
       telegramMode: row.telegramMode as "webhook" | "polling",
       error: row.error ?? null,
       ownerUserId: row.ownerUserId ?? null,
+      prompt: row.prompt,
+      createdAt: row.createdAt,
     });
   }
 
@@ -115,12 +115,12 @@ export class BotRepositoryPrisma extends BotRepository {
       startMessage: bot.startMessage,
       errorMessage: bot.errorMessage,
       model: bot.model,
-      assistantId: bot.assistantId,
       token: bot.token,
       enabled: bot.enabled,
       telegramMode: bot.telegramMode,
       error: bot.error,
       ownerUserId: bot.ownerUserId,
+      prompt: bot.prompt,
     };
 
     const createData: Prisma.BotUncheckedCreateInput = {
