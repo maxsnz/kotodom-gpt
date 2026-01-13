@@ -376,7 +376,7 @@ describe("ChatRepositoryPrisma", () => {
       const existingUser = {
         id: tgUserId,
         username: "existing_user",
-        name: "John",
+        name: "existing_user",
         fullName: "John Doe",
         createdAt: new Date("2024-01-01"),
       };
@@ -395,12 +395,12 @@ describe("ChatRepositoryPrisma", () => {
         create: {
           id: tgUserId,
           username: "existing_user",
-          name: "John",
+          name: "existing_user",
           fullName: "John Doe",
         },
         update: {
           username: "existing_user",
-          name: "John",
+          name: "existing_user",
           fullName: "John Doe",
         },
       });
@@ -411,7 +411,7 @@ describe("ChatRepositoryPrisma", () => {
       const newUser = {
         id: tgUserId,
         username: "new_user",
-        name: "Jane",
+        name: "new_user",
         fullName: "Jane Smith",
         createdAt: new Date("2024-01-01"),
       };
@@ -430,12 +430,12 @@ describe("ChatRepositoryPrisma", () => {
         create: {
           id: tgUserId,
           username: "new_user",
-          name: "Jane",
+          name: "new_user",
           fullName: "Jane Smith",
         },
         update: {
           username: "new_user",
-          name: "Jane",
+          name: "new_user",
           fullName: "Jane Smith",
         },
       });
@@ -446,7 +446,7 @@ describe("ChatRepositoryPrisma", () => {
       const newUser = {
         id: tgUserId,
         username: null,
-        name: "Alice",
+        name: null,
         fullName: "Alice",
         createdAt: new Date("2024-01-01"),
       };
@@ -463,12 +463,12 @@ describe("ChatRepositoryPrisma", () => {
         create: {
           id: tgUserId,
           username: null,
-          name: "Alice",
+          name: null,
           fullName: "Alice",
         },
         update: {
           username: null,
-          name: "Alice",
+          name: null,
           fullName: "Alice",
         },
       });
@@ -479,7 +479,7 @@ describe("ChatRepositoryPrisma", () => {
       const newUser = {
         id: tgUserId,
         username: "bob",
-        name: null,
+        name: "bob",
         fullName: "Brown",
         createdAt: new Date("2024-01-01"),
       };
@@ -497,12 +497,12 @@ describe("ChatRepositoryPrisma", () => {
         create: {
           id: tgUserId,
           username: "bob",
-          name: null,
+          name: "bob",
           fullName: "Brown",
         },
         update: {
           username: "bob",
-          name: null,
+          name: "bob",
           fullName: "Brown",
         },
       });
@@ -513,7 +513,7 @@ describe("ChatRepositoryPrisma", () => {
       const newUser = {
         id: tgUserId,
         username: "username_only",
-        name: null,
+        name: "username_only",
         fullName: null,
         createdAt: new Date("2024-01-01"),
       };
@@ -530,12 +530,12 @@ describe("ChatRepositoryPrisma", () => {
         create: {
           id: tgUserId,
           username: "username_only",
-          name: null,
+          name: "username_only",
           fullName: null,
         },
         update: {
           username: "username_only",
-          name: null,
+          name: "username_only",
           fullName: null,
         },
       });
@@ -546,7 +546,7 @@ describe("ChatRepositoryPrisma", () => {
       const updatedUser = {
         id: tgUserId,
         username: "new_username",
-        name: "New",
+        name: "new_username",
         fullName: "New Name",
         createdAt: new Date("2024-01-01"),
       };
@@ -565,13 +565,48 @@ describe("ChatRepositoryPrisma", () => {
         create: {
           id: tgUserId,
           username: "new_username",
-          name: "New",
+          name: "new_username",
           fullName: "New Name",
         },
         update: {
           username: "new_username",
-          name: "New",
+          name: "new_username",
           fullName: "New Name",
+        },
+      });
+    });
+
+    it("should save name as username, fullName as firstName + lastName", async () => {
+      const tgUserId = BigInt(555555555);
+      const testUser = {
+        id: tgUserId,
+        username: "testuser123",
+        name: "testuser123",
+        fullName: "Test User",
+        createdAt: new Date("2024-01-01"),
+      };
+
+      prismaTgUserMock.upsert.mockResolvedValue(testUser as any);
+
+      const result = await repository.findOrCreateUser(tgUserId, {
+        username: "testuser123",
+        firstName: "Test",
+        lastName: "User",
+      });
+
+      expect(result).toEqual(testUser);
+      expect(prismaTgUserMock.upsert).toHaveBeenCalledWith({
+        where: { id: tgUserId },
+        create: {
+          id: tgUserId,
+          username: "testuser123",
+          name: "testuser123", // name should be username
+          fullName: "Test User", // fullName should be firstName + lastName
+        },
+        update: {
+          username: "testuser123",
+          name: "testuser123", // name should be username
+          fullName: "Test User", // fullName should be firstName + lastName
         },
       });
     });

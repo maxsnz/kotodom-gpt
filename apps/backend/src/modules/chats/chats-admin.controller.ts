@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Param,
   Body,
   Query,
@@ -273,6 +274,26 @@ export class ChatsAdminController {
       }
       throw error;
     }
+  }
+
+  /**
+   * DELETE /api/chats/:id - Delete chat (ownership checked)
+   */
+  @Delete(":id")
+  async deleteChat(
+    @Req() request: FastifyRequest,
+    @Param("id") id: string
+  ): Promise<{ success: boolean }> {
+    const chat = await this.chatsService.findById(id);
+    if (!chat) {
+      throw new NotFoundException(`Chat with id ${id} not found`);
+    }
+
+    await this.checkChatOwnership(request, chat);
+
+    await this.chatsService.delete(id);
+    this.logger.info("Chat deleted", { chatId: id });
+    return { success: true };
   }
 
   /**

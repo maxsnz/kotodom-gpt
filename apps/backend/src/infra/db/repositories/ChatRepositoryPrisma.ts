@@ -97,15 +97,19 @@ export class ChatRepositoryPrisma extends ChatRepository {
       create: {
         id: tgUserId,
         username: userData.username ?? null,
-        name: userData.firstName ?? null,
+        name: userData.username ?? null,
         fullName: fullName ?? null,
       },
       update: {
         username: userData.username ?? null,
-        name: userData.firstName ?? null,
+        name: userData.username ?? null,
         fullName: fullName ?? null,
       },
     });
+  }
+
+  async delete(id: string): Promise<void> {
+    await prisma.chat.delete({ where: { id } });
   }
 
   private toDomain(row: PrismaChat): Chat {

@@ -27,4 +27,5 @@ export abstract class ChatRepository {
       lastName?: string | undefined;
     }
   ): Promise<TgUser>;
+  abstract delete(id: string): Promise<void>;
 }

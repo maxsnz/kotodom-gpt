@@ -152,8 +152,26 @@ export function createProcessBotUpdate(deps: ProcessBotUpdateDeps) {
     }
 
     const candidate = raw as Record<string, unknown>;
+
+    // Try message.from
     const message = candidate["message"] as Record<string, unknown> | undefined;
-    const from = message?.["from"] as Record<string, unknown> | undefined;
+    let from = message?.["from"] as Record<string, unknown> | undefined;
+
+    // Try edited_message.from if message.from not found
+    if (!from) {
+      const editedMessage = candidate["edited_message"] as
+        | Record<string, unknown>
+        | undefined;
+      from = editedMessage?.["from"] as Record<string, unknown> | undefined;
+    }
+
+    // Try callback_query.from if still not found
+    if (!from) {
+      const callbackQuery = candidate["callback_query"] as
+        | Record<string, unknown>
+        | undefined;
+      from = callbackQuery?.["from"] as Record<string, unknown> | undefined;
+    }
 
     if (from && typeof from["id"] === "number") {
       return {

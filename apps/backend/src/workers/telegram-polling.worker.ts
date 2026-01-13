@@ -185,6 +185,7 @@ export class TelegramPollingWorker implements OnModuleInit, OnModuleDestroy {
       // Process each update
       for (const update of updates) {
         // Log incoming message text
+        console.log("update", update);
         const messageText =
           (update as any).message?.text ||
           (update as any).edited_message?.text ||

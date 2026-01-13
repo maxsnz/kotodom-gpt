@@ -190,4 +190,9 @@ export class ChatsService {
       telegramMessageId: sendResult.messageId,
     };
   }
+
+  async delete(id: string): Promise<void> {
+    await this.getOrThrow(id); // Ensure chat exists
+    await this.chatRepository.delete(id);
+  }
 }
