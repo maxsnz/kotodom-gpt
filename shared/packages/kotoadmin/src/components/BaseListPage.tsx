@@ -25,7 +25,7 @@ import {
   IconPlus,
   IconRefresh,
 } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { filterFieldsForList } from "../utils/filterFields";
 import { Resource } from "../types/resource";
 import { useResourcePathParams } from "../hooks/useResourcePathParams";
@@ -38,6 +38,7 @@ const BaseListPage = <T extends { id: string | number }>({
   resource,
 }: Props) => {
   const resourcePathParams = useResourcePathParams(resource);
+  const navigate = useNavigate();
 
   const { open } = useNotification();
   const invalidate = useInvalidate();
@@ -153,6 +154,7 @@ const BaseListPage = <T extends { id: string | number }>({
                           invalidate,
                           resource,
                           openNotification: open || (() => {}),
+                          navigate,
                         });
                       } catch (error) {
                         open?.({
@@ -175,7 +177,7 @@ const BaseListPage = <T extends { id: string | number }>({
         enableColumnFilter: false,
       },
     ],
-    [resource, openDeleteConfirmModal, invalidate, open]
+    [resource, openDeleteConfirmModal, invalidate, open, navigate]
   );
 
   const table = useMantineReactTable({

@@ -1,4 +1,4 @@
-import { useCallback, Fragment } from "react";
+import { useCallback } from "react";
 import {
   useOne,
   useInvalidate,
@@ -7,7 +7,7 @@ import {
 } from "@refinedev/core";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Show, EmailField, TextField, DateField } from "@refinedev/mantine";
-import { Checkbox, Title, Text, Button } from "@mantine/core";
+import { Checkbox, Title, Text, Button, Box } from "@mantine/core";
 import { FieldType } from "../types/fieldTypes";
 import type { Field } from "../types/fields";
 import { filterFieldsForShow } from "../utils/filterFields";
@@ -137,6 +137,7 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
                       invalidate,
                       resource,
                       openNotification: open || (() => {}),
+                      navigate,
                     });
                   } catch (error) {
                     open?.({
@@ -177,10 +178,16 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
         </>
       )}
     >
-      <TextField value={record?.id ?? ""} />
-      {visibleColumns.map((column) => (
-        <Fragment key={column.key}>
-          <Title my="xs" order={5}>
+      {visibleColumns.map((column, index) => (
+        <Box
+          key={column.key}
+          p="sm"
+          style={{
+            backgroundColor:
+              index % 2 === 0 ? "var(--mantine-color-gray-0)" : "transparent",
+          }}
+        >
+          <Title order={5} style={{ marginBottom: "10px", marginTop: 0 }}>
             {column.label}
           </Title>
           {column.type === FieldType.EMAIL && (
@@ -215,7 +222,7 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
               {record[column.key]}
             </Link>
           )}
-        </Fragment>
+        </Box>
       ))}
     </Show>
   );

@@ -23,7 +23,7 @@ const defaultTelegramClientFactory: TelegramClientFactory = (token: string) =>
   new TelegramClient({ token });
 
 @Module({
-  imports: [forwardRef(() => BotsModule), TgUsersModule],
+  imports: [forwardRef(() => BotsModule), forwardRef(() => TgUsersModule)],
   controllers: [ChatsAdminController, MessagesAdminController],
   providers: [
     {

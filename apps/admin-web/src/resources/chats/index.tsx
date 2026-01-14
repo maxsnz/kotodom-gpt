@@ -5,6 +5,8 @@ import { ResourceConfig } from "@kotoadmin/types/resource";
 import { createListResponseSchema } from "@/utils/responseSchemas";
 import z from "zod";
 import { config } from "@/config";
+import { chatActions } from "./actions";
+import ChatsList from "@/components/ChatsList";
 // import ChatShowView from "@/components/ChatShowView";
 
 const key = "chats";
@@ -13,7 +15,7 @@ const resource = {
   name: key,
   label: "Chats",
   fields,
-  actions: [],
+  actions: chatActions,
 
   routes: {
     list: { path: `${key}` },
@@ -21,18 +23,22 @@ const resource = {
     show: {
       path: `${key}/:id`,
       // component: <ChatShowView />,
-      footerButtons: [
-        {
-          label: "View Messages",
-          onClick: (event, { record, navigate }) => {
-            event.preventDefault();
-            if (!record || !navigate) return;
-            navigate(`${config.basePath}/chats/${record.id}/messages`, {
-              replace: true,
-            });
-          },
-        },
-      ],
+      // footerButtons: [
+      //   {
+      //     label: "View Messages",
+      //     onClick: (event, { record, navigate }) => {
+      //       event.preventDefault();
+      //       if (!record || !navigate) return;
+      //       navigate(`${config.basePath}/chats/${record.id}/messages`, {
+      //         replace: true,
+      //       });
+      //     },
+      //   },
+      // ],
+    },
+    chats: {
+      path: `tg-users/:tgUserId/${key}`,
+      component: <ChatsList />,
     },
   },
 

@@ -127,6 +127,7 @@ model MessageProcessing {
   responseGeneratedAt       DateTime?
   responseSentAt            DateTime?
   price                     Decimal                    @default(0) @db.Decimal(10, 4)
+  
   createdAt                 DateTime                  @default(now())
   updatedAt                 DateTime                  @updatedAt
 

@@ -1,4 +1,5 @@
 import { Resource } from "./resource";
+import { NavigateFunction } from "react-router-dom";
 
 export type ActionContext = {
   invalidate: (options: {
@@ -10,6 +11,7 @@ export type ActionContext = {
     type: "success" | "error";
     message: string;
   }) => void;
+  navigate: NavigateFunction;
 };
 
 export type Action = {

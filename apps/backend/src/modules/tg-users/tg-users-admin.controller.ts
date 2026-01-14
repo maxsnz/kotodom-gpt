@@ -20,6 +20,8 @@ import {
   UpdateTgUserSchema,
   type UpdateTgUserDto,
 } from "@shared/contracts/tg-users";
+import { ChatsService } from "../../domain/chats/ChatsService";
+import { Chat } from "../../domain/chats/Chat";
 
 /**
  * TgUser response DTO - converts BigInt id to string
@@ -32,11 +34,26 @@ interface TgUserResponse {
   createdAt: string;
 }
 
+/**
+ * Chat response DTO
+ */
+interface ChatResponse {
+  id: string;
+  telegramChatId: string;
+  botId: number | null;
+  tgUserId: string;
+  name: string | null;
+  createdAt: string;
+}
+
 @Controller("api/tg-users")
 @UseGuards(SessionAuthGuard, RolesGuard)
 @Roles("ADMIN")
 export class TgUsersAdminController {
-  constructor(private readonly tgUsersService: TgUsersService) {}
+  constructor(
+    private readonly tgUsersService: TgUsersService,
+    private readonly chatsService: ChatsService
+  ) {}
 
   /**
    * GET /api/tg-users - List all Telegram users
@@ -124,6 +141,29 @@ export class TgUsersAdminController {
     return { success: true };
   }
 
+  /**
+   * GET /api/tg-users/:id/chats - Get all chats for a Telegram user
+   */
+  @Get(":id/chats")
+  async getTgUserChats(@Param("id") id: string): Promise<{ data: ChatResponse[] }> {
+    let tgUserId: bigint;
+    try {
+      tgUserId = BigInt(id);
+    } catch {
+      throw new BadRequestException("Invalid TgUser ID format");
+    }
+
+    // Check if TgUser exists
+    const tgUser = await this.tgUsersService.findById(tgUserId);
+    if (!tgUser) {
+      throw new NotFoundException(`TgUser with id ${id} not found`);
+    }
+
+    // Get chats for this user
+    const chats = await this.chatsService.findAll({ userId: tgUserId });
+    return { data: chats.map(this.toChatResponse) };
+  }
+
   private toTgUserResponse(tgUser: TgUser): TgUserResponse {
     return {
       id: tgUser.id.toString(),
@@ -131,6 +171,17 @@ export class TgUsersAdminController {
       name: tgUser.name,
       fullName: tgUser.fullName,
       createdAt: tgUser.createdAt.toISOString(),
+    };
+  }
+
+  private toChatResponse(chat: Chat): ChatResponse {
+    return {
+      id: chat.id,
+      telegramChatId: chat.telegramChatId.toString(),
+      botId: chat.botId,
+      tgUserId: chat.tgUserId.toString(),
+      name: chat.name,
+      createdAt: chat.createdAt.toISOString(),
     };
   }
 }

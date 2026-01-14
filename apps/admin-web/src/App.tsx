@@ -1,6 +1,3 @@
-import "@mantine/core/styles.css";
-import "@mantine/dates/styles.css";
-import "mantine-react-table/styles.css";
 import { MantineProvider, createTheme } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import routerProvider from "@refinedev/react-router";

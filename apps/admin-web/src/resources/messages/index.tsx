@@ -27,7 +27,8 @@ const resource = {
 
   meta: {
     canRead: false,
-    hideInNavigation: true,
+    canDelete: true,
+    // hideInNavigation: true,
   },
 
   api: {
@@ -46,6 +47,10 @@ const resource = {
     item: {
       path: "/chats/:chatId/messages/:id",
       schema: createItemResponseSchema(MessageResponseSchema),
+    },
+    delete: {
+      path: "/chats/:chatId/messages/:id",
+      schema: z.object({ message: MessageResponseSchema }),
     },
   },
 } satisfies ResourceConfig;
