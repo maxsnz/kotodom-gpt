@@ -19,6 +19,7 @@ import { BotRepository } from "./domain/bots/BotRepository";
 import { ChatRepository } from "./domain/chats/ChatRepository";
 import { MessageRepository } from "./domain/chats/MessageRepository";
 import { MessageProcessingRepository } from "./domain/message-processing/MessageProcessingRepository";
+import { SettingsRepository } from "./domain/settings/SettingsRepository";
 import { OpenAIClient } from "./infra/openai/openaiClient";
 import {
   TelegramClient,
@@ -113,6 +114,7 @@ async function bootstrap() {
   const chatRepository = app.get(ChatRepository);
   const messageRepository = app.get(MessageRepository);
   const messageProcessingRepository = app.get(MessageProcessingRepository);
+  const settingsRepository = app.get(SettingsRepository);
   const openAIClient = app.get(OpenAIClient);
   const telegramClientFactoryInstance = app.get("TelegramClientFactory");
   const effectRunner = app.get(EffectRunner);
@@ -135,6 +137,7 @@ async function bootstrap() {
     chatRepository,
     messageRepository,
     messageProcessingRepository,
+    settingsRepository,
     openAIClient,
     telegramClientFactory: (token: string) =>
       telegramClientFactoryInstance.createClient(token),

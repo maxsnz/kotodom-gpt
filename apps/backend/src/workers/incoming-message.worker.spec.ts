@@ -120,6 +120,12 @@ describe("incoming-message.worker", () => {
       updateTelegramIds: jest.fn(),
     };
     const openAIClient = { getAnswer: jest.fn() };
+    const settingsRepository = {
+      getSetting: jest.fn().mockResolvedValue(""),
+      setSetting: jest.fn(),
+      getAllSettings: jest.fn(),
+      deleteSetting: jest.fn(),
+    };
     const sendMessage = jest.fn().mockResolvedValue({ messageId: 777 });
     const telegramClientFactory = jest.fn().mockReturnValue({ sendMessage });
 
@@ -129,6 +135,7 @@ describe("incoming-message.worker", () => {
       messageRepository: messageRepository as any,
       messageProcessingRepository: messageProcessingRepository as any,
       openAIClient: openAIClient as any,
+      settingsRepository: settingsRepository as any,
       telegramClientFactory: telegramClientFactory as any,
       log: {
         info: jest.fn(),
@@ -231,12 +238,20 @@ describe("incoming-message.worker", () => {
       updateTelegramIds: jest.fn(),
     };
 
+    const settingsRepository = {
+      getSetting: jest.fn().mockResolvedValue(""),
+      setSetting: jest.fn(),
+      getAllSettings: jest.fn(),
+      deleteSetting: jest.fn(),
+    };
+
     const processBotUpdate = createProcessBotUpdate({
       botRepository: botRepository as any,
       chatRepository: chatRepository as any,
       messageRepository: messageRepository as any,
       messageProcessingRepository: messageProcessingRepository as any,
       openAIClient: openAIClient as any,
+      settingsRepository: settingsRepository as any,
       telegramClientFactory: telegramClientFactory as any,
       log: {
         info: logInfo,

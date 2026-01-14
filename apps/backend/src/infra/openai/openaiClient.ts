@@ -16,9 +16,15 @@ import {
   createConsoleLoggerFactory,
 } from "../logger";
 
+export interface ConversationMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export interface GetAnswerParams {
   prompt: string;
   messageText: string;
+  conversationContext?: ConversationMessage[];
   model: string;
 }
 
@@ -30,6 +36,7 @@ export interface GetAnswerResult {
 export interface StreamAnswerParams {
   prompt: string;
   messageText: string;
+  conversationContext?: ConversationMessage[];
   model: string;
 }
 
@@ -72,17 +79,31 @@ export class OpenAIClient {
    * Responses API is stateless - no threads or conversations needed
    */
   async getAnswer(params: GetAnswerParams): Promise<GetAnswerResult> {
-    const { prompt, messageText, model } = params;
+    const { prompt, messageText, conversationContext, model } = params;
 
     try {
       this.logger.debug(`Creating response with model: ${model}`);
+
+      // Prepare input with conversation context
+      let input = messageText;
+      if (conversationContext && conversationContext.length > 0) {
+        // Format conversation context for OpenAI API
+        const contextText = conversationContext
+          .map(
+            (msg) =>
+              `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
+          )
+          .join("\n\n");
+        input = `${contextText}\n\nUser: ${messageText}`;
+      }
 
       // Create response using Responses API
       // Responses API is stateless - each call is independent
       const response = await this.client.responses.create({
         model: model,
         instructions: prompt,
-        input: messageText,
+        input: input,
+        max_output_tokens: 800,
       });
 
       // Extract answer text
@@ -151,16 +172,29 @@ export class OpenAIClient {
     params: StreamAnswerParams,
     callbacks: StreamAnswerCallbacks
   ): Promise<void> {
-    const { prompt, messageText, model } = params;
+    const { prompt, messageText, conversationContext, model } = params;
 
     try {
       this.logger.debug(`Creating streaming response with model: ${model}`);
+
+      // Prepare input with conversation context
+      let input = messageText;
+      if (conversationContext && conversationContext.length > 0) {
+        // Format conversation context for OpenAI API
+        const contextText = conversationContext
+          .map(
+            (msg) =>
+              `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
+          )
+          .join("\n\n");
+        input = `${contextText}\n\nUser: ${messageText}`;
+      }
 
       // Create streaming response using Responses API
       const stream = await this.client.responses.create({
         model: model,
         instructions: prompt,
-        input: messageText,
+        input: input,
         stream: true,
       });
 

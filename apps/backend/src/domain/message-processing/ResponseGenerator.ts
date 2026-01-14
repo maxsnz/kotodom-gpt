@@ -18,6 +18,8 @@ import { MessageProcessingRepository } from "./MessageProcessingRepository";
 import { createDecimal } from "../../infra/db/prisma/decimal";
 import { Message } from "../chats/Message";
 import { PricingInfo } from "../../infra/openai/pricing";
+import { ConversationContextBuilder } from "./ConversationContextBuilder";
+import { SettingsRepository } from "../settings/SettingsRepository";
 
 const TELEGRAM_MAX_MESSAGE_LENGTH = 4096;
 /**
@@ -47,6 +49,7 @@ export class DefaultResponseGenerator implements ResponseGenerator {
     private readonly messageRepository: MessageRepository,
     private readonly telegramClientFactory: (token: string) => TelegramClient,
     private readonly messageProcessingRepository: MessageProcessingRepository,
+    private readonly conversationContextBuilder: ConversationContextBuilder,
     private readonly logger: LoggerLike
   ) {
     this.commandRegistry = new CommandRegistry();
@@ -236,11 +239,20 @@ export class DefaultResponseGenerator implements ResponseGenerator {
       // Start TYPING action immediately
       typingManager.startTyping(telegramChatId, telegramClient, this.logger);
 
+      // Build conversation context (excluding current user message)
+      const conversationContext =
+        await this.conversationContextBuilder.buildContext(
+          chat.id,
+          bot.model,
+          userMessage.id
+        );
+
       // Start streaming from OpenAI
       await this.openAIClient.streamAnswer(
         {
           prompt: bot.prompt,
           messageText: userMessage.text,
+          conversationContext,
           model: bot.model,
         },
         {

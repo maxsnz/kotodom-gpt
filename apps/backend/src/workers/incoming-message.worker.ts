@@ -26,8 +26,10 @@ import {
   DefaultResponseSender,
   LoggerLike,
 } from "../domain/message-processing/MessageProcessor";
+import { ConversationContextBuilder } from "../domain/message-processing/ConversationContextBuilder";
 import { OpenAIClient } from "../infra/openai/openaiClient";
 import { PricingInfo } from "../infra/openai/pricing";
+import { SettingsRepository } from "../domain/settings/SettingsRepository";
 
 export type ProcessBotUpdateDeps = {
   botRepository: BotRepository;
@@ -35,6 +37,7 @@ export type ProcessBotUpdateDeps = {
   messageRepository: MessageRepository;
   messageProcessingRepository: MessageProcessingRepository;
   openAIClient: OpenAIClient;
+  settingsRepository: SettingsRepository;
   telegramClientFactory: (token: string) => TelegramClient;
   log?: LoggerLike;
 };
@@ -60,6 +63,7 @@ async function processUserMessage(
       deps.messageRepository,
       telegramClientFactory,
       deps.messageProcessingRepository,
+      new ConversationContextBuilder(deps.messageRepository, deps.settingsRepository),
       logger
     ),
     responseSender: new DefaultResponseSender(
