@@ -20,6 +20,7 @@ import { Message } from "../chats/Message";
 import { PricingInfo } from "../../infra/openai/pricing";
 import { ConversationContextBuilder } from "./ConversationContextBuilder";
 import { SettingsRepository } from "../settings/SettingsRepository";
+import { TgUserRepository } from "../tg-users/TgUserRepository";
 
 const TELEGRAM_MAX_MESSAGE_LENGTH = 4096;
 /**
@@ -50,6 +51,7 @@ export class DefaultResponseGenerator implements ResponseGenerator {
     private readonly telegramClientFactory: (token: string) => TelegramClient,
     private readonly messageProcessingRepository: MessageProcessingRepository,
     private readonly conversationContextBuilder: ConversationContextBuilder,
+    private readonly tgUserRepository: TgUserRepository,
     private readonly logger: LoggerLike
   ) {
     this.commandRegistry = new CommandRegistry();
@@ -247,6 +249,12 @@ export class DefaultResponseGenerator implements ResponseGenerator {
           userMessage.id
         );
 
+      // Load user to get their name
+      const tgUser = await this.tgUserRepository.findById(chat.tgUserId);
+      const userName = tgUser
+        ? (tgUser.fullName ?? tgUser.name ?? undefined)
+        : undefined;
+
       // Start streaming from OpenAI
       await this.openAIClient.streamAnswer(
         {
@@ -254,6 +262,7 @@ export class DefaultResponseGenerator implements ResponseGenerator {
           messageText: userMessage.text,
           conversationContext,
           model: bot.model,
+          user: userName,
         },
         {
           onChunk: async (textDelta: string) => {

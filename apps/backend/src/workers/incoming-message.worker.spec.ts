@@ -126,6 +126,18 @@ describe("incoming-message.worker", () => {
       getAllSettings: jest.fn(),
       deleteSetting: jest.fn(),
     };
+    const tgUserRepository = {
+      findById: jest.fn().mockResolvedValue({
+        id: BigInt(123),
+        fullName: "John Doe",
+        name: "John",
+        username: "john",
+        createdAt: new Date(),
+      }),
+      findAll: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
     const sendMessage = jest.fn().mockResolvedValue({ messageId: 777 });
     const telegramClientFactory = jest.fn().mockReturnValue({ sendMessage });
 
@@ -136,6 +148,7 @@ describe("incoming-message.worker", () => {
       messageProcessingRepository: messageProcessingRepository as any,
       openAIClient: openAIClient as any,
       settingsRepository: settingsRepository as any,
+      tgUserRepository: tgUserRepository as any,
       telegramClientFactory: telegramClientFactory as any,
       log: {
         info: jest.fn(),
@@ -244,6 +257,18 @@ describe("incoming-message.worker", () => {
       getAllSettings: jest.fn(),
       deleteSetting: jest.fn(),
     };
+    const tgUserRepository = {
+      findById: jest.fn().mockResolvedValue({
+        id: BigInt(123),
+        fullName: "John Doe",
+        name: "John",
+        username: "john",
+        createdAt: new Date(),
+      }),
+      findAll: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
 
     const processBotUpdate = createProcessBotUpdate({
       botRepository: botRepository as any,
@@ -252,6 +277,7 @@ describe("incoming-message.worker", () => {
       messageProcessingRepository: messageProcessingRepository as any,
       openAIClient: openAIClient as any,
       settingsRepository: settingsRepository as any,
+      tgUserRepository: tgUserRepository as any,
       telegramClientFactory: telegramClientFactory as any,
       log: {
         info: logInfo,

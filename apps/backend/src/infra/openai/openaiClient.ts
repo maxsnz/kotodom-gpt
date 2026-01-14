@@ -26,6 +26,7 @@ export interface GetAnswerParams {
   messageText: string;
   conversationContext?: ConversationMessage[];
   model: string;
+  user?: string;
 }
 
 export interface GetAnswerResult {
@@ -38,6 +39,7 @@ export interface StreamAnswerParams {
   messageText: string;
   conversationContext?: ConversationMessage[];
   model: string;
+  user?: string;
 }
 
 export interface StreamAnswerCallbacks {
@@ -79,7 +81,7 @@ export class OpenAIClient {
    * Responses API is stateless - no threads or conversations needed
    */
   async getAnswer(params: GetAnswerParams): Promise<GetAnswerResult> {
-    const { prompt, messageText, conversationContext, model } = params;
+    const { prompt, messageText, conversationContext, model, user } = params;
 
     try {
       this.logger.debug(`Creating response with model: ${model}`);
@@ -104,6 +106,7 @@ export class OpenAIClient {
         instructions: prompt,
         input: input,
         max_output_tokens: 800,
+        ...(params.user && { user: params.user }),
       });
 
       // Extract answer text
@@ -172,7 +175,7 @@ export class OpenAIClient {
     params: StreamAnswerParams,
     callbacks: StreamAnswerCallbacks
   ): Promise<void> {
-    const { prompt, messageText, conversationContext, model } = params;
+    const { prompt, messageText, conversationContext, model, user } = params;
 
     try {
       this.logger.debug(`Creating streaming response with model: ${model}`);
@@ -196,6 +199,7 @@ export class OpenAIClient {
         instructions: prompt,
         input: input,
         stream: true,
+        ...(params.user && { user: params.user }),
       });
 
       let accumulatedText = "";

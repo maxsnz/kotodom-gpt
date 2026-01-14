@@ -1,6 +1,6 @@
 {
   "name": "kotodom-gpt",
-  "version": "4.4.1",
+  "version": "4.4.2",
   "exports": "./src/index.ts",
   "author": "maxsnz",
   "license": "MIT",

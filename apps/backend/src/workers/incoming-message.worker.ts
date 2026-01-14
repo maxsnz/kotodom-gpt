@@ -30,6 +30,7 @@ import { ConversationContextBuilder } from "../domain/message-processing/Convers
 import { OpenAIClient } from "../infra/openai/openaiClient";
 import { PricingInfo } from "../infra/openai/pricing";
 import { SettingsRepository } from "../domain/settings/SettingsRepository";
+import { TgUserRepository } from "../domain/tg-users/TgUserRepository";
 
 export type ProcessBotUpdateDeps = {
   botRepository: BotRepository;
@@ -38,6 +39,7 @@ export type ProcessBotUpdateDeps = {
   messageProcessingRepository: MessageProcessingRepository;
   openAIClient: OpenAIClient;
   settingsRepository: SettingsRepository;
+  tgUserRepository: TgUserRepository;
   telegramClientFactory: (token: string) => TelegramClient;
   log?: LoggerLike;
 };
@@ -64,6 +66,7 @@ async function processUserMessage(
       telegramClientFactory,
       deps.messageProcessingRepository,
       new ConversationContextBuilder(deps.messageRepository, deps.settingsRepository),
+      deps.tgUserRepository,
       logger
     ),
     responseSender: new DefaultResponseSender(
