@@ -33,6 +33,24 @@ export type AnswerCallbackQueryInput = {
   showAlert?: boolean;
 };
 
+export enum ChatAction {
+  TYPING = "typing",
+  UPLOAD_PHOTO = "upload_photo",
+  RECORD_VIDEO = "record_video",
+  UPLOAD_VIDEO = "upload_video",
+  RECORD_VOICE = "record_voice",
+  UPLOAD_VOICE = "upload_voice",
+  UPLOAD_DOCUMENT = "upload_document",
+  FIND_LOCATION = "find_location",
+  RECORD_VIDEO_NOTE = "record_video_note",
+  UPLOAD_VIDEO_NOTE = "upload_video_note",
+}
+
+export type SendChatActionInput = {
+  chatId: number | string;
+  action: ChatAction;
+};
+
 export class TelegramClient {
   private bot: Telegraf;
 
@@ -75,6 +93,10 @@ export class TelegramClient {
     await this.bot.telegram.answerCbQuery(input.callbackQueryId, input.text, {
       show_alert: input.showAlert,
     } as any);
+  }
+
+  async sendChatAction(input: SendChatActionInput): Promise<void> {
+    await this.bot.telegram.sendChatAction(input.chatId, input.action);
   }
 
   async setWebhook(url: string): Promise<void> {

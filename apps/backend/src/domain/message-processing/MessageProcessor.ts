@@ -35,7 +35,8 @@ export type SaveResult = GenerationResult & {
 export interface ResponseGenerator {
   generateResponse(
     ctx: IncomingContext,
-    botId: number | null
+    botId: number | null,
+    userMessageId: number
   ): Promise<GenerationResult>;
 }
 
@@ -46,6 +47,13 @@ export interface ResponseSender {
     logger: LoggerLike,
     userMessageId: number,
     chatId?: number
+  ): Promise<void>;
+  editMessage(
+    chatId: number | string,
+    messageId: number,
+    text: string,
+    botToken: string,
+    logger: LoggerLike
   ): Promise<void>;
 }
 
@@ -134,32 +142,56 @@ export class MessageProcessor {
     // Step 4: Generate response if not already generated
     if (!processing.responseMessageId) {
       const generationResult =
-        await this.deps.responseGenerator.generateResponse(incomingCtx, botId);
+        await this.deps.responseGenerator.generateResponse(
+          incomingCtx,
+          botId,
+          userMessageId
+        );
 
-      const saveResult = await this.saveResponse(
-        generationResult,
-        botId,
-        userMessageId
-      );
+      // Check if message was already created during streaming
+      const updatedProcessing =
+        await this.deps.messageProcessingRepository.findByUserMessageId(
+          userMessageId
+        );
 
-      // Mark response as generated with price if available
-      const price =
-        generationResult.pricing?.totalCost !== undefined
-          ? createDecimal(generationResult.pricing.totalCost)
-          : undefined;
-      await this.deps.messageProcessingRepository.markResponseGenerated(
-        userMessageId,
-        saveResult.botMessage.id,
-        price
-      );
+      if (updatedProcessing?.responseMessageId) {
+        // Message was created during streaming, no need to save/send again
+        this.deps.logger.debug?.(
+          "Message was created during streaming, skipping save/send",
+          {
+            botId,
+            userMessageId,
+            responseMessageId: updatedProcessing.responseMessageId,
+          }
+        );
+      } else {
+        // Fallback: message wasn't created during streaming (shouldn't happen with streaming)
+        // This handles non-streaming responses (commands) or error cases
+        const saveResult = await this.saveResponse(
+          generationResult,
+          botId,
+          userMessageId
+        );
 
-      // Step 5: Send response (we know it's not sent yet since we just generated it)
-      await this.deps.responseSender.sendResponse(
-        saveResult,
-        botId,
-        this.deps.logger,
-        userMessageId
-      );
+        // Mark response as generated with price if available
+        const price =
+          generationResult.pricing?.totalCost !== undefined
+            ? createDecimal(generationResult.pricing.totalCost)
+            : undefined;
+        await this.deps.messageProcessingRepository.markResponseGenerated(
+          userMessageId,
+          saveResult.botMessage.id,
+          price
+        );
+
+        // Step 5: Send response (we know it's not sent yet since we just generated it)
+        await this.deps.responseSender.sendResponse(
+          saveResult,
+          botId,
+          this.deps.logger,
+          userMessageId
+        );
+      }
     } else {
       // Response already generated, check if it needs to be sent
       if (!processing.responseSentAt) {

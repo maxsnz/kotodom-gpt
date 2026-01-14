@@ -47,4 +47,8 @@ export class Message {
   setUserMessageId(userMessageId: number | null): void {
     this.props.userMessageId = userMessageId;
   }
+
+  updateText(text: string): void {
+    this.props.text = text;
+  }
 }

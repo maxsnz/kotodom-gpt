@@ -56,7 +56,11 @@ async function processUserMessage(
     messageProcessingRepository: deps.messageProcessingRepository,
     responseGenerator: new DefaultResponseGenerator(
       deps.openAIClient,
-      deps.chatRepository
+      deps.chatRepository,
+      deps.messageRepository,
+      telegramClientFactory,
+      deps.messageProcessingRepository,
+      logger
     ),
     responseSender: new DefaultResponseSender(
       telegramClientFactory,

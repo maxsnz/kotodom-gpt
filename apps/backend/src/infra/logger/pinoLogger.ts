@@ -27,7 +27,7 @@ function buildTransport(): pino.TransportMultiOptions {
     level: isProd ? "error" : "debug",
     options: {
       colorize: true,
-      translateTime: "HH:MM:ss",
+      translateTime: "SYS:HH:MM:ss",
       ignore: "pid,hostname",
     },
   });
