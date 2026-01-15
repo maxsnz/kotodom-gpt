@@ -11,6 +11,7 @@ describe("Chat", () => {
         tgUserId: BigInt(123456789),
         name: "Test Chat",
         createdAt,
+        lastResponseId: null,
       });
 
       expect(chat.id).toBe("chat-123");
@@ -30,6 +31,7 @@ describe("Chat", () => {
         tgUserId: BigInt(987654321),
         name: null,
         createdAt,
+        lastResponseId: null,
       });
 
       expect(chat.id).toBe("chat-456");
@@ -49,6 +51,7 @@ describe("Chat", () => {
         tgUserId: largeId,
         name: "Large Chat",
         createdAt: new Date(),
+        lastResponseId: null,
       });
 
       expect(chat.tgUserId).toBe(largeId);
@@ -67,6 +70,7 @@ describe("Chat", () => {
         tgUserId: BigInt(123456789),
         name: "Old Name",
         createdAt: new Date(),
+        lastResponseId: null,
       });
 
       chat.updateName("New Name");
@@ -81,6 +85,7 @@ describe("Chat", () => {
         tgUserId: BigInt(123456789),
         name: "Old Name",
         createdAt: new Date(),
+        lastResponseId: null,
       });
 
       chat.updateName(null);

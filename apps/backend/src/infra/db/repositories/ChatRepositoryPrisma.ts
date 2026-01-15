@@ -120,6 +120,7 @@ export class ChatRepositoryPrisma extends ChatRepository {
       tgUserId: row.tgUserId,
       name: row.name,
       createdAt: row.createdAt,
+      lastResponseId: row.lastResponseId,
     });
   }
 
@@ -131,6 +132,7 @@ export class ChatRepositoryPrisma extends ChatRepository {
       tgUserId: chat.tgUserId,
       name: chat.name,
       createdAt: chat.createdAt,
+      lastResponseId: chat.lastResponseId,
     };
   }
 

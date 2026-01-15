@@ -7,6 +7,7 @@ export const FieldType = {
   RECORD_LINK: "record_link",
   LINK: "link",
   TEXTAREA: "textarea",
+  JSON: "json",
 } as const;
 
 export type FieldType = (typeof FieldType)[keyof typeof FieldType];

@@ -64,6 +64,7 @@ describe("OpenAIClient", () => {
       messageText: "Hello, how are you?",
       model: "gpt-4o-mini",
       user: "test-user",
+      conversationContext: [],
     };
 
     it("should get answer from Responses API", async () => {
@@ -170,6 +171,7 @@ describe("OpenAIClient", () => {
       await client.getAnswer({
         ...defaultParams,
         model: "gpt-4o",
+        conversationContext: [],
       });
 
       expect(mockResponsesCreate).toHaveBeenCalledWith({
@@ -198,6 +200,7 @@ describe("OpenAIClient", () => {
         messageText: "How do I write a function?",
         model: "gpt-5-nano",
         user: "test-user",
+        conversationContext: [],
       });
 
       expect(result.answer).toBe("Custom response");
@@ -237,6 +240,7 @@ describe("OpenAIClient", () => {
         messageText: "Hello",
         model: "gpt-4o-mini",
         user: "test-user",
+        conversationContext: [],
       });
 
       expect(result.answer).toBe("Response");
@@ -264,6 +268,7 @@ describe("OpenAIClient", () => {
         messageText: "Hello",
         model: "gpt-4o-mini",
         user: "test-user",
+        conversationContext: [],
       });
 
       expect(result.answer).toBe("Response");

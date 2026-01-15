@@ -36,6 +36,7 @@ describe("ChatsService", () => {
       tgUserId: BigInt(123456789),
       name: "Test Chat",
       createdAt: new Date("2024-01-01"),
+      lastResponseId: null,
       ...overrides,
     });
   };

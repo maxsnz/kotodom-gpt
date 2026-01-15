@@ -24,27 +24,35 @@ export interface ConversationMessage {
 export interface GetAnswerParams {
   prompt: string;
   messageText: string;
-  conversationContext?: ConversationMessage[];
+  conversationContext: ConversationMessage[];
   model: string;
   user: string;
+  previousResponseId?: string | null;
 }
 
 export interface GetAnswerResult {
   answer: string;
   pricing: PricingInfo | null;
+  rawResponse: unknown;
+  responseId: string;
 }
 
 export interface StreamAnswerParams {
   prompt: string;
   messageText: string;
-  conversationContext?: ConversationMessage[];
+  conversationContext: ConversationMessage[];
   model: string;
   user: string;
+  previousResponseId?: string | null;
 }
 
 export interface StreamAnswerCallbacks {
   onChunk: (textDelta: string) => void;
-  onComplete: (pricing: PricingInfo | null) => void;
+  onComplete: (
+    pricing: PricingInfo | null,
+    responseId: string,
+    rawResponse: OpenAI.Responses.Response
+  ) => Promise<void>;
 }
 
 @Injectable()
@@ -81,32 +89,32 @@ export class OpenAIClient {
    * Responses API is stateless - no threads or conversations needed
    */
   async getAnswer(params: GetAnswerParams): Promise<GetAnswerResult> {
-    const { prompt, messageText, conversationContext, model, user } = params;
+    const {
+      prompt,
+      messageText,
+      conversationContext,
+      model,
+      user,
+      previousResponseId,
+    } = params;
 
     try {
       this.logger.debug(`Creating response with model: ${model}`);
-
-      // Prepare input with conversation context
-      let input = messageText;
-      if (conversationContext && conversationContext.length > 0) {
-        // Format conversation context for OpenAI API
-        const contextText = conversationContext
-          .map(
-            (msg) =>
-              `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
-          )
-          .join("\n\n");
-        input = `${contextText}\n\nUser: ${messageText}`;
-      }
 
       // Create response using Responses API
       // Responses API is stateless - each call is independent
       const response = await this.client.responses.create({
         model: model,
         instructions: prompt,
-        input: input,
+        // input: [{}, ...conversationContext, { role: "user", content: messageText }],
+        input: [
+          { role: "system", content: `User name is "${user}"` },
+          { role: "user", content: messageText },
+        ],
+        store: true,
         max_output_tokens: 800,
-        user: params.user,
+        user: user,
+        ...(previousResponseId && { previous_response_id: previousResponseId }),
       });
 
       // Extract answer text
@@ -117,6 +125,8 @@ export class OpenAIClient {
         return {
           answer: "no answer from chatGPT",
           pricing: null,
+          rawResponse: response,
+          responseId: response.id,
         };
       }
 
@@ -153,6 +163,8 @@ export class OpenAIClient {
       return {
         answer: answerText,
         pricing,
+        rawResponse: response,
+        responseId: response.id,
       };
     } catch (error) {
       this.logger.error(`Failed to get answer from OpenAI: ${error}`, {
@@ -175,43 +187,39 @@ export class OpenAIClient {
     params: StreamAnswerParams,
     callbacks: StreamAnswerCallbacks
   ): Promise<void> {
-    const { prompt, messageText, conversationContext, model, user } = params;
+    const {
+      prompt,
+      messageText,
+      conversationContext,
+      model,
+      user,
+      previousResponseId,
+    } = params;
 
     try {
       this.logger.debug(`Creating streaming response with model: ${model}`);
-
-      // Prepare input with conversation context
-      let input = messageText;
-      if (conversationContext && conversationContext.length > 0) {
-        // Format conversation context for OpenAI API
-        const contextText = conversationContext
-          .map(
-            (msg) =>
-              `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
-          )
-          .join("\n\n");
-        input = `${contextText}\n\nUser: ${messageText}`;
-      }
 
       // Create streaming response using Responses API
       const stream = await this.client.responses.create({
         model: model,
         instructions: prompt,
-        input: input,
+        // input: [{}, ...conversationContext, { role: "user", content: messageText }],
+        input: [
+          { role: "system", content: `User name is "${user}"` },
+          { role: "user", content: messageText },
+        ],
         stream: true,
-        ...(params.user && { user: params.user }),
+        user: user,
+        ...(previousResponseId && { previous_response_id: previousResponseId }),
       });
 
       let accumulatedText = "";
-      let usage: TokenUsage | null = null;
 
       // Process streaming events
       for await (const event of stream) {
-        const eventAny = event as any;
-
         // Handle text delta events
         if (event.type === "response.output_text.delta") {
-          const delta = eventAny.delta || "";
+          const delta = event.delta || "";
           if (delta) {
             accumulatedText += delta;
             // Await to ensure chunks are processed sequentially
@@ -219,56 +227,31 @@ export class OpenAIClient {
           }
         }
 
-        // Handle completion event with usage information
-        // Usage information comes in response.done event (not in typed events, need to check manually)
-        const eventType = eventAny.type as string;
-        if (
-          eventType === "response.done" ||
-          eventType === "response.completed"
-        ) {
-          if (eventAny.response?.usage) {
-            usage = {
-              input_tokens: eventAny.response.usage.input_tokens,
-              output_tokens: eventAny.response.usage.output_tokens,
-              total_tokens: eventAny.response.usage.total_tokens,
-            };
+        if (event.type === "response.completed") {
+          // Save the full response object from the done event
+
+          let pricing: PricingInfo | null = null;
+          if (event.response.usage) {
+            this.logger.debug(
+              `Raw usage data: ${JSON.stringify(event.response.usage, null, 2)}`
+            );
+            pricing = calculateOpenAICost(model, event.response.usage);
+            this.logger.info(
+              `Model: ${model}, Usage: ${
+                event.response.usage.total_tokens
+              } tokens (${event.response.usage.input_tokens} input + ${
+                event.response.usage.output_tokens
+              } output), Cost: $${pricing.totalCost.toFixed(6)}`
+            );
           }
+
+          // Call completion callback with pricing, response ID, and raw response
+          const responseId = event.response.id;
+          await callbacks.onComplete(pricing, responseId, event.response);
         }
-
-        // Also check if usage is directly on the event (some API versions)
-        if (eventAny.usage && !usage) {
-          usage = {
-            input_tokens: eventAny.usage.input_tokens,
-            output_tokens: eventAny.usage.output_tokens,
-            total_tokens: eventAny.usage.total_tokens,
-          };
-        }
-      }
-
-      // Calculate pricing if usage information is available
-      let pricing: PricingInfo | null = null;
-      if (usage) {
-        this.logger.debug(`Raw usage data: ${JSON.stringify(usage, null, 2)}`);
-
-        pricing = calculateOpenAICost(model, usage);
-
-        this.logger.info(
-          `Model: ${model}, Usage: ${usage.total_tokens} tokens (${
-            usage.input_tokens
-          } input + ${
-            usage.output_tokens
-          } output), Cost: $${pricing.totalCost.toFixed(6)}`
-        );
-      } else {
-        this.logger.warn(
-          `No usage information available for pricing calculation`
-        );
       }
 
       this.logger.info(`OpenAI streaming response: ${accumulatedText}`);
-
-      // Call completion callback with pricing
-      callbacks.onComplete(pricing);
     } catch (error) {
       this.logger.error(`Failed to stream answer from OpenAI: ${error}`, {
         stack: error instanceof Error ? error.stack : undefined,

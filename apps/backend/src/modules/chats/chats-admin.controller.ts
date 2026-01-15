@@ -38,6 +38,7 @@ type ChatResponse = {
   tgUserId: string;
   name: string | null;
   createdAt: string;
+  lastResponseId: string | null;
 };
 
 /**
@@ -338,6 +339,7 @@ export class ChatsAdminController {
       tgUserId: chat.tgUserId.toString(),
       name: chat.name,
       createdAt: chat.createdAt.toISOString(),
+      lastResponseId: chat.lastResponseId,
     };
   }
 

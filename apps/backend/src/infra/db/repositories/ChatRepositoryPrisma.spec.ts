@@ -188,6 +188,7 @@ describe("ChatRepositoryPrisma", () => {
         tgUserId: BigInt(123456789),
         name: "New Chat",
         createdAt: new Date("2024-01-01"),
+        lastResponseId: null,
       });
 
       prismaChatMock.upsert.mockResolvedValue({
@@ -228,6 +229,7 @@ describe("ChatRepositoryPrisma", () => {
         tgUserId: BigInt(123456789),
         name: "Updated Chat",
         createdAt: new Date("2024-01-01"),
+        lastResponseId: null,
       });
 
       prismaChatMock.upsert.mockResolvedValue({
@@ -257,6 +259,7 @@ describe("ChatRepositoryPrisma", () => {
         botId: null,
         tgUserId: BigInt(123456789),
         name: null,
+        lastResponseId: null,
         createdAt: new Date("2024-01-01"),
       });
 
@@ -643,6 +646,7 @@ describe("ChatRepositoryPrisma", () => {
         tgUserId: BigInt(888888888),
         name: "Domain Chat",
         createdAt: new Date("2024-01-20"),
+        lastResponseId: null,
       });
 
       prismaChatMock.upsert.mockResolvedValue({

@@ -16,6 +16,7 @@ export const MessageProcessingResponseSchema = z.object({
   responseGeneratedAt: z.string().datetime().nullable(),
   responseSentAt: z.string().datetime().nullable(),
   price: z.string(), // Decimal as string
+  rawResponse: z.unknown().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

@@ -76,6 +76,17 @@ const fields = [
       edit: false,
     },
   },
+  {
+    key: "lastResponseId",
+    label: "Last Response ID",
+    type: FieldType.TEXT,
+    props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
+  },
 ] satisfies Field[];
 
 export default fields;

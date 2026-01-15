@@ -93,15 +93,25 @@ export class MessageProcessingRepositoryPrisma extends MessageProcessingReposito
   async markResponseGenerated(
     userMessageId: number,
     responseMessageId: number,
-    price?: Prisma.Decimal
+    price?: Prisma.Decimal,
+    rawResponse?: unknown
   ): Promise<void> {
+    const updateData: Prisma.MessageProcessingUncheckedUpdateInput = {
+      responseMessageId,
+      responseGeneratedAt: new Date(),
+    };
+
+    if (price !== undefined) {
+      updateData.price = price;
+    }
+
+    if (rawResponse !== undefined) {
+      updateData.rawResponse = rawResponse as Prisma.InputJsonValue;
+    }
+
     await prisma.messageProcessing.update({
       where: { userMessageId },
-      data: {
-        responseMessageId,
-        responseGeneratedAt: new Date(),
-        ...(price !== undefined && { price }),
-      },
+      data: updateData,
     });
   }
 
@@ -241,6 +251,7 @@ export class MessageProcessingRepositoryPrisma extends MessageProcessingReposito
       responseGeneratedAt: row.responseGeneratedAt,
       responseSentAt: row.responseSentAt,
       price: row.price,
+      rawResponse: row.rawResponse,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });

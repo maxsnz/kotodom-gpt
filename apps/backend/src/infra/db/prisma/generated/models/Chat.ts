@@ -45,6 +45,7 @@ export type ChatMinAggregateOutputType = {
   createdAt: Date | null
   tgUserId: bigint | null
   name: string | null
+  lastResponseId: string | null
 }
 
 export type ChatMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type ChatMaxAggregateOutputType = {
   createdAt: Date | null
   tgUserId: bigint | null
   name: string | null
+  lastResponseId: string | null
 }
 
 export type ChatCountAggregateOutputType = {
@@ -63,6 +65,7 @@ export type ChatCountAggregateOutputType = {
   createdAt: number
   tgUserId: number
   name: number
+  lastResponseId: number
   _all: number
 }
 
@@ -86,6 +89,7 @@ export type ChatMinAggregateInputType = {
   createdAt?: true
   tgUserId?: true
   name?: true
+  lastResponseId?: true
 }
 
 export type ChatMaxAggregateInputType = {
@@ -95,6 +99,7 @@ export type ChatMaxAggregateInputType = {
   createdAt?: true
   tgUserId?: true
   name?: true
+  lastResponseId?: true
 }
 
 export type ChatCountAggregateInputType = {
@@ -104,6 +109,7 @@ export type ChatCountAggregateInputType = {
   createdAt?: true
   tgUserId?: true
   name?: true
+  lastResponseId?: true
   _all?: true
 }
 
@@ -200,6 +206,7 @@ export type ChatGroupByOutputType = {
   createdAt: Date
   tgUserId: bigint
   name: string | null
+  lastResponseId: string | null
   _count: ChatCountAggregateOutputType | null
   _avg: ChatAvgAggregateOutputType | null
   _sum: ChatSumAggregateOutputType | null
@@ -232,6 +239,7 @@ export type ChatWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   tgUserId?: Prisma.BigIntFilter<"Chat"> | bigint | number
   name?: Prisma.StringNullableFilter<"Chat"> | string | null
+  lastResponseId?: Prisma.StringNullableFilter<"Chat"> | string | null
   bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
   messages?: Prisma.MessageListRelationFilter
   tgUser?: Prisma.XOR<Prisma.TgUserScalarRelationFilter, Prisma.TgUserWhereInput>
@@ -244,6 +252,7 @@ export type ChatOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   tgUserId?: Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastResponseId?: Prisma.SortOrderInput | Prisma.SortOrder
   bot?: Prisma.BotOrderByWithRelationInput
   messages?: Prisma.MessageOrderByRelationAggregateInput
   tgUser?: Prisma.TgUserOrderByWithRelationInput
@@ -259,6 +268,7 @@ export type ChatWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   tgUserId?: Prisma.BigIntFilter<"Chat"> | bigint | number
   name?: Prisma.StringNullableFilter<"Chat"> | string | null
+  lastResponseId?: Prisma.StringNullableFilter<"Chat"> | string | null
   bot?: Prisma.XOR<Prisma.BotNullableScalarRelationFilter, Prisma.BotWhereInput> | null
   messages?: Prisma.MessageListRelationFilter
   tgUser?: Prisma.XOR<Prisma.TgUserScalarRelationFilter, Prisma.TgUserWhereInput>
@@ -271,6 +281,7 @@ export type ChatOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   tgUserId?: Prisma.SortOrder
   name?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastResponseId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ChatCountOrderByAggregateInput
   _avg?: Prisma.ChatAvgOrderByAggregateInput
   _max?: Prisma.ChatMaxOrderByAggregateInput
@@ -288,6 +299,7 @@ export type ChatScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Chat"> | Date | string
   tgUserId?: Prisma.BigIntWithAggregatesFilter<"Chat"> | bigint | number
   name?: Prisma.StringNullableWithAggregatesFilter<"Chat"> | string | null
+  lastResponseId?: Prisma.StringNullableWithAggregatesFilter<"Chat"> | string | null
 }
 
 export type ChatCreateInput = {
@@ -295,6 +307,7 @@ export type ChatCreateInput = {
   telegramChatId: bigint | number
   createdAt?: Date | string
   name?: string | null
+  lastResponseId?: string | null
   bot?: Prisma.BotCreateNestedOneWithoutChatsInput
   messages?: Prisma.MessageCreateNestedManyWithoutChatInput
   tgUser: Prisma.TgUserCreateNestedOneWithoutChatsInput
@@ -307,6 +320,7 @@ export type ChatUncheckedCreateInput = {
   createdAt?: Date | string
   tgUserId: bigint | number
   name?: string | null
+  lastResponseId?: string | null
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutChatInput
 }
 
@@ -315,6 +329,7 @@ export type ChatUpdateInput = {
   telegramChatId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bot?: Prisma.BotUpdateOneWithoutChatsNestedInput
   messages?: Prisma.MessageUpdateManyWithoutChatNestedInput
   tgUser?: Prisma.TgUserUpdateOneRequiredWithoutChatsNestedInput
@@ -327,6 +342,7 @@ export type ChatUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tgUserId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messages?: Prisma.MessageUncheckedUpdateManyWithoutChatNestedInput
 }
 
@@ -337,6 +353,7 @@ export type ChatCreateManyInput = {
   createdAt?: Date | string
   tgUserId: bigint | number
   name?: string | null
+  lastResponseId?: string | null
 }
 
 export type ChatUpdateManyMutationInput = {
@@ -344,6 +361,7 @@ export type ChatUpdateManyMutationInput = {
   telegramChatId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChatUncheckedUpdateManyInput = {
@@ -353,6 +371,7 @@ export type ChatUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tgUserId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChatListRelationFilter = {
@@ -377,6 +396,7 @@ export type ChatCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   tgUserId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  lastResponseId?: Prisma.SortOrder
 }
 
 export type ChatAvgOrderByAggregateInput = {
@@ -392,6 +412,7 @@ export type ChatMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   tgUserId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  lastResponseId?: Prisma.SortOrder
 }
 
 export type ChatMinOrderByAggregateInput = {
@@ -401,6 +422,7 @@ export type ChatMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   tgUserId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  lastResponseId?: Prisma.SortOrder
 }
 
 export type ChatSumOrderByAggregateInput = {
@@ -514,6 +536,7 @@ export type ChatCreateWithoutTgUserInput = {
   telegramChatId: bigint | number
   createdAt?: Date | string
   name?: string | null
+  lastResponseId?: string | null
   bot?: Prisma.BotCreateNestedOneWithoutChatsInput
   messages?: Prisma.MessageCreateNestedManyWithoutChatInput
 }
@@ -524,6 +547,7 @@ export type ChatUncheckedCreateWithoutTgUserInput = {
   botId?: number | null
   createdAt?: Date | string
   name?: string | null
+  lastResponseId?: string | null
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutChatInput
 }
 
@@ -563,6 +587,7 @@ export type ChatScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Chat"> | Date | string
   tgUserId?: Prisma.BigIntFilter<"Chat"> | bigint | number
   name?: Prisma.StringNullableFilter<"Chat"> | string | null
+  lastResponseId?: Prisma.StringNullableFilter<"Chat"> | string | null
 }
 
 export type ChatCreateWithoutMessagesInput = {
@@ -570,6 +595,7 @@ export type ChatCreateWithoutMessagesInput = {
   telegramChatId: bigint | number
   createdAt?: Date | string
   name?: string | null
+  lastResponseId?: string | null
   bot?: Prisma.BotCreateNestedOneWithoutChatsInput
   tgUser: Prisma.TgUserCreateNestedOneWithoutChatsInput
 }
@@ -581,6 +607,7 @@ export type ChatUncheckedCreateWithoutMessagesInput = {
   createdAt?: Date | string
   tgUserId: bigint | number
   name?: string | null
+  lastResponseId?: string | null
 }
 
 export type ChatCreateOrConnectWithoutMessagesInput = {
@@ -604,6 +631,7 @@ export type ChatUpdateWithoutMessagesInput = {
   telegramChatId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bot?: Prisma.BotUpdateOneWithoutChatsNestedInput
   tgUser?: Prisma.TgUserUpdateOneRequiredWithoutChatsNestedInput
 }
@@ -615,6 +643,7 @@ export type ChatUncheckedUpdateWithoutMessagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tgUserId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChatCreateWithoutBotInput = {
@@ -622,6 +651,7 @@ export type ChatCreateWithoutBotInput = {
   telegramChatId: bigint | number
   createdAt?: Date | string
   name?: string | null
+  lastResponseId?: string | null
   messages?: Prisma.MessageCreateNestedManyWithoutChatInput
   tgUser: Prisma.TgUserCreateNestedOneWithoutChatsInput
 }
@@ -632,6 +662,7 @@ export type ChatUncheckedCreateWithoutBotInput = {
   createdAt?: Date | string
   tgUserId: bigint | number
   name?: string | null
+  lastResponseId?: string | null
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutChatInput
 }
 
@@ -667,6 +698,7 @@ export type ChatCreateManyTgUserInput = {
   botId?: number | null
   createdAt?: Date | string
   name?: string | null
+  lastResponseId?: string | null
 }
 
 export type ChatUpdateWithoutTgUserInput = {
@@ -674,6 +706,7 @@ export type ChatUpdateWithoutTgUserInput = {
   telegramChatId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bot?: Prisma.BotUpdateOneWithoutChatsNestedInput
   messages?: Prisma.MessageUpdateManyWithoutChatNestedInput
 }
@@ -684,6 +717,7 @@ export type ChatUncheckedUpdateWithoutTgUserInput = {
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messages?: Prisma.MessageUncheckedUpdateManyWithoutChatNestedInput
 }
 
@@ -693,6 +727,7 @@ export type ChatUncheckedUpdateManyWithoutTgUserInput = {
   botId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ChatCreateManyBotInput = {
@@ -701,6 +736,7 @@ export type ChatCreateManyBotInput = {
   createdAt?: Date | string
   tgUserId: bigint | number
   name?: string | null
+  lastResponseId?: string | null
 }
 
 export type ChatUpdateWithoutBotInput = {
@@ -708,6 +744,7 @@ export type ChatUpdateWithoutBotInput = {
   telegramChatId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messages?: Prisma.MessageUpdateManyWithoutChatNestedInput
   tgUser?: Prisma.TgUserUpdateOneRequiredWithoutChatsNestedInput
 }
@@ -718,6 +755,7 @@ export type ChatUncheckedUpdateWithoutBotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tgUserId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   messages?: Prisma.MessageUncheckedUpdateManyWithoutChatNestedInput
 }
 
@@ -727,6 +765,7 @@ export type ChatUncheckedUpdateManyWithoutBotInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tgUserId?: Prisma.BigIntFieldUpdateOperationsInput | bigint | number
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastResponseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -767,6 +806,7 @@ export type ChatSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   tgUserId?: boolean
   name?: boolean
+  lastResponseId?: boolean
   bot?: boolean | Prisma.Chat$botArgs<ExtArgs>
   messages?: boolean | Prisma.Chat$messagesArgs<ExtArgs>
   tgUser?: boolean | Prisma.TgUserDefaultArgs<ExtArgs>
@@ -780,6 +820,7 @@ export type ChatSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   tgUserId?: boolean
   name?: boolean
+  lastResponseId?: boolean
   bot?: boolean | Prisma.Chat$botArgs<ExtArgs>
   tgUser?: boolean | Prisma.TgUserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["chat"]>
@@ -791,6 +832,7 @@ export type ChatSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   tgUserId?: boolean
   name?: boolean
+  lastResponseId?: boolean
   bot?: boolean | Prisma.Chat$botArgs<ExtArgs>
   tgUser?: boolean | Prisma.TgUserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["chat"]>
@@ -802,9 +844,10 @@ export type ChatSelectScalar = {
   createdAt?: boolean
   tgUserId?: boolean
   name?: boolean
+  lastResponseId?: boolean
 }
 
-export type ChatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramChatId" | "botId" | "createdAt" | "tgUserId" | "name", ExtArgs["result"]["chat"]>
+export type ChatOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramChatId" | "botId" | "createdAt" | "tgUserId" | "name" | "lastResponseId", ExtArgs["result"]["chat"]>
 export type ChatInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   bot?: boolean | Prisma.Chat$botArgs<ExtArgs>
   messages?: boolean | Prisma.Chat$messagesArgs<ExtArgs>
@@ -834,6 +877,7 @@ export type $ChatPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     createdAt: Date
     tgUserId: bigint
     name: string | null
+    lastResponseId: string | null
   }, ExtArgs["result"]["chat"]>
   composites: {}
 }
@@ -1266,6 +1310,7 @@ export interface ChatFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Chat", 'DateTime'>
   readonly tgUserId: Prisma.FieldRef<"Chat", 'BigInt'>
   readonly name: Prisma.FieldRef<"Chat", 'String'>
+  readonly lastResponseId: Prisma.FieldRef<"Chat", 'String'>
 }
     
 

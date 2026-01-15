@@ -33,6 +33,7 @@ describe("incoming-message.worker", () => {
     tgUserId: BigInt(123),
     name: "Test",
     createdAt: new Date(),
+    lastResponseId: null,
   });
 
   const userMessage = new Message({

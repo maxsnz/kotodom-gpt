@@ -7,6 +7,7 @@ export const ChatResponseSchema = z.object({
   tgUserId: z.string(),
   name: z.string().nullable(),
   createdAt: z.string().datetime(),
+  lastResponseId: z.string().nullable(),
 });
 
 export type ChatResponse = z.infer<typeof ChatResponseSchema>;

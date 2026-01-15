@@ -109,6 +109,7 @@ model Chat {
   tgUser         TgUser   @relation(fields: [tgUserId], references: [id])
   tgUserId       BigInt
   name           String?
+  lastResponseId String?
 }
 
 model MessageProcessing {
@@ -128,6 +129,7 @@ model MessageProcessing {
   responseGeneratedAt       DateTime?
   responseSentAt            DateTime?
   price                     Decimal                    @default(0) @db.Decimal(10, 4)
+  rawResponse               Json?                      
 
   createdAt                 DateTime                  @default(now())
   updatedAt                 DateTime                  @updatedAt

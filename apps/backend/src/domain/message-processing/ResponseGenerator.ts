@@ -69,8 +69,6 @@ export class DefaultResponseGenerator implements ResponseGenerator {
     userMessageId: number
   ): Promise<GenerationResult> {
     const userMessage = ctx.userMessage;
-    const chat = ctx.chat;
-    const bot = ctx.bot;
 
     const text = userMessage.text;
     const trimmed = text.trim();
@@ -103,16 +101,6 @@ export class DefaultResponseGenerator implements ResponseGenerator {
     let updateTimer: NodeJS.Timeout | null = null; // Debounce timer for updates
     const UPDATE_DEBOUNCE_MS = 1000; // Update at most once per second
     const MIN_CHARS_FOR_UPDATE = 20; // Minimum characters before creating/updating message
-
-    // Helper to safely get price from pricing info
-    const getPriceFromPricing = (
-      pricing: PricingInfo | null
-    ): ReturnType<typeof createDecimal> | undefined => {
-      if (!pricing) {
-        return undefined;
-      }
-      return createDecimal(pricing.totalCost);
-    };
 
     // Function to update message in DB and Telegram
     const updateMessage = async (text: string): Promise<void> => {
@@ -263,21 +251,22 @@ export class DefaultResponseGenerator implements ResponseGenerator {
           conversationContext,
           model: bot.model,
           user: userName ?? "No name",
+          previousResponseId: chat.lastResponseId,
         },
         {
           onChunk: async (textDelta: string) => {
             accumulatedText += textDelta;
+
+            // Wait for any pending update to complete before creating message
+            if (currentUpdatePromise) {
+              await currentUpdatePromise;
+            }
 
             // Create message on first chunk that meets minimum character requirement
             if (
               !botMessage &&
               accumulatedText.trim().length >= MIN_CHARS_FOR_UPDATE
             ) {
-              // Wait for any pending update to complete before creating message
-              if (currentUpdatePromise) {
-                await currentUpdatePromise;
-              }
-
               await createFirstMessage();
 
               // After first message is created, schedule update if more text accumulated
@@ -291,15 +280,19 @@ export class DefaultResponseGenerator implements ResponseGenerator {
               }
             }
           },
-          onComplete: async (pricingInfo: PricingInfo | null) => {
+          onComplete: async (
+            pricingInfo: PricingInfo | null,
+            responseId: string,
+            rawResponse: unknown
+          ) => {
             finalPricing = pricingInfo;
+            if (currentUpdatePromise) {
+              await currentUpdatePromise;
+            }
 
             // Create message immediately if not created yet (even if less than MIN_CHARS_FOR_UPDATE)
             if (!botMessage && accumulatedText.trim().length > 0) {
               // Wait for any pending update to complete before creating message
-              if (currentUpdatePromise) {
-                await currentUpdatePromise;
-              }
 
               await createFirstMessage();
             }
@@ -318,72 +311,27 @@ export class DefaultResponseGenerator implements ResponseGenerator {
               await updateMessage(accumulatedText);
             }
 
-            // Update pricing in MessageProcessing if available
-            if (
-              pricingInfo &&
-              pricingInfo.totalCost !== undefined &&
-              botMessage
-            ) {
-              const price = createDecimal(pricingInfo.totalCost);
+            // Update pricing and rawResponse in MessageProcessing if available
+            if (botMessage) {
+              const price =
+                pricingInfo && pricingInfo.totalCost !== undefined
+                  ? createDecimal(pricingInfo.totalCost)
+                  : undefined;
               await this.messageProcessingRepository.markResponseGenerated(
                 userMessageId,
                 botMessage.id,
-                price
+                price,
+                rawResponse
               );
             }
+
+            // Save response ID to chat for next request
+            chat.updateLastResponseId(responseId);
           },
         }
       );
 
-      // Responses API is stateless - no need to save threadId
       await this.chatRepository.save(chat);
-
-      // Ensure we have botMessage (should be created on first chunk)
-      if (!botMessage) {
-        // Fallback: create message if somehow first chunk didn't create it
-        // This handles edge cases like empty response or error during first chunk
-        if (!botId) {
-          throw new Error(
-            `Cannot create bot message: botId is null for userMessageId ${userMessageId}`
-          );
-        }
-
-        const finalText = accumulatedText.trim() || "No response generated";
-        const truncatedText = truncateMessage(finalText);
-
-        botMessage = await this.messageRepository.createBotMessage({
-          chatId: chat.id,
-          botId: botId,
-          text: truncatedText,
-          price: createDecimal(0),
-          userMessageId: userMessage.id,
-        });
-
-        const sendResult = await telegramClient.sendMessage({
-          chatId: telegramChatId.toString(),
-          text: truncatedText,
-        });
-
-        const price = getPriceFromPricing(finalPricing);
-        await this.messageProcessingRepository.markResponseGenerated(
-          userMessageId,
-          botMessage.id,
-          price
-        );
-        await this.messageProcessingRepository.markResponseSent(
-          userMessageId,
-          sendResult.messageId
-        );
-
-        this.logger.warn?.(
-          "Message was created in fallback (should have been created on first chunk)",
-          {
-            botId,
-            userMessageId,
-            messageId: botMessage.id,
-          }
-        );
-      }
 
       return {
         bot,
@@ -391,6 +339,7 @@ export class DefaultResponseGenerator implements ResponseGenerator {
         userMessage,
         responseText: accumulatedText,
         pricing: finalPricing,
+        rawResponse: undefined, // rawResponse is saved in onComplete callback
       };
     } catch (error) {
       // Ensure TYPING stops on error

@@ -180,7 +180,7 @@ export class MessageProcessingAdminController {
 
     if (filters.status) {
       const validStatuses = Object.values(MessageProcessingStatus) as string[];
-      
+
       if (Array.isArray(filters.status)) {
         // Multiple statuses: filter to valid ones
         const validStatusArray = filters.status
@@ -225,6 +225,7 @@ export class MessageProcessingAdminController {
       responseGeneratedAt: record.responseGeneratedAt?.toISOString() ?? null,
       responseSentAt: record.responseSentAt?.toISOString() ?? null,
       price: record.price.toString(),
+      rawResponse: record.rawResponse,
       createdAt: record.createdAt.toISOString(),
       updatedAt: record.updatedAt.toISOString(),
     };

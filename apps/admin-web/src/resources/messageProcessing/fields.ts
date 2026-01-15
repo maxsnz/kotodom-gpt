@@ -168,6 +168,17 @@ const fields = [
     props: { required: false },
   },
   {
+    key: "rawResponse",
+    label: "Raw Response",
+    type: FieldType.JSON,
+    props: { required: false },
+    isVisible: {
+      list: false,
+      show: true,
+      edit: false,
+    },
+  },
+  {
     key: "createdAt",
     label: "Created At",
     type: FieldType.DATE,

@@ -17,7 +17,9 @@ import {
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger: AppLogger;
 
-  constructor(@Inject(LOGGER_FACTORY) private readonly loggerFactory: LoggerFactory) {
+  constructor(
+    @Inject(LOGGER_FACTORY) private readonly loggerFactory: LoggerFactory
+  ) {
     this.logger = loggerFactory(GlobalExceptionFilter.name);
   }
 
@@ -33,8 +35,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     const errorMessage =
       exception instanceof Error ? exception.message : String(exception);
-    const errorStack =
-      exception instanceof Error ? exception.stack : undefined;
+    const errorStack = exception instanceof Error ? exception.stack : undefined;
 
     // Log the error with full context
     this.logger.error("Unhandled exception", {

@@ -17,7 +17,8 @@ export abstract class MessageProcessingRepository {
   abstract markResponseGenerated(
     userMessageId: number,
     responseMessageId: number,
-    price?: import("@prisma/client/runtime/client").Decimal
+    price?: import("@prisma/client/runtime/client").Decimal,
+    rawResponse?: unknown
   ): Promise<void>;
 
   abstract markResponseSent(

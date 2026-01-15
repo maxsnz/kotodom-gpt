@@ -4,7 +4,6 @@ import fields from "./fields";
 import { ResourceConfig } from "@kotoadmin/types/resource";
 import { createListResponseSchema } from "@/utils/responseSchemas";
 import z from "zod";
-import { config } from "@/config";
 import { chatActions } from "./actions";
 import ChatsList from "@/components/ChatsList";
 // import ChatShowView from "@/components/ChatShowView";

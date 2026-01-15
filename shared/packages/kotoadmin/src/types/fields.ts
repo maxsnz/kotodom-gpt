@@ -57,6 +57,10 @@ interface RecordLinkField extends BaseField {
   resource: string;
 }
 
+interface JsonField extends BaseField {
+  type: typeof FieldTypeConst.JSON;
+}
+
 export type Field =
   | BooleanField
   | DateField
@@ -65,7 +69,8 @@ export type Field =
   | SelectField
   | LinkField
   | RecordLinkField
-  | TextareaField;
+  | TextareaField
+  | JsonField;
 
 export type FormValues = Record<
   string,

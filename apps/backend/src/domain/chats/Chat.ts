@@ -7,6 +7,7 @@ export class Chat {
       tgUserId: bigint;
       name: string | null;
       createdAt: Date;
+      lastResponseId: string | null;
     }
   ) {}
 
@@ -34,7 +35,15 @@ export class Chat {
     return this.props.createdAt;
   }
 
+  get lastResponseId() {
+    return this.props.lastResponseId;
+  }
+
   updateName(name: string | null): void {
     this.props.name = name;
+  }
+
+  updateLastResponseId(lastResponseId: string | null): void {
+    this.props.lastResponseId = lastResponseId;
   }
 }

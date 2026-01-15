@@ -46,7 +46,11 @@ export class DefaultResponseSender implements ResponseSender {
     const telegramChatId = chatId ?? Number(chat.telegramChatId);
     const telegramClient = this.telegramClientFactory(bot.token);
 
-    const truncatedText = truncateMessage(result.botMessage.text, undefined, logger);
+    const truncatedText = truncateMessage(
+      result.botMessage.text,
+      undefined,
+      logger
+    );
 
     const sendResult = await telegramClient.sendMessage({
       chatId: telegramChatId.toString(),

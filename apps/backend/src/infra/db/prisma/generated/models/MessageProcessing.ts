@@ -101,6 +101,7 @@ export type MessageProcessingCountAggregateOutputType = {
   responseGeneratedAt: number
   responseSentAt: number
   price: number
+  rawResponse: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -182,6 +183,7 @@ export type MessageProcessingCountAggregateInputType = {
   responseGeneratedAt?: true
   responseSentAt?: true
   price?: true
+  rawResponse?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -288,6 +290,7 @@ export type MessageProcessingGroupByOutputType = {
   responseGeneratedAt: Date | null
   responseSentAt: Date | null
   price: runtime.Decimal
+  rawResponse: runtime.JsonValue | null
   createdAt: Date
   updatedAt: Date
   _count: MessageProcessingCountAggregateOutputType | null
@@ -330,6 +333,7 @@ export type MessageProcessingWhereInput = {
   responseGeneratedAt?: Prisma.DateTimeNullableFilter<"MessageProcessing"> | Date | string | null
   responseSentAt?: Prisma.DateTimeNullableFilter<"MessageProcessing"> | Date | string | null
   price?: Prisma.DecimalFilter<"MessageProcessing"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.JsonNullableFilter<"MessageProcessing">
   createdAt?: Prisma.DateTimeFilter<"MessageProcessing"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MessageProcessing"> | Date | string
   userMessage?: Prisma.XOR<Prisma.MessageScalarRelationFilter, Prisma.MessageWhereInput>
@@ -351,6 +355,7 @@ export type MessageProcessingOrderByWithRelationInput = {
   responseGeneratedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   responseSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
+  rawResponse?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userMessage?: Prisma.MessageOrderByWithRelationInput
@@ -375,6 +380,7 @@ export type MessageProcessingWhereUniqueInput = Prisma.AtLeast<{
   responseGeneratedAt?: Prisma.DateTimeNullableFilter<"MessageProcessing"> | Date | string | null
   responseSentAt?: Prisma.DateTimeNullableFilter<"MessageProcessing"> | Date | string | null
   price?: Prisma.DecimalFilter<"MessageProcessing"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.JsonNullableFilter<"MessageProcessing">
   createdAt?: Prisma.DateTimeFilter<"MessageProcessing"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MessageProcessing"> | Date | string
   userMessage?: Prisma.XOR<Prisma.MessageScalarRelationFilter, Prisma.MessageWhereInput>
@@ -396,6 +402,7 @@ export type MessageProcessingOrderByWithAggregationInput = {
   responseGeneratedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   responseSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
+  rawResponse?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MessageProcessingCountOrderByAggregateInput
@@ -423,6 +430,7 @@ export type MessageProcessingScalarWhereWithAggregatesInput = {
   responseGeneratedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"MessageProcessing"> | Date | string | null
   responseSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"MessageProcessing"> | Date | string | null
   price?: Prisma.DecimalWithAggregatesFilter<"MessageProcessing"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.JsonNullableWithAggregatesFilter<"MessageProcessing">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MessageProcessing"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"MessageProcessing"> | Date | string
 }
@@ -439,6 +447,7 @@ export type MessageProcessingCreateInput = {
   responseGeneratedAt?: Date | string | null
   responseSentAt?: Date | string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   userMessage: Prisma.MessageCreateNestedOneWithoutProcessingInput
@@ -460,6 +469,7 @@ export type MessageProcessingUncheckedCreateInput = {
   responseGeneratedAt?: Date | string | null
   responseSentAt?: Date | string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -476,6 +486,7 @@ export type MessageProcessingUpdateInput = {
   responseGeneratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   responseSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userMessage?: Prisma.MessageUpdateOneRequiredWithoutProcessingNestedInput
@@ -497,6 +508,7 @@ export type MessageProcessingUncheckedUpdateInput = {
   responseGeneratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   responseSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -516,6 +528,7 @@ export type MessageProcessingCreateManyInput = {
   responseGeneratedAt?: Date | string | null
   responseSentAt?: Date | string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -532,6 +545,7 @@ export type MessageProcessingUpdateManyMutationInput = {
   responseGeneratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   responseSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -551,6 +565,7 @@ export type MessageProcessingUncheckedUpdateManyInput = {
   responseGeneratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   responseSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -585,6 +600,7 @@ export type MessageProcessingCountOrderByAggregateInput = {
   responseGeneratedAt?: Prisma.SortOrder
   responseSentAt?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  rawResponse?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -751,6 +767,7 @@ export type MessageProcessingCreateWithoutUserMessageInput = {
   responseGeneratedAt?: Date | string | null
   responseSentAt?: Date | string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   responseMessage?: Prisma.MessageCreateNestedOneWithoutResponseProcessingInput
@@ -770,6 +787,7 @@ export type MessageProcessingUncheckedCreateWithoutUserMessageInput = {
   responseGeneratedAt?: Date | string | null
   responseSentAt?: Date | string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -791,6 +809,7 @@ export type MessageProcessingCreateWithoutResponseMessageInput = {
   responseGeneratedAt?: Date | string | null
   responseSentAt?: Date | string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
   userMessage: Prisma.MessageCreateNestedOneWithoutProcessingInput
@@ -810,6 +829,7 @@ export type MessageProcessingUncheckedCreateWithoutResponseMessageInput = {
   responseGeneratedAt?: Date | string | null
   responseSentAt?: Date | string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -847,6 +867,7 @@ export type MessageProcessingUpdateWithoutUserMessageInput = {
   responseGeneratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   responseSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   responseMessage?: Prisma.MessageUpdateOneWithoutResponseProcessingNestedInput
@@ -866,6 +887,7 @@ export type MessageProcessingUncheckedUpdateWithoutUserMessageInput = {
   responseGeneratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   responseSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -904,6 +926,7 @@ export type MessageProcessingScalarWhereInput = {
   responseGeneratedAt?: Prisma.DateTimeNullableFilter<"MessageProcessing"> | Date | string | null
   responseSentAt?: Prisma.DateTimeNullableFilter<"MessageProcessing"> | Date | string | null
   price?: Prisma.DecimalFilter<"MessageProcessing"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.JsonNullableFilter<"MessageProcessing">
   createdAt?: Prisma.DateTimeFilter<"MessageProcessing"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"MessageProcessing"> | Date | string
 }
@@ -922,6 +945,7 @@ export type MessageProcessingCreateManyResponseMessageInput = {
   responseGeneratedAt?: Date | string | null
   responseSentAt?: Date | string | null
   price?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -938,6 +962,7 @@ export type MessageProcessingUpdateWithoutResponseMessageInput = {
   responseGeneratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   responseSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userMessage?: Prisma.MessageUpdateOneRequiredWithoutProcessingNestedInput
@@ -957,6 +982,7 @@ export type MessageProcessingUncheckedUpdateWithoutResponseMessageInput = {
   responseGeneratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   responseSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -975,6 +1001,7 @@ export type MessageProcessingUncheckedUpdateManyWithoutResponseMessageInput = {
   responseGeneratedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   responseSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  rawResponse?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -996,6 +1023,7 @@ export type MessageProcessingSelect<ExtArgs extends runtime.Types.Extensions.Int
   responseGeneratedAt?: boolean
   responseSentAt?: boolean
   price?: boolean
+  rawResponse?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   userMessage?: boolean | Prisma.MessageDefaultArgs<ExtArgs>
@@ -1017,6 +1045,7 @@ export type MessageProcessingSelectCreateManyAndReturn<ExtArgs extends runtime.T
   responseGeneratedAt?: boolean
   responseSentAt?: boolean
   price?: boolean
+  rawResponse?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   userMessage?: boolean | Prisma.MessageDefaultArgs<ExtArgs>
@@ -1038,6 +1067,7 @@ export type MessageProcessingSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   responseGeneratedAt?: boolean
   responseSentAt?: boolean
   price?: boolean
+  rawResponse?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   userMessage?: boolean | Prisma.MessageDefaultArgs<ExtArgs>
@@ -1059,11 +1089,12 @@ export type MessageProcessingSelectScalar = {
   responseGeneratedAt?: boolean
   responseSentAt?: boolean
   price?: boolean
+  rawResponse?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MessageProcessingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userMessageId" | "status" | "attempts" | "lastError" | "lastErrorAt" | "terminalReason" | "responseMessageId" | "telegramIncomingMessageId" | "telegramOutgoingMessageId" | "telegramUpdateId" | "responseGeneratedAt" | "responseSentAt" | "price" | "createdAt" | "updatedAt", ExtArgs["result"]["messageProcessing"]>
+export type MessageProcessingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userMessageId" | "status" | "attempts" | "lastError" | "lastErrorAt" | "terminalReason" | "responseMessageId" | "telegramIncomingMessageId" | "telegramOutgoingMessageId" | "telegramUpdateId" | "responseGeneratedAt" | "responseSentAt" | "price" | "rawResponse" | "createdAt" | "updatedAt", ExtArgs["result"]["messageProcessing"]>
 export type MessageProcessingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   userMessage?: boolean | Prisma.MessageDefaultArgs<ExtArgs>
   responseMessage?: boolean | Prisma.MessageProcessing$responseMessageArgs<ExtArgs>
@@ -1098,6 +1129,7 @@ export type $MessageProcessingPayload<ExtArgs extends runtime.Types.Extensions.I
     responseGeneratedAt: Date | null
     responseSentAt: Date | null
     price: runtime.Decimal
+    rawResponse: runtime.JsonValue | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["messageProcessing"]>
@@ -1539,6 +1571,7 @@ export interface MessageProcessingFieldRefs {
   readonly responseGeneratedAt: Prisma.FieldRef<"MessageProcessing", 'DateTime'>
   readonly responseSentAt: Prisma.FieldRef<"MessageProcessing", 'DateTime'>
   readonly price: Prisma.FieldRef<"MessageProcessing", 'Decimal'>
+  readonly rawResponse: Prisma.FieldRef<"MessageProcessing", 'Json'>
   readonly createdAt: Prisma.FieldRef<"MessageProcessing", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"MessageProcessing", 'DateTime'>
 }

@@ -16,6 +16,7 @@ import { useResourcePathParams } from "../hooks/useResourcePathParams";
 import ResourceStore from "../utils/resourceStore";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { modals } from "@mantine/modals";
+import JsonField from "./JsonField";
 
 type Props = {
   resource: Resource;
@@ -212,6 +213,9 @@ const BaseShow = ({ resource, resourceStore }: Props) => {
           )}
           {column.type === FieldType.LINK && (
             <Link to={column.url}>{column.label}</Link>
+          )}
+          {column.type === FieldType.JSON && (
+            <JsonField value={record[column.key]} />
           )}
           {column.type === FieldType.RECORD_LINK && (
             <Link

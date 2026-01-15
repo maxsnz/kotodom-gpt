@@ -25,6 +25,7 @@ export class MessageProcessing {
       responseGeneratedAt: Date | null;
       responseSentAt: Date | null;
       price: Decimal;
+      rawResponse: unknown | null;
       createdAt: Date;
       updatedAt: Date;
     }
@@ -84,6 +85,10 @@ export class MessageProcessing {
 
   get price() {
     return this.props.price;
+  }
+
+  get rawResponse() {
+    return this.props.rawResponse;
   }
 
   get createdAt() {

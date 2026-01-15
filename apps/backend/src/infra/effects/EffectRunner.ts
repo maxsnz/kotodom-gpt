@@ -57,7 +57,9 @@ export class EffectRunner {
 
       case "telegram.removeWebhook": {
         try {
-          const client = this.telegramClientFactory.createClient(effect.botToken);
+          const client = this.telegramClientFactory.createClient(
+            effect.botToken
+          );
           await client.removeWebhook();
         } catch (error) {
           // Don't fail the effect if webhook removal fails - just log
