@@ -13,6 +13,7 @@ export const BotResponseSchema = z.object({
   ownerUserId: z.string().nullable(),
   prompt: z.string(),
   createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
   token: z.string(),
 });
 

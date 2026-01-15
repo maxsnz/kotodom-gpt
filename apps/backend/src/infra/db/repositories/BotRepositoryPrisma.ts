@@ -102,6 +102,7 @@ export class BotRepositoryPrisma extends BotRepository {
       ownerUserId: row.ownerUserId ?? null,
       prompt: row.prompt,
       createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     });
   }
 

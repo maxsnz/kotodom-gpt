@@ -131,6 +131,17 @@ const fields = [
       edit: false,
     },
   },
+  {
+    key: "updatedAt",
+    label: "Updated At",
+    type: FieldType.DATE,
+    props: { required: false },
+    isVisible: {
+      list: true,
+      show: true,
+      edit: false,
+    },
+  },
 ] satisfies Field[];
 
 export default fields;

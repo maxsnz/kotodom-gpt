@@ -59,6 +59,7 @@ describe("TelegramUpdateHandler", () => {
       ownerUserId: null,
       prompt: "Hello",
       createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     it("should parse and publish message update", async () => {
@@ -226,6 +227,7 @@ describe("TelegramUpdateHandler", () => {
         ownerUserId: null,
         prompt: "Hello",
         createdAt: new Date(),
+        updatedAt: new Date(),
       });
 
       const update = {

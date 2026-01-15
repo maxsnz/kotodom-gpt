@@ -23,6 +23,7 @@ describe("incoming-message.worker", () => {
     error: null,
     prompt: "Hello",
     createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
   const chat = new Chat({

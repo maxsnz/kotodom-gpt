@@ -63,6 +63,7 @@ describe("OpenAIClient", () => {
       prompt: "You are a helpful assistant.",
       messageText: "Hello, how are you?",
       model: "gpt-4o-mini",
+      user: "test-user",
     };
 
     it("should get answer from Responses API", async () => {
@@ -88,6 +89,8 @@ describe("OpenAIClient", () => {
         model: "gpt-4o-mini",
         instructions: "You are a helpful assistant.",
         input: "Hello, how are you?",
+        user: "test-user",
+        max_output_tokens: 800,
       });
     });
 
@@ -173,6 +176,8 @@ describe("OpenAIClient", () => {
         model: "gpt-4o",
         instructions: defaultParams.prompt,
         input: defaultParams.messageText,
+        user: "test-user",
+        max_output_tokens: 800,
       });
     });
 
@@ -192,6 +197,7 @@ describe("OpenAIClient", () => {
         prompt: "You are a coding assistant.",
         messageText: "How do I write a function?",
         model: "gpt-5-nano",
+        user: "test-user",
       });
 
       expect(result.answer).toBe("Custom response");
@@ -199,6 +205,8 @@ describe("OpenAIClient", () => {
         model: "gpt-5-nano",
         instructions: "You are a coding assistant.",
         input: "How do I write a function?",
+        user: "test-user",
+        max_output_tokens: 800,
       });
     });
   });
@@ -228,6 +236,7 @@ describe("OpenAIClient", () => {
         prompt: "You are helpful.",
         messageText: "Hello",
         model: "gpt-4o-mini",
+        user: "test-user",
       });
 
       expect(result.answer).toBe("Response");
@@ -254,6 +263,7 @@ describe("OpenAIClient", () => {
         prompt: "You are helpful.",
         messageText: "Hello",
         model: "gpt-4o-mini",
+        user: "test-user",
       });
 
       expect(result.answer).toBe("Response");

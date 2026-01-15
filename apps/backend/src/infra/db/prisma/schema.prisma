@@ -85,7 +85,6 @@ model Bot {
   name  String
   token String @default("")
   model String @default("gpt-5-nano")
-  createdAt DateTime @default(now())
   enabled Boolean @default(false)
   messages Message[]
   prompt String @default("")
@@ -94,6 +93,8 @@ model Bot {
   telegramMode TelegramModeEnum @default(webhook)
   ownerUserId String?
   owner       User?   @relation(fields: [ownerUserId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([ownerUserId])
 }
@@ -127,7 +128,7 @@ model MessageProcessing {
   responseGeneratedAt       DateTime?
   responseSentAt            DateTime?
   price                     Decimal                    @default(0) @db.Decimal(10, 4)
-  
+
   createdAt                 DateTime                  @default(now())
   updatedAt                 DateTime                  @updatedAt
 

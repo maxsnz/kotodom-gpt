@@ -45,7 +45,8 @@ type BotResponse = {
   error: string | null;
   ownerUserId: string | null;
   token: string;
-  createdAt: Date;
+  createdAt: string;
+  updatedAt: string;
   prompt: string;
 };
 
@@ -219,7 +220,8 @@ export class BotsAdminController {
   private toBotResponse(bot: Bot): BotResponse {
     return {
       id: bot.id,
-      createdAt: bot.createdAt,
+      createdAt: bot.createdAt.toISOString(),
+      updatedAt: bot.updatedAt.toISOString(),
       name: bot.name,
       startMessage: bot.startMessage,
       errorMessage: bot.errorMessage,

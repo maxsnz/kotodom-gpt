@@ -252,7 +252,7 @@ export class DefaultResponseGenerator implements ResponseGenerator {
       // Load user to get their name
       const tgUser = await this.tgUserRepository.findById(chat.tgUserId);
       const userName = tgUser
-        ? (tgUser.fullName ?? tgUser.name ?? undefined)
+        ? tgUser.fullName ?? tgUser.name ?? undefined
         : undefined;
 
       // Start streaming from OpenAI
@@ -262,7 +262,7 @@ export class DefaultResponseGenerator implements ResponseGenerator {
           messageText: userMessage.text,
           conversationContext,
           model: bot.model,
-          user: userName,
+          user: userName ?? "No name",
         },
         {
           onChunk: async (textDelta: string) => {

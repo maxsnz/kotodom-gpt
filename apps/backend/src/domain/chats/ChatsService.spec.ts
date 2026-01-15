@@ -56,6 +56,7 @@ describe("ChatsService", () => {
       ownerUserId: null,
       prompt: "Hello",
       createdAt: new Date(),
+      updatedAt: new Date(),
       ...overrides,
     });
   };

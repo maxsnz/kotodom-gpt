@@ -65,7 +65,10 @@ async function processUserMessage(
       deps.messageRepository,
       telegramClientFactory,
       deps.messageProcessingRepository,
-      new ConversationContextBuilder(deps.messageRepository, deps.settingsRepository),
+      new ConversationContextBuilder(
+        deps.messageRepository,
+        deps.settingsRepository
+      ),
       deps.tgUserRepository,
       logger
     ),

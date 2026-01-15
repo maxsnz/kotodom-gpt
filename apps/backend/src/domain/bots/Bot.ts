@@ -4,6 +4,7 @@ export class Bot {
   constructor(
     private props: {
       createdAt: Date;
+      updatedAt: Date;
       id: string;
       name: string;
       startMessage: string;
@@ -63,6 +64,10 @@ export class Bot {
 
   get createdAt() {
     return this.props.createdAt;
+  }
+
+  get updatedAt() {
+    return this.props.updatedAt;
   }
 
   setError(error: string | null): void {

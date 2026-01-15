@@ -81,6 +81,7 @@ export class BotsService {
       ownerUserId: oldBot.ownerUserId, // Preserve owner
       prompt: input.prompt || oldBot.prompt,
       createdAt: oldBot.createdAt,
+      updatedAt: oldBot.updatedAt,
     });
 
     await this.botRepo.save(updatedBot);

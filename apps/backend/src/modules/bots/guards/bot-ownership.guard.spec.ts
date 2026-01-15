@@ -41,6 +41,7 @@ describe("BotOwnershipGuard", () => {
       ownerUserId,
       prompt: "Hello",
       createdAt: new Date(),
+      updatedAt: new Date(),
     });
   };
 

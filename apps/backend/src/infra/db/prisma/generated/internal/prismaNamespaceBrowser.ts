@@ -129,12 +129,13 @@ export const BotScalarFieldEnum = {
   name: 'name',
   token: 'token',
   model: 'model',
-  createdAt: 'createdAt',
   enabled: 'enabled',
   prompt: 'prompt',
   error: 'error',
   telegramMode: 'telegramMode',
-  ownerUserId: 'ownerUserId'
+  ownerUserId: 'ownerUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type BotScalarFieldEnum = (typeof BotScalarFieldEnum)[keyof typeof BotScalarFieldEnum]

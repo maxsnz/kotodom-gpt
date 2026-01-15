@@ -37,6 +37,7 @@ describe("BotsService", () => {
       ownerUserId: null,
       prompt: "",
       createdAt: new Date(),
+      updatedAt: new Date(),
       ...overrides,
     });
   };

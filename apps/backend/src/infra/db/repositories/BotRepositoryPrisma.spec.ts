@@ -34,6 +34,7 @@ describe("BotRepositoryPrisma", () => {
     error: null as string | null,
     ownerUserId: null as string | null,
     createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   beforeEach(() => {
@@ -55,6 +56,7 @@ describe("BotRepositoryPrisma", () => {
         name: "Test Bot",
         model: "gpt-4o-mini",
         createdAt: new Date(),
+        updatedAt: new Date(),
         error: null,
       };
 
@@ -107,6 +109,7 @@ describe("BotRepositoryPrisma", () => {
           name: "Bot 1",
           model: "gpt-4o-mini",
           createdAt: new Date(),
+          updatedAt: new Date(),
           error: null,
         },
         {
@@ -118,6 +121,7 @@ describe("BotRepositoryPrisma", () => {
           name: "Bot 2",
           model: "gpt-4o-mini",
           createdAt: new Date(),
+          updatedAt: new Date(),
           error: null,
         },
       ];
@@ -160,6 +164,7 @@ describe("BotRepositoryPrisma", () => {
           name: "Bot 1",
           model: "gpt-4o-mini",
           createdAt: new Date(),
+          updatedAt: new Date(),
           error: null,
         },
         {
@@ -172,6 +177,7 @@ describe("BotRepositoryPrisma", () => {
           name: "Bot 2",
           model: "gpt-4o-mini",
           createdAt: new Date(),
+          updatedAt: new Date(),
           error: null,
         },
       ];
@@ -218,6 +224,7 @@ describe("BotRepositoryPrisma", () => {
         name: "Test Bot",
         model: "gpt-4o-mini",
         createdAt: new Date(),
+        updatedAt: new Date(),
         error: null,
       } as any);
 
@@ -297,6 +304,7 @@ describe("BotRepositoryPrisma", () => {
         name: "Mapped Bot",
         model: "gpt-4o-mini",
         createdAt: new Date(),
+        updatedAt: new Date(),
         error: null,
       };
 

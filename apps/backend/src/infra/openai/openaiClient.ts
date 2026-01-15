@@ -26,7 +26,7 @@ export interface GetAnswerParams {
   messageText: string;
   conversationContext?: ConversationMessage[];
   model: string;
-  user?: string;
+  user: string;
 }
 
 export interface GetAnswerResult {
@@ -39,7 +39,7 @@ export interface StreamAnswerParams {
   messageText: string;
   conversationContext?: ConversationMessage[];
   model: string;
-  user?: string;
+  user: string;
 }
 
 export interface StreamAnswerCallbacks {
@@ -106,7 +106,7 @@ export class OpenAIClient {
         instructions: prompt,
         input: input,
         max_output_tokens: 800,
-        ...(params.user && { user: params.user }),
+        user: params.user,
       });
 
       // Extract answer text
