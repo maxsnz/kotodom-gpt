@@ -37,19 +37,21 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       exception instanceof Error ? exception.message : String(exception);
     const errorStack = exception instanceof Error ? exception.stack : undefined;
 
-    // Log the error with full context
-    this.logger.error("Unhandled exception", {
-      status,
-      method: request.method,
-      url: request.url,
-      error: {
-        message: errorMessage,
-        stack: errorStack,
-        ...(exception instanceof HttpException
-          ? { response: exception.getResponse() }
-          : {}),
-      },
-    });
+    // Log the error with full context (skip 404 errors)
+    if (status !== HttpStatus.NOT_FOUND) {
+      this.logger.error("Unhandled exception", {
+        status,
+        method: request.method,
+        url: request.url,
+        error: {
+          message: errorMessage,
+          stack: errorStack,
+          ...(exception instanceof HttpException
+            ? { response: exception.getResponse() }
+            : {}),
+        },
+      });
+    }
 
     // Send error response (maintains existing error handling behavior)
     const errorResponse =
