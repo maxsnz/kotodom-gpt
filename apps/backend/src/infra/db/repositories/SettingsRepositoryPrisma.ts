@@ -1,15 +1,15 @@
-import { SettingsRepository, SettingItem } from "../../../domain/settings/SettingsRepository";
+import { SettingsRepository } from "../../../domain/settings/SettingsRepository";
 import { prisma } from "../prisma/client";
 
 export class SettingsRepositoryPrisma extends SettingsRepository {
-  async getSetting(key: string): Promise<string> {
+  async getSetting(key: string) {
     const setting = await prisma.setting.findUnique({
       where: { id: key },
     });
     return setting?.value ?? "";
   }
 
-  async setSetting(key: string, value: string): Promise<void> {
+  async setSetting(key: string, value: string) {
     await prisma.setting.upsert({
       where: { id: key },
       update: { value },
@@ -17,7 +17,7 @@ export class SettingsRepositoryPrisma extends SettingsRepository {
     });
   }
 
-  async getAllSettings(): Promise<SettingItem[]> {
+  async getAllSettings() {
     const settings = await prisma.setting.findMany();
     return settings.map((setting) => ({
       id: setting.id,
@@ -25,7 +25,7 @@ export class SettingsRepositoryPrisma extends SettingsRepository {
     }));
   }
 
-  async deleteSetting(key: string): Promise<void> {
+  async deleteSetting(key: string) {
     await prisma.setting.delete({
       where: { id: key },
     });
