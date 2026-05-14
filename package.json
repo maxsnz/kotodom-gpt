@@ -29,6 +29,7 @@
     "@logtail/pino": "^0.5.7",
     "@mantine/core": "^8.3.11",
     "@mantine/dates": "^8.3.11",
+    "@mantine/form": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/modals": "^8.3.11",
     "@mantine/notifications": "^8.3.11",
@@ -102,6 +103,7 @@
     "overrides": {
       "react": "^19.2.3",
       "react-dom": "^19.2.3",
+      "@mantine/form": "^8.3.11",
       "mantine-react-table>@mantine/core": "^8.0.0",
       "mantine-react-table>@mantine/hooks": "^8.0.0",
       "mantine-react-table>@mantine/dates": "^8.0.0"
