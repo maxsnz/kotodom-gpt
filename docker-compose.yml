@@ -7,28 +7,38 @@ services:
       dockerfile: Dockerfile
     image: kotodom-gpt
     container_name: kotodom-gpt
+    # network_mode: host — backend listens on 127.0.0.1:${BACKEND_PORT},
+    # nginx on the host proxies to the same address. One hop less than
+    # going through a docker network, and it simplifies access to local
+    # Postgres and Redis (both bind 127.0.0.1).
     network_mode: host
     restart: unless-stopped
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      BASE_URL: ${BASE_URL}
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      LOGTAIL_TOKEN: ${LOGTAIL_TOKEN}
-      LOGTAIL_SOURCE: ${LOGTAIL_SOURCE}
-      BACKEND_PORT: ${BACKEND_PORT}
-      COOKIE_SECRET: ${COOKIE_SECRET}
-      REDIS_URL: ${REDIS_URL}
-      NODE_ENV: production
+    # env_file: the ansible env_file role writes /var/www/kotodom-gpt/.env
+    # with substituted secrets; explicit `environment:` is not needed.
+    env_file:
+      - .env
     healthcheck:
-      test: ["CMD-SHELL", "ps aux | grep 'tsx' || exit 1"]
+      # /api/health returns 200 OK once Nest is up (see
+      # apps/backend/src/modules/health/health.controller.ts). wget is
+      # available out of the box in busybox alpine.
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://127.0.0.1:${BACKEND_PORT}/api/health >/dev/null || exit 1",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      # Generous start_period: first boot + migrations + pg-boss connect
+      # + telegram webhook setup. We don't want spurious restarts.
+      start_period: 60s
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
-    volumes:
-      - /var/www/kotodom-gpt/dist-admin-web:/usr/src/app/dist-admin-web
+    # The frontend bind-mount was removed on purpose: dist-admin-web is
+    # extracted from the image into /var/www/kotodom-gpt-frontend/dist
+    # via `docker cp` (see deploy/playbook.yml) and nginx serves from
+    # there. The image is self-contained, so container restart does not
+    # depend on the host directory state.

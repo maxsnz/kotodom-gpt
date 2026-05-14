@@ -9,47 +9,215 @@
   vars:
     app_name: "kotodom-gpt"
 
+    # ---------- Postgres ----------
+    # Per-app DB + user, password derived deterministically from the
+    # shared master secret (same approach as sverka/reminder). The legacy
+    # Timeweb DB was called `kotodomgpt2`; on Hetzner we name it after
+    # app_name with an underscore (Postgres dislikes dashes in unquoted
+    # identifiers).
+    pg_db_name: "kotodom_gpt"
+    pg_db_user: "kotodom_gpt"
+
+    pg_db_password: >-
+      {{ (kotodom_master_secret ~ ':' ~ app_name ~ ':pg')
+         | hash('sha256')
+         | truncate(32, True, '') }}
+
+    # ---------- Redis ----------
+    # Shared system Redis (see infra/roles/redis). DB index = 1 so the
+    # kotodom-gpt admin sessions don't collide with the prosto-travel
+    # queues (which will land on DB 0). Password derived with the same
+    # expression as in server-bootstrap.
+    redis_password: >-
+      {{ (kotodom_master_secret ~ ':redis')
+         | hash('sha256')
+         | truncate(32, True, '') }}
+    redis_db_index: 1
+
     # ---------- Paths ----------
     project_dir: "/var/www/kotodom-gpt"
     compose_path: "{{ project_dir }}/docker-compose.yml"
     env_file_path: "{{ project_dir }}/.env"
+    # Where the built admin-web is published (extracted from the image
+    # via `docker cp` in the deploy section). nginx serves it as static.
+    frontend_dist_dir: "/var/www/kotodom-gpt-frontend/dist"
 
     # ---------- Docker App ----------
     docker_app_project_dir: "{{ project_dir }}"
     docker_app_compose_path: "{{ compose_path }}"
-    docker_app_git_repo: "git@github.com:maxsnz/kotodom-gpt.git"
+    # Per-project deploy key: SSH auth via
+    # /root/.ssh/id_ed25519_kotodom-gpt (see infra/roles/github_deploy_key,
+    # gh_deploy_host_alias).
+    docker_app_git_repo: "git@github-{{ app_name }}:maxsnz/kotodom-gpt.git"
     docker_app_git_version: "master"
+    # network_mode: host — two containers cannot simultaneously bind
+    # BACKEND_PORT, so we disable zero-downtime.
+    docker_app_enable_zero_downtime: false
+    # Image cleanup removed from each deploy — `docker builder prune -af`
+    # wipes the layer cache and every build (vite + nest) goes from scratch.
+    docker_app_skip_cleanup: true
+    # Prisma migrations via npx (node stack, no bun).
     docker_app_enable_prisma_migrations: true
+    docker_app_prisma_migrate_cmd: "npx prisma migrate deploy"
+    docker_image_name: "kotodom-gpt:latest"
 
     # ---------- Env vars for .env ----------
+    # BACKEND_PORT 3000 matches the port Nest listens on (see main.ts)
+    # and the port nginx proxies /api/* and /telegram/* to. Same value
+    # we used on Timeweb.
     env_vars:
       NODE_ENV: "production"
-      DATABASE_URL: "{{ DATABASE_URL }}"
-      BASE_URL: "{{ BASE_URL }}"
-      OPENAI_API_KEY: "{{ OPENAI_API_KEY }}"
-      COOKIE_SECRET: "{{ COOKIE_SECRET }}"
       BACKEND_PORT: "{{ BACKEND_PORT | default('3000') }}"
+      DATABASE_URL: >-
+        postgresql://{{ pg_db_user }}:{{ pg_db_password }}@127.0.0.1:5432/{{ pg_db_name }}?schema=public
+      REDIS_URL: >-
+        redis://:{{ redis_password }}@127.0.0.1:6379/{{ redis_db_index }}
+
+      BASE_URL: "{{ BASE_URL }}"
+      COOKIE_SECRET: "{{ COOKIE_SECRET }}"
+      OPENAI_API_KEY: "{{ OPENAI_API_KEY }}"
+
+      # Logging (Logtail / Better Stack). Optional — defaults to empty
+      # so the deploy doesn't fail when the vault has no value.
       LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN | default('') }}"
       LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE | default('') }}"
-      REDIS_URL: "{{ REDIS_URL | default('') }}"
+
+    # ---------- Nginx (prod) ----------
+    # The kotodom.mooo.com zone is hosted on FreeDNS (afraid.org). The
+    # A record → server IP is already in place. Let's Encrypt cert is
+    # issued via webroot HTTP-01; the nginx_site role does it
+    # automatically.
+    nginx_site_name: "kotodom-gpt"
+    nginx_site_server_name: "kotodom.mooo.com"
+    nginx_site_aliases:
+      - "www.kotodom.mooo.com"
+    nginx_site_static_root: "{{ frontend_dist_dir }}"
+    nginx_site_upstream_port: "{{ env_vars.BACKEND_PORT }}"
+    # The backend serves two upstream prefixes: /api/* — REST + admin
+    # API, /telegram/* — Telegraf webhooks. Everything else (/,
+    # /assets/*, ...) falls through to the SPA index.html.
+    nginx_site_api_prefixes:
+      - "/api/"
+      - "/telegram/"
+    nginx_site_tls_enabled: true
+    nginx_site_letsencrypt_email: "gmaxsnz@gmail.com"
 
     # ---------- Vector Logging ----------
     vector_source_name: "kotodom_gpt"
     vector_log_path: "/var/lib/docker/containers/*/*-json.log"
 
-    # ---------- Nginx ----------
-    nginx_config_path: "/etc/nginx/sites-available/{{ app_name }}.conf"
-    nginx_config_local_path: "nginx/{{ app_name }}.conf"
+  tasks:
+    # Per-project deploy key. Run manually once on a fresh server:
+    #   make github-key
+    # See infra/README.md → "First-time deploy key setup". Excluded
+    # from setup/deploy (tag `never`) to avoid printing the pubkey on
+    # every run.
+    - name: Apply github_deploy_key role
+      import_role:
+        name: github_deploy_key
+      vars:
+        gh_deploy_key_name: "{{ app_name }}"
+      tags: ["github-key", "never"]
 
-  roles:
-    - { role: env_file, tags: ["env"] }
-    - { role: postgres_db, tags: ["db"] }
-    - { role: docker_app_setup, tags: ["setup"] }
-    - role: docker_app
-      tasks_from: fast
+    - name: Apply postgres_db role
+      import_role:
+        name: postgres_db
+      tags: ["db"]
+
+    # Order: docker_app_setup clones the repo BEFORE env_file writes
+    # .env. Otherwise project_dir becomes non-empty (with .env) and not
+    # a git repo, and docker_app_setup refuses to operate.
+    - name: Apply docker_app_setup role
+      import_role:
+        name: docker_app_setup
+      tags: ["setup"]
+
+    - name: Apply env_file role
+      import_role:
+        name: env_file
+      tags: ["env"]
+
+    - name: Apply docker_app role
+      import_role:
+        name: docker_app
       tags: ["app"]
-      when: (docker_app_deploy_mode | default('normal')) == 'fast'
-    - role: docker_app
-      tags: ["app"]
-      when: (docker_app_deploy_mode | default('normal')) != 'fast'
-    - { role: vector_source, tags: ["logs"] }
+
+    # ── Frontend extract ──────────────────────────────────────────────
+    # The built admin-web lives inside the image (dist-admin-web/). On
+    # every deploy we extract fresh files via `docker cp` into the host
+    # directory that nginx serves. Tagged under "app" so `make deploy`
+    # (--tags env,app) refreshes the frontend together with the
+    # backend; "nginx" is the manual trigger.
+
+    - name: Ensure frontend dist parent dir exists
+      file:
+        path: "{{ frontend_dist_dir | dirname }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      tags: ["app", "nginx"]
+
+    - name: Remove any stale extractor container
+      command: docker rm -f kotodom-gpt-extract
+      changed_when: false
+      failed_when: false
+      tags: ["app", "nginx"]
+
+    - name: Create extractor container from built image
+      command: docker create --name kotodom-gpt-extract {{ docker_image_name }}
+      changed_when: true
+      tags: ["app", "nginx"]
+
+    - name: Remove previous dist staging dir
+      file:
+        path: "{{ frontend_dist_dir }}.new"
+        state: absent
+      tags: ["app", "nginx"]
+
+    - name: Copy frontend dist from extractor container
+      command: docker cp kotodom-gpt-extract:/usr/src/app/dist-admin-web {{ frontend_dist_dir }}.new
+      changed_when: true
+      tags: ["app", "nginx"]
+
+    - name: Atomically swap dist directory
+      shell: |
+        set -e
+        rm -rf "{{ frontend_dist_dir }}"
+        mv "{{ frontend_dist_dir }}.new" "{{ frontend_dist_dir }}"
+      changed_when: true
+      tags: ["app", "nginx"]
+
+    - name: Make dist world-readable for nginx
+      file:
+        path: "{{ frontend_dist_dir }}"
+        owner: root
+        group: root
+        mode: "u=rwX,go=rX"
+        recurse: yes
+      tags: ["app", "nginx"]
+
+    - name: Remove extractor container
+      command: docker rm kotodom-gpt-extract
+      changed_when: true
+      tags: ["app", "nginx"]
+
+    # nginx_site is rolled out once (cert + vhost + autorenew). The
+    # vhost template is idempotent; the cert renews via certbot.timer.
+    # `make deploy` should not touch it — tags ["setup", "nginx"]. When
+    # the domain/port/TLS config changes, run `make … --tags nginx`.
+    - name: Apply nginx_site role (prod)
+      import_role:
+        name: nginx_site
+      tags: ["setup", "nginx"]
+
+    - name: Apply vector_source role
+      import_role:
+        name: vector_source
+      tags: ["logs"]
+
+  handlers:
+    - name: Reload Nginx
+      systemd:
+        name: nginx
+        state: reloaded

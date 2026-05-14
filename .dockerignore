@@ -1,0 +1,44 @@
+# `npm ci` runs in its own layer — node_modules from the host only
+# defeats the cache and may smuggle in arch-specific binaries
+# (macOS → Linux container).
+node_modules
+**/node_modules
+
+# Build artifacts — Dockerfile runs `npm run build` itself.
+dist-backend
+dist-admin-web
+**/dist
+**/build
+
+# Production .env and logs do not belong in the image (env is injected
+# via env_file at runtime).
+.env
+.env.*
+!.env.example
+*.log
+
+# Lockfiles from other package managers (this project uses npm).
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+bun.lock
+
+# IDE / VCS / OS
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Tests are not needed in prod (tsconfig skips them at build time anyway).
+**/*.test.ts
+**/*.spec.ts
+**/__tests__
+
+# Prisma generated client — Dockerfile runs `prisma generate` itself;
+# the local (potentially stale) copy does not belong in the context.
+apps/backend/src/infra/db/prisma/generated
+
+# Legacy code and temporary directories
+old
+creds
