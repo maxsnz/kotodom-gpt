@@ -62,12 +62,16 @@
     docker_image_name: "kotodom-gpt:latest"
 
     # ---------- Env vars for .env ----------
-    # BACKEND_PORT 3000 matches the port Nest listens on (see main.ts)
-    # and the port nginx proxies /api/* and /telegram/* to. Same value
-    # we used on Timeweb.
+    # BACKEND_PORT is the loopback port Nest binds to and that nginx
+    # forwards /api/* and /telegram/* to. All host-network containers
+    # share the kernel port space, so port-per-app is reserved here:
+    #   3000  reminder       (bun)
+    #   3100  kotodom-gpt    (this app)
+    # Add new apps in this range, do not collide. We hard-code instead
+    # of pulling from vault to make the assignment grep-able.
     env_vars:
       NODE_ENV: "production"
-      BACKEND_PORT: "{{ BACKEND_PORT | default('3000') }}"
+      BACKEND_PORT: "3100"
       DATABASE_URL: >-
         postgresql://{{ pg_db_user }}:{{ pg_db_password }}@127.0.0.1:5432/{{ pg_db_name }}?schema=public
       REDIS_URL: >-
