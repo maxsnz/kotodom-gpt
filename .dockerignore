@@ -17,9 +17,9 @@ dist-admin-web
 !.env.example
 *.log
 
-# Lockfiles from other package managers (this project uses pnpm).
+# Lockfiles from other package managers (this project uses npm).
 yarn.lock
-package-lock.json
+pnpm-lock.yaml
 bun.lockb
 bun.lock
 

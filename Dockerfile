@@ -17,17 +17,11 @@ WORKDIR /usr/src/app
 # busybox alpine — used by the compose healthcheck.
 RUN apk add --no-cache openssl ca-certificates
 
-# pnpm pinned to the same version declared in package.json's
-# `packageManager` field. Keeps local and CI installs deterministic.
-RUN npm install -g pnpm@10.33.4
-
-# Manifest + lockfile copied first so the install layer caches as long as
-# nothing in package.json / pnpm-lock.yaml changes.
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # Full sources: vite/nest read tsconfigs from apps/* and shared/*. The
-# layers above (pnpm install) are reused as long as nothing but sources change.
+# layers above (npm ci) are reused as long as nothing but sources change.
 COPY . .
 
 # Prisma 7's prisma.config.ts uses `env("DATABASE_URL")` and eager-
@@ -35,15 +29,15 @@ COPY . .
 # reminder). We pass a dummy value scoped to this RUN — the variable is
 # not baked into the final image.
 RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" \
-    pnpm exec prisma generate
+    npx prisma generate
 
 # Build both frontends (admin-web via vite) and the backend (nest build
 # = tsc). Artifacts: dist-admin-web/, dist-backend/.
-RUN pnpm run build
+RUN npm run build
 
-# Drop devDeps — saves a few hundred MB in the final image. Dev-only
-# packages (jest, vite, nest CLI) are no longer needed: backend runs as
-# compiled JS, the frontend is static.
-RUN pnpm prune --prod
+# Drop devDeps — saves ~250 MB in the final image. Dev-only packages
+# (jest, vite, nest CLI) are no longer needed: backend runs as compiled
+# JS, the frontend is static.
+RUN npm prune --omit=dev
 
 CMD ["node", "dist-backend/apps/backend/src/main.js"]
