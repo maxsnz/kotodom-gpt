@@ -11,8 +11,6 @@ jest.mock("../../config/env", () => ({
   env: {
     BASE_URL: "https://api.example.com",
     NODE_ENV: "test",
-    LOGTAIL_TOKEN: "",
-    LOGTAIL_SOURCE: "",
   },
 }));
 

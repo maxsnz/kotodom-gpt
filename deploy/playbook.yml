@@ -81,11 +81,6 @@
       COOKIE_SECRET: "{{ COOKIE_SECRET }}"
       OPENAI_API_KEY: "{{ OPENAI_API_KEY }}"
 
-      # Logging (Logtail / Better Stack). Optional — defaults to empty
-      # so the deploy doesn't fail when the vault has no value.
-      LOGTAIL_TOKEN: "{{ LOGTAIL_TOKEN | default('') }}"
-      LOGTAIL_SOURCE: "{{ LOGTAIL_SOURCE | default('') }}"
-
     # ---------- Nginx (prod) ----------
     # The kotodom.mooo.com zone is hosted on FreeDNS (afraid.org). The
     # A record → server IP is already in place. Let's Encrypt cert is
@@ -107,8 +102,12 @@
     nginx_site_letsencrypt_email: "gmaxsnz@gmail.com"
 
     # ---------- Vector Logging ----------
+    # Per-app pipeline: docker_logs → JSON parse → dedicated BS Logs
+    # source. Reuses the source token previously fed by @logtail/pino.
     vector_source_name: "kotodom_gpt"
-    vector_log_path: "/var/lib/docker/containers/*/*-json.log"
+    vector_source_container_name: "kotodom-gpt"
+    vector_source_bs_token: "{{ bs_logs_token }}"
+    vector_source_bs_host: "{{ bs_logs_host }}"
 
   tasks:
     # Per-project deploy key. Run manually once on a fresh server:

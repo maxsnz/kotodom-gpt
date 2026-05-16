@@ -132,8 +132,6 @@ describe("env config", () => {
     process.env.COOKIE_SECRET = "test-secret";
     process.env.BASE_URL = "https://api.example.com";
     process.env.BACKEND_PORT = "3000";
-    process.env.LOGTAIL_TOKEN = "logtail-token";
-    process.env.LOGTAIL_SOURCE = "logtail-source";
 
     const { env } = require("./env");
 
@@ -143,8 +141,6 @@ describe("env config", () => {
     expect(env).toHaveProperty("BASE_URL");
     expect(env).toHaveProperty("OPENAI_API_KEY");
     expect(env).toHaveProperty("COOKIE_SECRET");
-    expect(env).toHaveProperty("LOGTAIL_TOKEN");
-    expect(env).toHaveProperty("LOGTAIL_SOURCE");
   });
 
   it("should handle optional BACKEND_PORT", () => {
@@ -157,17 +153,5 @@ describe("env config", () => {
     const { env } = require("./env");
 
     expect(env.BACKEND_PORT).toBe("8080");
-  });
-
-  it("should handle optional LOGTAIL_TOKEN", () => {
-    process.env.DATABASE_URL = "postgresql://localhost:5432/test";
-    process.env.OPENAI_API_KEY = "test-api-key";
-    process.env.COOKIE_SECRET = "test-secret";
-    process.env.BASE_URL = "https://api.example.com";
-    process.env.LOGTAIL_TOKEN = "custom-token";
-
-    const { env } = require("./env");
-
-    expect(env.LOGTAIL_TOKEN).toBe("custom-token");
   });
 });

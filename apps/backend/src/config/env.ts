@@ -9,8 +9,6 @@ interface EnvironmentConfig {
   BASE_URL: string;
   OPENAI_API_KEY: string;
   COOKIE_SECRET: string;
-  LOGTAIL_TOKEN: string;
-  LOGTAIL_SOURCE: string;
   REDIS_URL: string | undefined;
 }
 
@@ -37,8 +35,6 @@ function validateEnv(): EnvironmentConfig {
     COOKIE_SECRET: process.env.COOKIE_SECRET!,
     BACKEND_PORT: process.env.BACKEND_PORT || "3000",
     BASE_URL: process.env.BASE_URL!,
-    LOGTAIL_TOKEN: process.env.LOGTAIL_TOKEN!,
-    LOGTAIL_SOURCE: process.env.LOGTAIL_SOURCE!,
     REDIS_URL: process.env.REDIS_URL || undefined,
   };
 

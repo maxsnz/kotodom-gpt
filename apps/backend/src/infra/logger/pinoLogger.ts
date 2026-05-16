@@ -6,48 +6,32 @@ import { AppLogger, LoggerFactory } from "./logger.types";
 
 const isProd = env.NODE_ENV === "production";
 
-function buildTransport(): pino.TransportMultiOptions {
-  const targets: pino.TransportTargetOptions[] = [];
+// Prod: default JSON-to-stdout transport. Docker captures stdout into
+// the container json-file log, Vector tails it and forwards to the
+// per-app Better Stack source (see deploy/playbook.yml → vector_source).
+// Dev: pino-pretty for readable colourised output.
+function createRootPino(): pino.Logger {
+  const base = {
+    app: packageJson.name,
+    version: packageJson.version,
+    env: env.NODE_ENV,
+  };
 
-  if (env.LOGTAIL_TOKEN) {
-    targets.push({
-      target: "@logtail/pino",
-      options: {
-        sourceToken: env.LOGTAIL_TOKEN,
-        options: {
-          endpoint: env.LOGTAIL_SOURCE,
-        },
-      },
-      level: "info",
-    });
+  if (isProd) {
+    return pino({ level: "info", base });
   }
 
-  targets.push({
-    target: "pino-pretty",
-    level: isProd ? "error" : "debug",
-    options: {
-      colorize: true,
-      translateTime: "SYS:HH:MM:ss",
-      ignore: "pid,hostname",
-    },
-  });
-
-  return {
-    targets,
-    options: {
-      level: isProd ? "info" : "debug",
-      base: {
-        app: packageJson.name,
-        version: packageJson.version,
-        env: env.NODE_ENV,
+  return pino({
+    level: "debug",
+    base,
+    transport: {
+      target: "pino-pretty",
+      options: {
+        colorize: true,
+        translateTime: "SYS:HH:MM:ss",
+        ignore: "pid,hostname",
       },
     },
-  };
-}
-
-function createRootPino() {
-  return pino({
-    transport: buildTransport(),
   });
 }
 
