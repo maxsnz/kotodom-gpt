@@ -80,8 +80,8 @@ async function bootstrap() {
 
   // Global exception filter is registered via APP_FILTER in AppModule
 
-  // Register static file serving for admin panel
-  // Serve static assets from dist-admin-web for /cp/* routes
+  // Serve the admin panel under /cp/: built assets from dist-admin-web,
+  // index.html for every other /cp route (SPA fallback)
   const fastifyInstance = app.getHttpAdapter().getInstance();
   // __dirname in compiled JS will be dist-backend/apps/backend/src, so we go up to dist-admin-web
   const adminWebPath = resolve(__dirname, "../../../../dist-admin-web");
@@ -96,14 +96,14 @@ async function bootstrap() {
 
   await fastifyInstance.register(fastifyStatic, {
     root: adminWebPath,
-    prefix: "/",
-    // decorateReply: false,
+    prefix: "/cp/",
   });
 
   fastifyInstance.addHook("onRequest", async (request, reply) => {
     const url = request.url.split("?")[0];
 
-    if (url.startsWith("/cp")) {
+    const isAdminRoute = url === "/cp" || url.startsWith("/cp/");
+    if (isAdminRoute && !url.startsWith("/cp/assets/")) {
       reply.type("text/html");
       return reply.send(indexHtmlContent);
     }

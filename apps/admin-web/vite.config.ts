@@ -13,6 +13,9 @@ const __dirname = dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   root: __dirname,
+  // The admin lives entirely under /cp/ (routes and assets) and leaves
+  // the rest of the domain to the API and webhooks.
+  base: "/cp/",
   plugins: [react(), tailwindcss()],
 
   resolve: {

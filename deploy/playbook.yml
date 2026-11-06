@@ -39,8 +39,10 @@
     compose_path: "{{ project_dir }}/docker-compose.yml"
     env_file_path: "{{ project_dir }}/.env"
     # Where the built admin-web is published (extracted from the image
-    # via `docker cp` in the deploy section). nginx serves it as static.
-    frontend_dist_dir: "/var/www/kotodom-gpt-frontend/dist"
+    # via `docker cp` in the deploy section). nginx serves it as static
+    # under /cp/, so the directory is named after that URL prefix.
+    frontend_root: "/var/www/kotodom-gpt-frontend"
+    frontend_dist_dir: "{{ frontend_root }}/cp"
 
     # ---------- Docker App ----------
     docker_app_project_dir: "{{ project_dir }}"
@@ -77,24 +79,25 @@
       REDIS_URL: >-
         redis://:{{ redis_password }}@127.0.0.1:6379/{{ redis_db_index }}
 
-      BASE_URL: "{{ BASE_URL }}"
+      BASE_URL: "https://{{ nginx_site_server_name }}"
       COOKIE_SECRET: "{{ COOKIE_SECRET }}"
       OPENAI_API_KEY: "{{ OPENAI_API_KEY }}"
 
     # ---------- Nginx (prod) ----------
-    # The kotodom.mooo.com zone is hosted on FreeDNS (afraid.org). The
-    # A record → server IP is already in place. Let's Encrypt cert is
-    # issued via webroot HTTP-01; the nginx_site role does it
-    # automatically.
+    # gpt.kotodom.online is an A record in the kotodom.online zone
+    # (GoDaddy DNS); the domain root belongs to the kotodom-online
+    # landing. Let's Encrypt cert is issued via webroot HTTP-01; the
+    # nginx_site role does it automatically. BASE_URL (Telegram webhook
+    # URLs) is derived from this name.
     nginx_site_name: "kotodom-gpt"
-    nginx_site_server_name: "kotodom.mooo.com"
-    nginx_site_aliases:
-      - "www.kotodom.mooo.com"
-    nginx_site_static_root: "{{ frontend_dist_dir }}"
+    nginx_site_server_name: "gpt.kotodom.online"
+    nginx_site_static_root: "{{ frontend_root }}"
+    # The admin SPA owns only /cp/ (assets included); other paths that
+    # are not proxied below return 404.
+    nginx_site_spa_path: "/cp/"
     nginx_site_upstream_port: "{{ env_vars.BACKEND_PORT }}"
     # The backend serves two upstream prefixes: /api/* — REST + admin
-    # API, /telegram/* — Telegraf webhooks. Everything else (/,
-    # /assets/*, ...) falls through to the SPA index.html.
+    # API, /telegram/* — Telegraf webhooks.
     nginx_site_api_prefixes:
       - "/api/"
       - "/telegram/"

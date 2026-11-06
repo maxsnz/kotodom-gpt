@@ -48,7 +48,10 @@ const App = () => {
                   {resourceStore.getRoutes()}
                 </Route>
                 <Route path="" element={<RootRedirect />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route
+                  path="*"
+                  element={<Navigate to={config.basePath} replace />}
+                />
               </Route>
             </Routes>
           </Refine>
