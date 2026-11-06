@@ -1,7 +1,13 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { PgBoss, Job, WorkHandler } from "pg-boss";
 
 import { env } from "../../../config/env";
+import {
+  AppLogger,
+  LOGGER_FACTORY,
+  type LoggerFactory,
+  createConsoleLoggerFactory,
+} from "../../logger";
 
 export type PgBossConfig = {
   connectionString: string;
@@ -28,8 +34,12 @@ export type JobHandler<TPayload> = (
 export class PgBossClient {
   private boss: PgBoss;
   private _started = false;
+  private readonly logger: AppLogger;
 
-  constructor() {
+  constructor(@Inject(LOGGER_FACTORY) loggerFactory?: LoggerFactory) {
+    const factory = loggerFactory ?? createConsoleLoggerFactory();
+    this.logger = factory(PgBossClient.name);
+
     const config: PgBossConfig = {
       connectionString: env.DATABASE_URL,
       schema: "pgboss", // optional: separate schema for jobs
@@ -39,6 +49,20 @@ export class PgBossClient {
       connectionString: config.connectionString,
       schema: config.schema,
       application_name: config.applicationName,
+    });
+
+    // pg-boss re-emits pool errors (e.g. Postgres terminating idle
+    // connections on restart) as "error" events. Without a listener the
+    // EventEmitter throws and the process exits; pg-boss reconnects on its
+    // own once the database is back.
+    this.boss.on("error", (error) => {
+      this.logger.error("pg-boss error", {
+        error: {
+          message: error.message,
+          code: (error as { code?: string }).code,
+          stack: error.stack,
+        },
+      });
     });
   }
 

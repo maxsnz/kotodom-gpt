@@ -60,6 +60,24 @@ async function bootstrap() {
   // app.flushLogs();
   const bootstrapLogger = loggerFactory("Bootstrap");
 
+  // Keep Node's crash-on-error semantics, but leave a structured log line
+  // so the cause shows up in the app logs.
+  const exitOnFatal = (kind: string, reason: unknown) => {
+    bootstrapLogger.error(kind, {
+      error:
+        reason instanceof Error
+          ? { message: reason.message, stack: reason.stack }
+          : reason,
+    });
+    process.exit(1);
+  };
+  process.on("uncaughtException", (error) =>
+    exitOnFatal("Uncaught exception", error)
+  );
+  process.on("unhandledRejection", (reason) =>
+    exitOnFatal("Unhandled rejection", reason)
+  );
+
   // Global exception filter is registered via APP_FILTER in AppModule
 
   // Register static file serving for admin panel
