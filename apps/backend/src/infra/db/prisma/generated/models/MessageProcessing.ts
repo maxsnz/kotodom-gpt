@@ -300,7 +300,7 @@ export type MessageProcessingGroupByOutputType = {
   _max: MessageProcessingMaxAggregateOutputType | null
 }
 
-type GetMessageProcessingGroupByPayload<T extends MessageProcessingGroupByArgs> = Prisma.PrismaPromise<
+export type GetMessageProcessingGroupByPayload<T extends MessageProcessingGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MessageProcessingGroupByOutputType, T['by']> &
       {
@@ -1770,6 +1770,11 @@ export type MessageProcessingFindManyArgs<ExtArgs extends runtime.Types.Extensio
    * Skip the first `n` MessageProcessings.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of MessageProcessings.
+   */
   distinct?: Prisma.MessageProcessingScalarFieldEnum | Prisma.MessageProcessingScalarFieldEnum[]
 }
 

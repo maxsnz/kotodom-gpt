@@ -248,7 +248,7 @@ export type BotGroupByOutputType = {
   _max: BotMaxAggregateOutputType | null
 }
 
-type GetBotGroupByPayload<T extends BotGroupByArgs> = Prisma.PrismaPromise<
+export type GetBotGroupByPayload<T extends BotGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<BotGroupByOutputType, T['by']> &
       {
@@ -1720,6 +1720,11 @@ export type BotFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    * Skip the first `n` Bots.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Bots.
+   */
   distinct?: Prisma.BotScalarFieldEnum | Prisma.BotScalarFieldEnum[]
 }
 
