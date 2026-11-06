@@ -91,6 +91,13 @@
     # URLs) is derived from this name.
     nginx_site_name: "kotodom-gpt"
     nginx_site_server_name: "gpt.kotodom.online"
+    # kotodom.mooo.com (FreeDNS A record -> this box) is the REALITY SNI
+    # of the kotodom-vpn exit on :8443, so it is kept as a real HTTPS
+    # name on :443 that redirects here. The role issues the cert only
+    # when none exists; adding an alias later needs a one-off
+    # `certbot certonly --webroot --expand` with all names.
+    nginx_site_aliases:
+      - "kotodom.mooo.com"
     nginx_site_static_root: "{{ frontend_root }}"
     # The admin SPA owns only /cp/ (assets included); other paths that
     # are not proxied below return 404.
