@@ -89,7 +89,11 @@ describe("OpenAIClient", () => {
       expect(mockResponsesCreate).toHaveBeenCalledWith({
         model: "gpt-4o-mini",
         instructions: "You are a helpful assistant.",
-        input: "Hello, how are you?",
+        input: [
+          { role: "system", content: 'User name is "test-user"' },
+          { role: "user", content: "Hello, how are you?" },
+        ],
+        store: true,
         user: "test-user",
         max_output_tokens: 800,
       });
@@ -177,7 +181,11 @@ describe("OpenAIClient", () => {
       expect(mockResponsesCreate).toHaveBeenCalledWith({
         model: "gpt-4o",
         instructions: defaultParams.prompt,
-        input: defaultParams.messageText,
+        input: [
+          { role: "system", content: 'User name is "test-user"' },
+          { role: "user", content: defaultParams.messageText },
+        ],
+        store: true,
         user: "test-user",
         max_output_tokens: 800,
       });
@@ -207,7 +215,11 @@ describe("OpenAIClient", () => {
       expect(mockResponsesCreate).toHaveBeenCalledWith({
         model: "gpt-5-nano",
         instructions: "You are a coding assistant.",
-        input: "How do I write a function?",
+        input: [
+          { role: "system", content: 'User name is "test-user"' },
+          { role: "user", content: "How do I write a function?" },
+        ],
+        store: true,
         user: "test-user",
         max_output_tokens: 800,
       });

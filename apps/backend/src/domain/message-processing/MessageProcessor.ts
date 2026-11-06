@@ -154,6 +154,45 @@ export class MessageProcessor {
         await this.deps.messageProcessingRepository.findByUserMessageId(
           userMessageId
         );
+
+      if (updatedProcessing?.responseMessageId) {
+        // Message was created and sent during streaming
+        this.deps.logger.debug?.(
+          "Message was created during streaming, skipping save/send",
+          {
+            botId,
+            userMessageId,
+            responseMessageId: updatedProcessing.responseMessageId,
+          }
+        );
+      } else {
+        // Non-streaming results (commands such as /start and /help) are
+        // saved and sent here
+        const saveResult = await this.saveResponse(
+          generationResult,
+          botId,
+          userMessageId
+        );
+
+        const price =
+          generationResult.pricing?.totalCost !== undefined
+            ? createDecimal(generationResult.pricing.totalCost)
+            : undefined;
+        await this.deps.messageProcessingRepository.markResponseGenerated(
+          userMessageId,
+          saveResult.botMessage.id,
+          price,
+          generationResult.rawResponse
+        );
+
+        // Step 5: Send response
+        await this.deps.responseSender.sendResponse(
+          saveResult,
+          botId,
+          this.deps.logger,
+          userMessageId
+        );
+      }
     } else {
       // Response already generated, check if it needs to be sent
       if (!processing.responseSentAt) {
