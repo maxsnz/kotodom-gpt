@@ -39,6 +39,5 @@ bun.lock
 # the local (potentially stale) copy does not belong in the context.
 apps/backend/src/infra/db/prisma/generated
 
-# Legacy code and temporary directories
-old
+# Temporary directories
 creds

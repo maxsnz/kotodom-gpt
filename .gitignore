@@ -29,6 +29,5 @@ dist-shared-contracts
 .env
 .adminjs
 creds
-old/*
 # Claude Code (local agent state)
 .claude/

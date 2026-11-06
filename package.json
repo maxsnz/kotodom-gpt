@@ -20,17 +20,16 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@fastify/cookie": "^11.0.2",
-    "@fastify/static": "^9.3.0",
-    "@koa/router": "^12.0.1",
+    "@fastify/static": "^10.1.10",
     "@mantine/core": "^8.3.11",
     "@mantine/dates": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "@mantine/modals": "^8.3.11",
     "@mantine/notifications": "^8.3.11",
     "@microlink/react-json-view": "^1.27.1",
-    "@nestjs/common": "^11.1.11",
-    "@nestjs/core": "^11.1.18",
-    "@nestjs/platform-fastify": "^11.1.28",
+    "@nestjs/common": "^11.2.8",
+    "@nestjs/core": "^11.2.8",
+    "@nestjs/platform-fastify": "^11.2.8",
     "@nestjs/throttler": "^6.5.0",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
@@ -41,22 +40,16 @@
     "@refinedev/nestjsx-crud": "^6.0.1",
     "@refinedev/react-router": "^2.0.3",
     "@refinedev/react-table": "^6.0.1",
-    "@refinedev/simple-rest": "^6.0.1",
     "@tabler/icons-react": "^3.36.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4.1.18",
     "@tailwindcss/vite": "^4.1.18",
-    "@types/koa": "^2.13.12",
-    "@types/koa__router": "^12.0.4",
     "argon2": "^0.44.0",
     "axios": "^1.21.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.19",
     "dotenv": "^16.3.1",
     "https-proxy-agent": "^7.0.2",
-    "koa": "^2.14.2",
-    "koa-body": "^6.0.1",
-    "koa2-formidable": "^1.0.3",
     "mantine-react-table": "^2.0.0-beta.9",
     "node-fetch": "^3.3.2",
     "openai": "^6.16.0",
@@ -78,7 +71,7 @@
   "devDependencies": {
     "@jest/test-sequencer": "^30.2.0",
     "@nestjs/cli": "^11.0.17",
-    "@nestjs/testing": "^11.1.11",
+    "@nestjs/testing": "^11.2.8",
     "@types/bcrypt": "^6.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^25.0.3",
@@ -90,7 +83,6 @@
     "jest-environment-node": "^30.2.0",
     "ts-jest": "^29.4.6",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.52.0",
     "vite": "^7.3.7"
   },
   "overrides": {
@@ -101,8 +93,13 @@
     },
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "fastify": "^5.12.5",
-    "find-my-way": "^9.7.0",
-    "qs": "^6.16.0"
+    "fastify": "^5.12.6",
+    "qs": "^6.16.0",
+    "@nestjs/cli": {
+      "glob": "^14.0.3"
+    },
+    "@npmcli/package-json": {
+      "glob": "^14.0.3"
+    }
   }
 }
